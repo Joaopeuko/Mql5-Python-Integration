@@ -3,6 +3,8 @@ from Include.tick import Tick
 from Include.rates import Rates
 from Include.indicator_connector import Indicator
 
+# You need this MQL5 service to use indicator:
+# https://www.mql5.com/en/market/product/57574
 indicator = Indicator()
 
 trade = Trade('Example',  # Expert name
@@ -22,7 +24,8 @@ trade = Trade('Example',  # Expert name
 
 time = 0
 while True:
-
+    # You need this MQL5 service to use indicator:
+    # https://www.mql5.com/en/market/product/57574
     stochastic = indicator.stochastic(symbol=trade.symbol)
 
     tick = Tick(trade.symbol)

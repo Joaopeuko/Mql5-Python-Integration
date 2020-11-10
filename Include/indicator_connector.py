@@ -3,7 +3,8 @@ import json
 
 
 # To be able to use it you need the MQL5 Service to send the data, it is possible to found it here:
-# URL
+# Free:
+#   https://www.mql5.com/en/market/product/57574
 
 class Indicator:
     def __init__(self,
