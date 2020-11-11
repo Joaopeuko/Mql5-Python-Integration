@@ -26,6 +26,7 @@ class Indicator:
                         symbol,
                         time_frame=1,
                         period=20,
+                        start_position=0,  # Change it if you want past values, zero is the most recent.
                         ma_shift=0,
                         deviation=2.000,
                         # applied_price:
@@ -44,6 +45,7 @@ class Indicator:
                        f"{symbol},"
                        f"{time_frame},"
                        f"{period},"
+                       f"{start_position},"
                        f"{ma_shift},"
                        f"{deviation},"
                        f"{applied_price}")
@@ -72,6 +74,7 @@ class Indicator:
              fast_ema_period=12,
              slow_ema_period=26,
              signal_period=9,
+             start_position=0,  # Change it if you want past values, zero is the most recent.
              # applied_price:
              # 0 - PRICE_CLOSE
              # 1 - PRICE_OPEN
@@ -90,6 +93,7 @@ class Indicator:
                        f"{fast_ema_period},"
                        f"{slow_ema_period},"
                        f"{signal_period},"
+                       f"{start_position},"
                        f"{applied_price}")
 
             client_socket.send(bytes(message, 'utf-8'))
@@ -137,7 +141,7 @@ class Indicator:
                        f"{symbol},"
                        f"{time_frame},"
                        f"{period},"
-                       f"{start_position},"  # Change it if you want past values, zero is the most recent.
+                       f"{start_position}," 
                        f"{method},"
                        f"{applied_price}")
 
@@ -163,6 +167,7 @@ class Indicator:
     def obv(self,
             symbol,
             time_frame=1,
+            start_position=0,  # Change it if you want past values, zero is the most recent.
             # applied_volume:
             # 0 - VOLUME_TICK
             # 1 - VOLUME_REAL
@@ -173,6 +178,7 @@ class Indicator:
             message = (f"obv,"
                        f"{symbol},"
                        f"{time_frame},"
+                       f"{start_position},"
                        f"{applied_volume}")
 
             client_socket.send(bytes(message, 'utf-8'))
@@ -219,7 +225,7 @@ class Indicator:
                        f"{k_period},"
                        f"{d_period},"
                        f"{slowing},"
-                       f"{start_position},"  # Change it if you want past values, zero is the most recent.
+                       f"{start_position},"
                        f"{method},"
                        f"{applied_price}")
 
