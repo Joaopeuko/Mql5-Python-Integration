@@ -16,7 +16,7 @@ Thus, I created this library, aiming to transform the experience of Expert Advis
 
 [pip](https://www.mql5.com/en/docs/integration/python_metatrader5) install MetaTrader5
 
-```bash
+```python
 pip install MetaTrader5
 ```
 
@@ -57,7 +57,7 @@ The python code that is used in this example is the server-side that waits for t
 To use the indicator in the expert advisor, you can call it providing the symbol name, all the other variables have pre-configured values. It always uses a time_frame for 1 minute.
 
 [example_sockets_connection.py](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/ExpertAdvisor/example_sockets_connection.py) 
-```bash
+```python
 from Include.indicator_connector import Indicator
 
 indicator = Indicator()
@@ -67,7 +67,7 @@ moving_average = indicator.moving_average(symbol='PETR4')  # Brazilian Stock
 
 You can check [this](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/Include/indicator_connector.py) file to find some tips when calling an indicator, for example, on how to change the method or the applied price.
 
-```bash
+```python
  def moving_average(self,
                        symbol,
                        time_frame=1,
@@ -94,7 +94,7 @@ When using the indicators, please use try and except; sometimes the result can r
 
 [example_sockets_connection.py](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/ExpertAdvisor/example_sockets_connection.py) 
 
-```bash
+```python
 from Include.indicator_connector import Indicator
 
 indicator = Indicator()
@@ -107,7 +107,7 @@ while True:
 ```
 
 The indicator result is a dictionary.
-```bash
+```python
 print(moving_average)
 {'symbol': 'PETR4', 'time_frame': 1, 'period': 50, 'start_position': 0, 'method': 0, 'applied_price': 0, 'moving_average_result': 23.103}
 
