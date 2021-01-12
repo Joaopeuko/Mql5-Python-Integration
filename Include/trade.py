@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import MetaTrader5 as Mt5
 
 
-class Trade(object):
+class Trade:
     def __init__(self,
                  expert_name,
                  version,
@@ -37,7 +37,9 @@ class Trade(object):
         self.loss_deals = 0
         self.profit_deals = 0
         self.total_deals = 0
-        self.balance = 0
+        self.balance = 0.0
+
+        self.ticket = 0
 
         print('\nInitializing the basics.')
         self.initialize()
@@ -112,6 +114,8 @@ class Trade(object):
         point = Mt5.symbol_info(self.symbol).point
         price = Mt5.symbol_info_tick(self.symbol).ask
 
+        self.ticket = (Mt5.positions_get()[0].ticket if len(Mt5.positions_get()) == 1 else 0)
+
         request = {
             "action": Mt5.TRADE_ACTION_DEAL,
             "symbol": self.symbol,
@@ -125,6 +129,7 @@ class Trade(object):
             "comment": comment,
             "type_time": Mt5.ORDER_TIME_GTC,
             "type_filling": Mt5.ORDER_FILLING_RETURN,
+            "position": (Mt5.positions_get()[0].ticket if len(Mt5.positions_get()) == 1 else 0)
         }
         result = Mt5.order_send(request)
         self.request_result(price, result)
@@ -133,6 +138,8 @@ class Trade(object):
     def open_sell_position(self, comment=''):
         point = Mt5.symbol_info(self.symbol).point
         price = Mt5.symbol_info_tick(self.symbol).bid
+
+        self.ticket = (Mt5.positions_get()[0].ticket if len(Mt5.positions_get()) == 1 else 0)
 
         request = {
             "action": Mt5.TRADE_ACTION_DEAL,
@@ -147,6 +154,7 @@ class Trade(object):
             "comment": comment,
             "type_time": Mt5.ORDER_TIME_GTC,
             "type_filling": Mt5.ORDER_FILLING_RETURN,
+            "position": (Mt5.positions_get()[0].ticket if len(Mt5.positions_get()) == 1 else 0)
         }
         result = Mt5.order_send(request)
         self.request_result(price, result)
@@ -205,24 +213,24 @@ class Trade(object):
                 self.profit_deals += 1
                 self.close_position(comment)
                 print(f'Take profit reached. ('
-                      f'{int(Mt5.history_deals_get((datetime.today() - timedelta(days=1)), datetime.now())[-1].profit)}'
+                      f'{Mt5.history_deals_get((datetime.today() - timedelta(days=1)), datetime.now())[-1].profit}'
                       f')\n')
                 if Mt5.history_deals_get((datetime.today() - timedelta(days=1)), datetime.now())[-1].symbol == \
                         self.symbol:
-                    self.balance += int(Mt5.history_deals_get((datetime.today() - timedelta(days=1)),
-                                                              datetime.now())[-1].profit)
+                    self.balance += (Mt5.history_deals_get((datetime.today() - timedelta(days=1)),
+                                                           datetime.now())[-1].profit)
                 self.statistics()
 
             elif ((points / Mt5.symbol_info(self.symbol).point) * -1) >= self.stop_loss:
                 self.loss_deals += 1
                 self.close_position(comment)
                 print(f'Stop loss reached. ('
-                      f'{int(Mt5.history_deals_get((datetime.today() - timedelta(days=1)), datetime.now())[-1].profit)}'
+                      f'{Mt5.history_deals_get((datetime.today() - timedelta(days=1)), datetime.now())[-1].profit}'
                       f')\n')
                 if Mt5.history_deals_get((datetime.today() - timedelta(days=1)), datetime.now())[-1].symbol == \
                         self.symbol:
-                    self.balance += int(Mt5.history_deals_get((datetime.today() - timedelta(days=1)),
-                                                              datetime.now())[-1].profit)
+                    self.balance += (Mt5.history_deals_get((datetime.today() - timedelta(days=1)),
+                                                           datetime.now())[-1].profit)
                 self.statistics()
 
     def days_end(self):
