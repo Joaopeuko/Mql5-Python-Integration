@@ -1,8 +1,9 @@
+import math
+import numpy as np
+import MetaTrader5 as Mt5
 from include.trade import Trade
 from include.tick import Tick
 from include.rates import Rates
-import numpy as np
-import MetaTrader5 as Mt5
 from include.utilities import Utilities
 
 util = Utilities()
@@ -40,17 +41,13 @@ while True:
         util.minutes_counter_after_trade(trade.symbol, delay_after_trade)
 
         # Zones:
-        zone_236 = int(trade.sl_tp_steps) * round(((np.amax(rates.high) -
-                                                    np.amin(rates.low)) * 0.236) / int(trade.sl_tp_steps))  # 23.60%
+        zone_236 = round(((np.amax(rates.high) - np.amin(rates.low)) * 23.6) * 1000)  # 38.20%  # 23.60%
 
-        zone_382 = int(trade.sl_tp_steps) * round(((np.amax(rates.high) -
-                                                    np.amin(rates.low)) * 0.381) / int(trade.sl_tp_steps))  # 38.20%
+        zone_382 = round(((np.amax(rates.high) - np.amin(rates.low)) * 38.1) * 1000)  # 38.20%
 
-        zone_500 = int(trade.sl_tp_steps) * round(((np.amax(rates.high) -
-                                                    np.amin(rates.low)) * 0.500) / int(trade.sl_tp_steps))  # 50.00%
+        zone_500 = round(((np.amax(rates.high) - np.amin(rates.low)) * 50.0) * 1000)  # 38.20%  # 50.00%
 
-        zone_618 = int(trade.sl_tp_steps) * round(((np.amax(rates.high) -
-                                                    np.amin(rates.low)) * 0.618) / int(trade.sl_tp_steps))  # 61.80%
+        zone_618 = round(((np.amax(rates.high) - np.amin(rates.low)) * 61.8) * 1000)  # 38.20%  # 61.80%
 
         # Bull trend:
         if np.where(rates.low == np.amin(rates.low))[0][0] - np.where(rates.high == np.amax(rates.high))[0][0] < 0:
@@ -85,7 +82,7 @@ while True:
 
         trade.emergency_stop_loss = trade.stop_loss
         trade.emergency_take_profit = trade.take_profit
-        trade.open_position(buy, sell, '')
+        trade.open_position(buy, sell, "")
 
     time = tick.time_msc
 
