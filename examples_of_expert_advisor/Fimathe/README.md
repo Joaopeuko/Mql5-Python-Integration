@@ -15,7 +15,8 @@ ___
   - Forex:
     - [EURUSD](#eurusd)
   - B3 - Brazilian Stock Exchange:
-    - [WIN]()
+    - [WIN](#win)
+    
 
   
 
