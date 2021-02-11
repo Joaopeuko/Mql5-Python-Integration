@@ -41,13 +41,13 @@ while True:
         util.minutes_counter_after_trade(trade.symbol, delay_after_trade)
 
         # Zones:
-        zone_236 = round(((np.amax(rates.high) - np.amin(rates.low)) * 23.6) * 1000)  # 38.20%  # 23.60%
+        zone_236 = round(((np.amax(rates.high) - np.amin(rates.low)) * 23.6) * 1000)  # 23.60%
 
         zone_382 = round(((np.amax(rates.high) - np.amin(rates.low)) * 38.1) * 1000)  # 38.20%
 
-        zone_500 = round(((np.amax(rates.high) - np.amin(rates.low)) * 50.0) * 1000)  # 38.20%  # 50.00%
+        zone_500 = round(((np.amax(rates.high) - np.amin(rates.low)) * 50.0) * 1000)  # 50.00%
 
-        zone_618 = round(((np.amax(rates.high) - np.amin(rates.low)) * 61.8) * 1000)  # 38.20%  # 61.80%
+        zone_618 = round(((np.amax(rates.high) - np.amin(rates.low)) * 61.8) * 1000)  # 61.80%
 
         # Bull trend:
         if np.where(rates.low == np.amin(rates.low))[0][0] - np.where(rates.high == np.amax(rates.high))[0][0] < 0:
