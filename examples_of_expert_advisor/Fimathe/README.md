@@ -11,7 +11,7 @@ It covers only continuity.
 ___
 - [Strategy](#strategy)
 
-- [Example]()
+- [Example](#example)
   - Forex:
     - [EURUSD](#eurusd)
   - B3 - Brazilian Stock Exchange:
