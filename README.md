@@ -1,5 +1,11 @@
 # Mql5-Python-Integration
 
+## Patron who makes the difference!
+
+1 - Joshua Greer
+
+Help me make it possible. Be my [Patreon](https://www.patreon.com/joaopeuko).
+
 ## Introduction
 
 I created this library because the development of an Expert Advisor in MQL5 can be complicated,while, in python, the same task flows better. 
