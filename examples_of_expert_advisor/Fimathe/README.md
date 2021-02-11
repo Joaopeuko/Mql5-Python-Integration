@@ -125,6 +125,6 @@ if len(Mt5.positions_get(symbol=trade.symbol)) == 1:
 ## Example:
 
 - ## Forex:
-  - ## EURUSD
+  - ## [EURUSD](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/examples_of_expert_advisor/Fimathe/eurusd_fimathe.py)
 - ## B3 - Brazilian Stock Exchange:
   - ## [WIN](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/examples_of_expert_advisor/Fimathe/win_fimathe.py)
