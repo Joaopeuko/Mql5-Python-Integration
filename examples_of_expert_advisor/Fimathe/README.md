@@ -8,20 +8,20 @@ This strategy does not cover price reversion.
 It covers only continuity.
 
 # Table of contents:
-___
+
 - [Strategy](#strategy)
 
 - [Example](#example)
-  - Forex:
+  - [Forex:](#forex)
     - [EURUSD](#eurusd)
-  - B3 - Brazilian Stock Exchange:
+  - [B3 - Brazilian Stock Exchange:](#b3---brazilian-stock-exchange)
     - [WIN](#win)
     
 
   
 
 ## Strategy:
-___
+
 The initial setup is the area that the price has the freedom to move, which goes from 0, the most recent candle,
 to the 5 past candles.
 ```python
@@ -123,8 +123,8 @@ if len(Mt5.positions_get(symbol=trade.symbol)) == 1:
 ```
 
 ## Example:
-___
+
 - ## Forex:
   - ## EURUSD
 - ## B3 - Brazilian Stock Exchange:
-  - ## WIN
+  - ## [WIN](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/examples_of_expert_advisor/Fimathe/win_fimathe.py)
