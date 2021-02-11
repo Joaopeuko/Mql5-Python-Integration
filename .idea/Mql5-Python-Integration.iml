@@ -4,7 +4,7 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/tensor-venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.8 (Python.MT5)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.8 (Mql5-Python-Integration)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

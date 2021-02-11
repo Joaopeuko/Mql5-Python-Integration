@@ -56,9 +56,10 @@ The python code that is used in this example is the server-side that waits for t
  
 To use the indicator in the expert advisor, you can call it providing the symbol name, all the other variables have pre-configured values. It always uses a time_frame for 1 minute.
 
-[example_sockets_connection.py](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/ExpertAdvisor/example_sockets_connection.py) 
+[example_sockets_connection.py](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/ExpertAdvisor/example_sockets_connection.py)
+
 ```python
-from Include.indicator_connector import Indicator
+from include.indicator_connector import Indicator
 
 indicator = Indicator()
 
@@ -92,10 +93,10 @@ You can check [this](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/m
 
 When using the indicators, please use try and except; sometimes the result can return "None."
 
-[example_sockets_connection.py](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/ExpertAdvisor/example_sockets_connection.py) 
+[example_sockets_connection.py](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/ExpertAdvisor/example_sockets_connection.py)
 
 ```python
-from Include.indicator_connector import Indicator
+from include.indicator_connector import Indicator
 
 indicator = Indicator()
 

@@ -8,7 +8,7 @@ class Trade:
                  version,
                  symbol,
                  magic_number,
-                 lot,
+                 lot: float,
                  stop_loss,  # It calls a functions that tries to close the deal, it is the stop you want.
                  emergency_stop_loss,  # It set stop on chart as a protection
                  # if something went wrong with the stop_loss.
@@ -110,7 +110,7 @@ class Trade:
             print(f'Accuracy: {round((self.profit_deals / self.total_deals) * 100, 2)}%.\n')
 
     # It is to open a Buy position.
-    def open_buy_position(self, comment=''):
+    def open_buy_position(self, comment=""):
         point = Mt5.symbol_info(self.symbol).point
         price = Mt5.symbol_info_tick(self.symbol).ask
 
@@ -126,7 +126,7 @@ class Trade:
             "tp": price + self.emergency_take_profit * point,
             "deviation": 5,
             "magic": self.magic_number,
-            "comment": comment,
+            "comment": str(comment),
             "type_time": Mt5.ORDER_TIME_GTC,
             "type_filling": Mt5.ORDER_FILLING_RETURN,
             "position": (Mt5.positions_get()[0].ticket if len(Mt5.positions_get()) == 1 else 0)
@@ -135,7 +135,7 @@ class Trade:
         self.request_result(price, result)
 
     # It is to open a Sell position.
-    def open_sell_position(self, comment=''):
+    def open_sell_position(self, comment=""):
         point = Mt5.symbol_info(self.symbol).point
         price = Mt5.symbol_info_tick(self.symbol).bid
 
@@ -151,7 +151,7 @@ class Trade:
             "tp": price - self.emergency_take_profit * point,
             "deviation": 5,
             "magic": self.magic_number,
-            "comment": comment,
+            "comment": str(comment),
             "type_time": Mt5.ORDER_TIME_GTC,
             "type_filling": Mt5.ORDER_FILLING_RETURN,
             "position": (Mt5.positions_get()[0].ticket if len(Mt5.positions_get()) == 1 else 0)
@@ -174,7 +174,7 @@ class Trade:
             else:
                 print(f'Position Closed: {result.price}')
 
-    def open_position(self, buy, sell, comment=''):
+    def open_position(self, buy, sell, comment=""):
         if (len(Mt5.positions_get(symbol=self.symbol)) == 0) and self.trading_time():
             if buy and not sell:
                 self.open_buy_position(comment)
@@ -191,7 +191,7 @@ class Trade:
             self.close_position(comment)
             self.summary()
 
-    def close_position(self, comment=''):
+    def close_position(self, comment=""):
         # buy (0) and sell(1)
         if len(Mt5.positions_get(symbol=self.symbol)) == 1:
 
@@ -201,7 +201,7 @@ class Trade:
             elif Mt5.positions_get(symbol=self.symbol)[0].type == 1:  # if Sell
                 self.open_buy_position(comment)
 
-    def stop_and_gain(self, comment=''):
+    def stop_and_gain(self, comment=""):
         if len(Mt5.positions_get()) == 1:
 
             points = (Mt5.positions_get()[0].profit *

@@ -1,7 +1,7 @@
-from Include.trade import Trade
-from Include.tick import Tick
-from Include.rates import Rates
-from Include.indicator_connector import Indicator
+from include.trade import Trade
+from include.tick import Tick
+from include.rates import Rates
+from include.indicator_connector import Indicator
 import MetaTrader5 as Mt5
 
 # You need this MQL5 service to use indicator:
