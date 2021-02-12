@@ -25,8 +25,8 @@ trade = Trade('Example',  # Expert name
 buy = False
 sell = False
 
-delay_after_trade = 5
-space_to_trade = 5
+delay_after_trade = 3
+space_to_trade = 3
 period = 15
 
 time = 0
@@ -52,7 +52,7 @@ while True:
         if np.where(rates.low == np.amin(rates.low))[0][0] - np.where(rates.high == np.amax(rates.high))[0][0] < 0:
 
             # Buy
-            buy = tick.last > np.amax(rates.high) + zone_382 and \
+            buy = tick.last > np.amax(rates.high) + (zone_382 / 1000) and \
                   util.minutes_counter_after_trade(trade.symbol, delay_after_trade)
 
             if buy:
@@ -63,7 +63,7 @@ while True:
         if np.where(rates.low == np.amin(rates.low))[0][0] - np.where(rates.high == np.amax(rates.high))[0][0] > 0:
 
             # Sell
-            sell = tick.last < np.amin(rates.low) - zone_382 and \
+            sell = tick.last < np.amin(rates.low) - (zone_382 / 1000) and \
                    util.minutes_counter_after_trade(trade.symbol, delay_after_trade)
             if sell:
                 trade.stop_loss = zone_382
