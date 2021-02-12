@@ -1,4 +1,3 @@
-import math
 import numpy as np
 import MetaTrader5 as Mt5
 from include.trade import Trade

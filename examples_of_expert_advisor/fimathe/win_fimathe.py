@@ -1,9 +1,10 @@
+import numpy as np
+import MetaTrader5 as Mt5
 from include.trade import Trade
 from include.tick import Tick
 from include.rates import Rates
-import numpy as np
-import MetaTrader5 as Mt5
 from include.utilities import Utilities
+
 
 util = Utilities()
 
