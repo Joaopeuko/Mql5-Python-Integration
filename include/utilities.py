@@ -33,7 +33,7 @@ class Utilities:
             self.__counter_flag = True
 
         if self.__minutes_counter == count_until:
-            print(f"Your Expert Advisor is allowed to trade.")
+            print(f"Your Expert Advisor is allowed to trade.\n")
             self.__minutes_counter = 0
             self.__counter_flag = True
             self.__allow_to_count = False
