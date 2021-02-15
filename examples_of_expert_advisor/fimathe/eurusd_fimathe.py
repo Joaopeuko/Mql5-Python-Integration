@@ -55,9 +55,7 @@ while True:
             buy = tick.ask > np.amax(rates.high) + (zone_382 / 100000) and \
                   util.minutes_counter_after_trade(trade.symbol, delay_after_trade)
             if buy:
-                print('Buy')
-                print('Buy ', np.amax(rates.high) - (zone_236 / 100000), np.amax(rates.high))
-                print('Sell ', np.amin(rates.low) + (zone_236 / 100000), np.amin(rates.low))
+
                 trade.stop_loss = zone_236
                 trade.take_profit = zone_618
 
@@ -68,9 +66,7 @@ while True:
             sell = tick.bid < np.amin(rates.low) - (zone_382 / 100000) and \
                    util.minutes_counter_after_trade(trade.symbol, delay_after_trade)
             if sell:
-                print('Sell')
-                print('Buy ', np.amax(rates.high) - (zone_236 / 100000), np.amax(rates.high))
-                print('Sell ', np.amin(rates.low) + (zone_236 / 100000), np.amin(rates.low))
+
                 trade.stop_loss = zone_236
                 trade.take_profit = zone_618
 
