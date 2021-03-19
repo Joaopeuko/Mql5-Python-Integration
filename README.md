@@ -49,7 +49,7 @@ That problem can be solved:
 - Re-creating all the indicators
 - Creating a connection with MetaTrader5, asking for some indicators.
 
-This example uses a socket connection to simplify the usage of indicators and it shows how easy it is to implement. You can find the indicator connection file [here](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/Include/indicator_connector.py).
+This example uses a socket connection to simplify the usage of indicators and it shows how easy it is to implement. You can find the indicator connection file [here](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/include/indicator_connector.py).
 
 To be able to use socket connection you need the client-side and the server-side to allow the communication.
 
