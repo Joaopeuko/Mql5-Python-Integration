@@ -33,13 +33,13 @@ There is an expert advisor example for each different technology in the Expert A
 
 ### Simple Example 
 
-[example.py](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/ExpertAdvisor/example.py)
+[example.py](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/examples_of_expert_advisor/example.py)
 
  It uses just the MetaTrader5 library in the implementation. 
 
 ### Socket Example
 
-[example_sockets_connection.py](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/ExpertAdvisor/example_sockets_connection.py) 
+[example_sockets_connection.py](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/examples_of_expert_advisor/example_sockets_connection.py) 
 
 
 The “MetaTrader module for integration with Python” enables a wide range of possibilities; still, there is space for improvement. For instance, it lacks a connection to indicators.
@@ -62,7 +62,7 @@ The python code that is used in this example is the server-side that waits for t
  
 To use the indicator in the expert advisor, you can call it providing the symbol name, all the other variables have pre-configured values. It always uses a time_frame for 1 minute.
 
-[example_sockets_connection.py](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/ExpertAdvisor/example_sockets_connection.py)
+[example_sockets_connection.py](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/examples_of_expert_advisor/example_sockets_connection.py)
 
 ```python
 from include.indicator_connector import Indicator
@@ -72,7 +72,7 @@ indicator = Indicator()
 moving_average = indicator.moving_average(symbol='PETR4')  # Brazilian Stock 
 ```
 
-You can check [this](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/Include/indicator_connector.py) file to find some tips when calling an indicator, for example, on how to change the method or the applied price.
+You can check [this](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/include/indicator_connector.py) file to find some tips when calling an indicator, for example, on how to change the method or the applied price.
 
 ```python
  def moving_average(self,
@@ -99,7 +99,7 @@ You can check [this](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/m
 
 When using the indicators, please use try and except; sometimes the result can return "None."
 
-[example_sockets_connection.py](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/ExpertAdvisor/example_sockets_connection.py)
+[example_sockets_connection.py](https://github.com/Joaopeuko/Mql5-Python-Integration/blob/master/examples_of_expert_advisor/example_sockets_connection.py)
 
 ```python
 from include.indicator_connector import Indicator
