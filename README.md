@@ -2,8 +2,6 @@
 
 ## Patron who makes the difference!
 
-1 - Joshua Greer
-
 Help me make it possible. Be my [Patreon](https://www.patreon.com/joaopeuko).
 
 ## Introduction
