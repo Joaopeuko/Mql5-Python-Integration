@@ -1,5 +1,25 @@
 # Mql5-Python-Integration
 
+I am working on a **new project** based on this one! 
+This new project is splitted into modules. 
+You can find the release of the **first module** on the links below.
+
+Keep in mind that **some features** that you can find on Mql5-Python-Integration **are not presented yet** on the new one, 
+but **I will add the features** and many new ones.
+
+
+My page:
+https://joaopeuko.github.io/
+
+Pypi of the first module:
+https://pypi.org/project/metatrader5EasyT/
+
+GitHub project
+https://github.com/Joaopeuko/metatrader5EasyT
+
+Project documentation
+https://joaopeuko.github.io/metatrader5EasyT/
+
 ## Patron who makes the difference!
 
 Help me make it possible. Be my [Patreon](https://www.patreon.com/joaopeuko).
