@@ -29,8 +29,7 @@ jobs:
         if: github.event_name == 'push'
         run: |
             poetry config repositories.test-pypi https://test.pypi.org/legacy/
-            poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_API_TOKEN }}
-            poetry publish --build -r test-pypi
+            poetry publish --build -r ${{ secrets.TEST_PYPI_API_TOKEN }} test-pypi
 
       - name: Build and Publish to Official PyPI
         if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.base.ref == 'master'
