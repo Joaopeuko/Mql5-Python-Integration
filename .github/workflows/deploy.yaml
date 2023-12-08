@@ -31,7 +31,10 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install --upgrade setuptools
           python3 -m pip install install wheel twine
-          python3 -m pip install -r requirements.txt
+          python3 -m pip install --upgrade pip
+          python3 -m pip install poetry
+          python3 -m poetry install
+
 
       # Run coverage file
       - name: Run coverage file
