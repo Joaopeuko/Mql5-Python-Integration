@@ -11,3 +11,6 @@ def configure_logger():
     )
 
     return logger
+
+
+log = configure_logger
