@@ -9,47 +9,31 @@ on:
     tags:
       - v*
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build-and-publish"
   build-and-publish:
-    # The type of runner that the job will run on
     runs-on: windows-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
 
-      # Install dependencies
       - name: Install dependencies
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install --upgrade setuptools
-          python3 -m pip install install wheel twine
-          python3 -m pip install --upgrade pip
-          python3 -m pip install poetry
-          python3 -m poetry install
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade setuptools
+          python -m pip install poetry
 
-      # Try to publish to Test Pypi
-      - name: Publish distribution to Test PyPI
+      - name: Build and publish
         env:
-          TWINE_USERNAME: ${{ secrets.PYPI_API_USERNAME }}
+          TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
         run: |
-          python3 setup.py sdist bdist_wheel
-          twine upload --skip-existing --repository-url https://test.pypi.org/legacy/ dist/*
+          python -m poetry build
+          python -m poetry publish --build --repository testpypi
 
-      # When there is a new tag, publish to PyPi
-      - name: Publish distribution to PyPI
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_API_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: |
-          python3 setup.py sdist bdist_wheel
-          twine upload dist/*
+          if [[ "${{ github.ref }}" == "refs/tags/v"* ]]; then
+            python -m poetry publish --build
+          fi
