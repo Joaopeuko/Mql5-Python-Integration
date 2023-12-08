@@ -1,38 +1,58 @@
-name: Deploy to PyPI
+name: Publish distributions
 
+# Controls when the workflow will run
 on:
+  # Triggers the workflow on push request events but only for the master branch
   push:
     branches:
       - '*'
-  pull_request:
-    types:
-      - closed
+    tags:
+      - v*
 
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  deploy:
+  # This workflow contains a single job called "build-and-publish"
+  build-and-publish:
+    # The type of runner that the job will run on
     runs-on: windows-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
 
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
 
-      - name: Install Dependencies
+      # Install dependencies
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install poetry
+          python3 -m pip install --upgrade pip
+          python3 -m pip install --upgrade setuptools
+          python3 -m pip install install wheel twine
+          python3 -m pip install -r requirements.txt
 
-      - name: Build and Publish to Test PyPI
-        if: github.event_name == 'push'
+      # Run coverage file
+      - name: Run coverage file
         run: |
-            poetry config repositories.test-pypi https://test.pypi.org/legacy/
-            poetry publish --build -r ${{ secrets.TEST_PYPI_API_TOKEN }} test-pypi
+          coverage run -m pytest --cache-clear --cov-report term-missing --cov=metatrader5EasyT > pytest-coverage.txt
 
-      - name: Build and Publish to Official PyPI
-        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.base.ref == 'master'
+      # Try to publish to Test Pypi
+      - name: Publish distribution to Test PyPI
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_API_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
         run: |
-          poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
-          poetry publish --build
+          python3 setup.py sdist bdist_wheel
+          twine upload --skip-existing --repository-url https://test.pypi.org/legacy/ dist/*
+
+      # When there is a new tag, publish to PyPi
+      - name: Publish distribution to PyPI
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_API_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          python3 setup.py sdist bdist_wheel
+          twine upload dist/*
