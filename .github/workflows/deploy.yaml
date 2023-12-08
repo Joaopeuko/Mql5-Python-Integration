@@ -35,12 +35,6 @@ jobs:
           python3 -m pip install poetry
           python3 -m poetry install
 
-
-      # Run coverage file
-      - name: Run coverage file
-        run: |
-          coverage run -m pytest --cache-clear --cov-report term-missing --cov=metatrader5EasyT > pytest-coverage.txt
-
       # Try to publish to Test Pypi
       - name: Publish distribution to Test PyPI
         env:
