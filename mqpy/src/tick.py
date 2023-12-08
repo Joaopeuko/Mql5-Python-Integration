@@ -3,7 +3,6 @@ import MetaTrader5 as Mt5
 
 class Tick:
     def __init__(self, symbol):
-
         self.time = Mt5.symbol_info_tick(symbol).time
         self.bid = Mt5.symbol_info_tick(symbol).bid
         self.ask = Mt5.symbol_info_tick(symbol).ask

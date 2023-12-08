@@ -1,6 +1,6 @@
 # Mql5-Python-Integration
 
-**Project Update: Changes in Progress**
+## Project Update: Changes in Progress
 
 **Important Notice:**
 

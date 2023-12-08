@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "mqpy"
+version = "v0.5.0"
+description = ""
+authors = ["Joao Paulo Euko"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+metatrader5 = "^5.0.45"
+loguru = "^0.7.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.5.0"
+black = "^23.11.0"
+isort = "^5.12.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

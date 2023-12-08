@@ -1,10 +1,10 @@
 from datetime import datetime
+
 import MetaTrader5 as Mt5
 
 
 class Utilities:
     def __init__(self):
-
         # Variables for minutes_counter
         self.__minutes_counter = 0
         self.__counter_flag = True
@@ -40,5 +40,3 @@ class Utilities:
             self.__allowed_to_trade = True
 
         return self.__allowed_to_trade
-
-
