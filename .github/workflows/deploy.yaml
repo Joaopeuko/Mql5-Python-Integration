@@ -1,8 +1,6 @@
 name: Publish distributions
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push request events but only for the master branch
   push:
     branches:
       - '*'
@@ -34,6 +32,6 @@ jobs:
           python -m poetry build
           python -m poetry publish --build --repository testpypi
 
-          if [[ "${{ github.ref }}" == "refs/tags/v"* ]]; then
+          if ($env:GITHUB_REF -match '^refs/tags/v') {
             python -m poetry publish --build
-          fi
+          }
