@@ -3,7 +3,7 @@ name: Deploy to PyPI
 on:
   push:
     branches:
-      - main
+      - '*'
   pull_request:
     types:
       - closed
@@ -26,13 +26,13 @@ jobs:
           python -m pip install poetry
 
       - name: Build and Publish to Test PyPI
-        if: github.event_name == 'push' && github.ref == 'refs/heads/test_pypi'
+        if: github.event_name == 'push'
         run: |
           poetry config pypi-token.pypi ${{ secrets.TEST_PYPI_API_TOKEN }}
           poetry publish --build -r testpypi
 
       - name: Build and Publish to Official PyPI
-        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.base.ref == 'main'
+        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.base.ref == 'master'
         run: |
           poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
           poetry publish --build
