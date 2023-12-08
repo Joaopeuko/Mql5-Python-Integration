@@ -2,35 +2,41 @@ from mqpy.src.rates import Rates
 from mqpy.src.tick import Tick
 from mqpy.src.trade import Trade
 
+# Initialize the trading strategy
 trade = Trade(
-    "Example",  # Expert name
-    0.1,  # Expert Version
-    "EURUSD",  # symbol
-    567,  # Magic number
-    1.0,  # lot, it is a floating point.
-    25,  # stop loss
-    300,  # emergency stop loss
-    25,  # take profit
-    300,  # emergency take profit
-    "9:15",  # It is allowed to trade after that hour. Do not use zeros, like: 09
-    "17:30",  # It is not allowed to trade after that hour but let open all the position already opened.
-    "17:50",  # It closes all the position opened. Do not use zeros, like: 09
-    0.5,  # average fee
+    expert_name="Example",
+    version=0.1,
+    symbol="EURUSD",
+    magic_number=567,
+    lot=1.0,
+    stop_loss=25,
+    emergency_stop_loss=300,
+    take_profit=25,
+    emergency_take_profit=300,
+    start_time="9:15",
+    finishing_time="17:30",
+    ending_time="17:50",
+    fee=0.5,
 )
 
+# Main trading loop
 time = 0
 while True:
+    # Fetch tick and rates data
     tick = Tick(trade.symbol)
     rates = Rates(trade.symbol, 1, 0, 1)
 
+    # Check for new tick
     if tick.time_msc != time:
-        buy = tick.last > rates.open
-        sell = tick.last < rates.open
+        buy_signal = tick.last > rates.open
+        sell_signal = tick.last < rates.open
 
-        trade.open_position(buy, sell, "Example Advisor")
+        # Execute trading positions based on signals
+        trade.open_position(buy_signal, sell_signal, "Example Advisor")
 
     time = tick.time_msc
 
+    # Check if it's the end of the trading day
     if trade.days_end():
         trade.close_position("End of the trading day reached.")
         break
