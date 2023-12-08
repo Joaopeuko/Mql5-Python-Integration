@@ -10,11 +10,7 @@ import socket
 #   - Moving Average
 #   - OBV On Balance Volume
 #   - Stochastic
-#
 # -------------------------------------------------------------------- #
-#
-# -------------------------------------------------------------------- #
-# $30.00 Dollars per 3 month. ($10.00/month):
 #     https://www.mql5.com/en/market/product/58056
 #   - Accelerator Oscillator
 #   - Accumulation/Distribution
@@ -70,7 +66,6 @@ class Indicator:
         self.s.listen(self.listen)
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def accelerator_oscillator(
         self, symbol, time_frame=1, start_position=0
@@ -97,7 +92,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def accumulation_distribution(
         self,
@@ -133,7 +127,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def adaptive_moving_average(
         self,
@@ -184,7 +177,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def alligator(
         self,
@@ -242,7 +234,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def average_directional_index(
         self, symbol, time_frame=1, period=14, start_position=0
@@ -269,7 +260,6 @@ class Indicator:
             pass
 
         # -------------------------------------------------------------------- #
-        # Paid
 
     def average_directional_index_wilder(
         self, symbol, time_frame=1, period=14, start_position=0
@@ -300,7 +290,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def average_true_range(
         self,
@@ -331,7 +320,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def awesome_oscillator(
         self, symbol, time_frame=1, start_position=0
@@ -408,7 +396,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def bears_power(
         self,
@@ -439,7 +426,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def bulls_power(
         self,
@@ -470,7 +456,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def chaikin_oscillator(
         self,
@@ -521,7 +506,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def commodity_channel_index(
         self,
@@ -569,7 +553,6 @@ class Indicator:
             pass
 
         # -------------------------------------------------------------------- #
-        # Paid
 
     def demarker(
         self,
@@ -600,7 +583,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def double_exponential_moving_average(
         self,
@@ -648,7 +630,6 @@ class Indicator:
             pass
 
         # -------------------------------------------------------------------- #
-        # Paid
 
     def envelopes(
         self,
@@ -751,7 +732,6 @@ class Indicator:
             pass
 
         # -------------------------------------------------------------------- #
-        # Paid
 
     def fractal_adaptive_moving_average(
         self,
@@ -798,7 +778,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def fractals(
         self, symbol, time_frame=1, start_position=0
@@ -825,7 +804,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
     # https://www.mql5.com/en/forum/41357
     def gator_oscillator(
         self,
@@ -889,7 +867,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def ichimoku_kinko_hyo(
         self,
@@ -980,7 +957,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def market_facilitation_index(
         self,
@@ -1016,7 +992,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def momentum(
         self,
@@ -1058,7 +1033,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def money_flow_index(
         self,
@@ -1153,7 +1127,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def moving_average_of_oscillator(
         self,
@@ -1237,7 +1210,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def parabolic_sar(
         self,
@@ -1269,7 +1241,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def relative_strength_index(
         self,
@@ -1316,7 +1287,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def relative_vigor_index(
         self,
@@ -1347,7 +1317,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def standard_deviation(
         self,
@@ -1453,7 +1422,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def triple_exponential_ma_oscillator(
         self,
@@ -1501,7 +1469,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def triple_exponential_moving_average(
         self,
@@ -1549,7 +1516,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def variable_index_dynamic_average(
         self,
@@ -1598,7 +1564,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def volumes(
         self,
@@ -1632,7 +1597,6 @@ class Indicator:
             pass
 
     # -------------------------------------------------------------------- #
-    # Paid
 
     def williams_percent_range(
         self,
