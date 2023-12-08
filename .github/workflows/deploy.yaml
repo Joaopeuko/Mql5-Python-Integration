@@ -23,6 +23,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --upgrade setuptools
           python -m pip install poetry
+          python -m pip install twine
           python -m poetry install
 
       - name: Build and publish to Test PyPI
@@ -31,11 +32,13 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
         run: |
           python -m poetry build
-          python -m poetry publish --build --repository testpypi
+          twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
       - name: Publish to PyPI (if it's a new tag)
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: python -m poetry publish --build
+        run: |
+          python -m poetry build
+          twine upload dist/*
