@@ -16,7 +16,6 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
     install_requires=[
-        "python == ^3.8",
         "metatrader5 == ^5.0.45",
     ],
 )
