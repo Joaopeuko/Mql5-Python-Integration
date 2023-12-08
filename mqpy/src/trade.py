@@ -4,49 +4,73 @@ import MetaTrader5 as Mt5
 
 
 class Trade:
+    """
+    Represents a trading strategy for a financial instrument.
+
+    Args:
+        expert_name (str): The name of the expert advisor.
+        version (str): The version of the expert advisor.
+        symbol (str): The financial instrument symbol.
+        magic_number (int): The magic number for identifying trades.
+        lot (float): The number of lots to trade.
+        stop_loss (float): The stop loss level.
+        emergency_stop_loss (float): Emergency stop loss as a protection.
+        take_profit (float): The take profit level.
+        emergency_take_profit (float): Emergency take profit for gain.
+        start_time (str): The time when the expert advisor can start trading.
+        finishing_time (str): The time until new positions can be opened.
+        ending_time (str): The time when any remaining position will be closed.
+        fee (float): The average fee per trading.
+    """
+
     def __init__(
         self,
-        expert_name,
-        version,
-        symbol,
-        magic_number,
+        expert_name: str,
+        version: str,
+        symbol: str,
+        magic_number: int,
         lot: float,
-        stop_loss,  # It calls a functions that tries to close the deal, it is the stop you want.
-        emergency_stop_loss,  # It set stop on chart as a protection
-        # if something went wrong with the stop_loss.
-        take_profit,  # The same of stop_loss but for profit.
-        emergency_take_profit,  # The same of emergency_stop_loss but for gain
-        start_time="9:15",  # It is the hour and minutes that the expert advisor are able to start to run.
-        finishing_time="17:30",  # No new position can be opened after that time.
-        ending_time="17:50",  # If there is a position opened it will be closed.
-        fee=0.0,
-    ):
-        self.expert_name = expert_name
-        self.version = version
-        self.symbol = symbol
-        self.magic_number = magic_number
-        self.lot = lot
-        self.stop_loss = stop_loss
-        self.emergency_stop_loss = emergency_stop_loss
-        self.take_profit = take_profit
-        self.emergency_take_profit = emergency_take_profit
+        stop_loss: float,
+        emergency_stop_loss: float,
+        take_profit: float,
+        emergency_take_profit: float,
+        start_time: str = "9:15",
+        finishing_time: str = "17:30",
+        ending_time: str = "17:50",
+        fee: float = 0.0,
+    ) -> None:
+        """
+        Initialize the Trade object.
+
+        Returns:
+            None
+        """
+        self.expert_name: str = expert_name
+        self.version: str = version
+        self.symbol: str = symbol
+        self.magic_number: int = magic_number
+        self.lot: float = lot
+        self.stop_loss: float = stop_loss
+        self.emergency_stop_loss: float = emergency_stop_loss
+        self.take_profit: float = take_profit
+        self.emergency_take_profit: float = emergency_take_profit
         self.start_time_hour, self.start_time_minutes = start_time.split(":")
         self.finishing_time_hour, self.finishing_time_minutes = finishing_time.split(":")
         self.ending_time_hour, self.ending_time_minutes = ending_time.split(":")
-        self.fee = fee
+        self.fee: float = fee
 
-        self.loss_deals = 0
-        self.profit_deals = 0
-        self.total_deals = 0
-        self.balance = 0.0
+        self.loss_deals: int = 0
+        self.profit_deals: int = 0
+        self.total_deals: int = 0
+        self.balance: float = 0.0
 
-        self.ticket = 0
+        self.ticket: int = 0
 
         print("\nInitializing the basics.")
         self.initialize()
         self.select_symbol()
         self.prepare_symbol()
-        self.sl_tp_steps = Mt5.symbol_info(self.symbol).trade_tick_size / Mt5.symbol_info(self.symbol).point
+        self.sl_tp_steps: float = Mt5.symbol_info(self.symbol).trade_tick_size / Mt5.symbol_info(self.symbol).point
         print("Initialization successfully completed.")
 
         print()
@@ -54,22 +78,38 @@ class Trade:
         print("Running")
         print()
 
-    def initialize(self):
+    def initialize(self) -> None:
+        """
+        Initialize the MetaTrader 5 instance.
+
+        Returns:
+            None
+        """
         if not Mt5.initialize():
             print("Initialization failed, check internet connection. You must have Meta Trader 5 installed.")
             Mt5.shutdown()
-
         else:
             print(
                 f"You are running the {self.expert_name} expert advisor,"
                 f" version {self.version}, on symbol {self.symbol}."
             )
 
-    def select_symbol(self):
+    def select_symbol(self) -> None:
+        """
+        Select the trading symbol.
+
+        Returns:
+            None
+        """
         Mt5.symbol_select(self.symbol, True)
 
-    def prepare_symbol(self):
-        # Prepare the symbol to open positions
+    def prepare_symbol(self) -> None:
+        """
+        Prepare the trading symbol for opening positions.
+
+        Returns:
+            None
+        """
         symbol_info = Mt5.symbol_info(self.symbol)
         if symbol_info is None:
             print(f"It was not possible to find {self.symbol}")
@@ -85,7 +125,13 @@ class Trade:
                 print("Turned off")
                 quit()
 
-    def summary(self):
+    def summary(self) -> None:
+        """
+        Print a summary of the expert advisor parameters.
+
+        Returns:
+            None
+        """
         print(
             f"Summary:\n"
             f"ExpertAdvisor name:              {self.expert_name}\n"
@@ -104,7 +150,13 @@ class Trade:
             f"StopLoss & TakeProfit Steps:     {self.sl_tp_steps}\n"
         )
 
-    def statistics(self):
+    def statistics(self) -> None:
+        """
+        Print statistics of the expert advisor.
+
+        Returns:
+            None
+        """
         print(f"Total of deals: {self.total_deals}, {self.profit_deals} gain, {self.loss_deals} loss.")
         print(
             f"Balance: {self.balance}, fee: {self.total_deals * self.fee}, final balance:"
@@ -113,8 +165,16 @@ class Trade:
         if self.total_deals != 0:
             print(f"Accuracy: {round((self.profit_deals / self.total_deals) * 100, 2)}%.\n")
 
-    # It is to open a Buy position.
-    def open_buy_position(self, comment=""):
+    def open_buy_position(self, comment: str = "") -> None:
+        """
+        Open a Buy position.
+
+        Args:
+            comment (str): A comment for the trade.
+
+        Returns:
+            None
+        """
         point = Mt5.symbol_info(self.symbol).point
         price = Mt5.symbol_info_tick(self.symbol).ask
 
@@ -138,8 +198,16 @@ class Trade:
         result = Mt5.order_send(request)
         self.request_result(price, result)
 
-    # It is to open a Sell position.
-    def open_sell_position(self, comment=""):
+    def open_sell_position(self, comment: str = "") -> None:
+        """
+        Open a Sell position.
+
+        Args:
+            comment (str): A comment for the trade.
+
+        Returns:
+            None
+        """
         point = Mt5.symbol_info(self.symbol).point
         price = Mt5.symbol_info_tick(self.symbol).bid
 
@@ -163,7 +231,16 @@ class Trade:
         result = Mt5.order_send(request)
         self.request_result(price, result)
 
-    def request_result(self, price, result):
+    def request_result(self, price: float, result) -> None:
+        """
+        Process the result of a trading request.
+
+        Args:
+            price (float): The price of the trade.
+            result (Mt5.TradeResult): The result of the trading request.
+                    Returns:
+            None
+        """
         # Send a trading request
         # Check the execution result
         print(f"Order sent: {self.symbol}, {self.lot} lot(s), at {price}.")
@@ -178,7 +255,18 @@ class Trade:
             else:
                 print(f"Position Closed: {result.price}")
 
-    def open_position(self, buy, sell, comment=""):
+    def open_position(self, buy: bool, sell: bool, comment: str = "") -> None:
+        """
+        Open a position based on buy and sell conditions.
+
+        Args:
+            buy (bool): True if a Buy position should be opened, False otherwise.
+            sell (bool): True if a Sell position should be opened, False otherwise.
+            comment (str): A comment for the trade.
+
+        Returns:
+            None
+        """
         if (len(Mt5.positions_get(symbol=self.symbol)) == 0) and self.trading_time():
             if buy and not sell:
                 self.open_buy_position(comment)
@@ -195,7 +283,16 @@ class Trade:
             self.close_position(comment)
             self.summary()
 
-    def close_position(self, comment=""):
+    def close_position(self, comment: str = "") -> None:
+        """
+        Close an open position.
+
+        Args:
+            comment (str): A comment for the trade.
+
+        Returns:
+            None
+        """
         # buy (0) and sell(1)
         if len(Mt5.positions_get(symbol=self.symbol)) == 1:
             if Mt5.positions_get(symbol=self.symbol)[0].type == 0:  # if Buy
@@ -204,7 +301,16 @@ class Trade:
             elif Mt5.positions_get(symbol=self.symbol)[0].type == 1:  # if Sell
                 self.open_buy_position(comment)
 
-    def stop_and_gain(self, comment=""):
+    def stop_and_gain(self, comment: str = "") -> None:
+        """
+        Check for stop loss and take profit conditions and close positions accordingly.
+
+        Args:
+            comment (str): A comment for the trade.
+
+        Returns:
+            None
+        """
         if len(Mt5.positions_get()) == 1:
             points = (
                 Mt5.positions_get()[0].profit
@@ -246,11 +352,24 @@ class Trade:
                     ].profit
                 self.statistics()
 
-    def days_end(self):
+    def days_end(self) -> bool:
+        """
+        Check if it is the end of trading for the day.
+
+        Returns:
+            bool: True if it is the end of trading for the day, False otherwise.
+        """
         if datetime.now().hour >= int(self.ending_time_hour) and datetime.now().minute >= int(self.ending_time_minutes):
             return True
+        return False
 
-    def trading_time(self):
+    def trading_time(self) -> bool:
+        """
+        Check if it is within the allowed trading time.
+
+        Returns:
+            bool: True if it is within the allowed trading time, False otherwise.
+        """
         if int(self.start_time_hour) < datetime.now().hour < int(self.finishing_time_hour):
             return True
         elif datetime.now().hour == int(self.start_time_hour):
