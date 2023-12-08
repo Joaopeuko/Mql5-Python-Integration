@@ -5,7 +5,7 @@ from include.rates import Rates
 
 trade = Trade('Example',  # Expert name
               0.1,  # Expert Version
-              'WING21',  # symbol
+              'EURUSD',  # symbol
               567,  # Magic number
               1.0,  # lot, it is a floating point.
               25,  # stop loss
