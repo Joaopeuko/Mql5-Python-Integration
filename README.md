@@ -28,8 +28,12 @@ To access the code for the previous version, you can check it out at [v0.5.0](ht
 
 ## Installation
 
+**Note: In order to use this package, you need to have MetaTrader 5 installed on a Windows system with Python 3.8 or later.**
+
 To install the package, you can use the following command:
 
 ```bash
 pip install mqpy
 ```
+
+Make sure to fulfill the prerequisites mentioned above before attempting to use the Mql5-Python-Integration (MQPy) package.
