@@ -6,7 +6,7 @@ long_description = (pathlib.Path(__file__).parent / "README.md").read_text()
 
 setuptools.setup(
     name="mqpy",
-    version="v0.6.5",
+    version="v0.6.6",
     description="I developed this library to simplify the process of creating an Expert Advisor in MQL5. While developing in MQL5 can be complex, the same task is more streamlined in Python.",
     author="Joao Paulo Euko",
     license="MIT",

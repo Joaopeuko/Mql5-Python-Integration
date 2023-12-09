@@ -5,7 +5,7 @@
 
 # Mql5-Python-Integration (MQPy)
 
-**Current Version: v0.6.0**
+**Current Version: v0.6.6**
 
 Welcome to the Mql5-Python-Integration project! This project facilitates the integration between MetaTrader 5 (Mql5) and Python, allowing for efficient algorithmic trading strategies.
 
@@ -23,7 +23,7 @@ Welcome to the Mql5-Python-Integration project! This project facilitates the int
 
 ## Project Update: Changes in Progress
 
-🚧 **Work in Progress: v0.6.0**
+🚧 **Work in Progress: v0.6.6**
 This project is currently undergoing significant changes and improvements. The latest version is v0.6.0, and various enhancements are being made to provide a more robust and user-friendly experience.
 
 📌 **Previous Version: v0.5.0**

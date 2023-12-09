@@ -10,10 +10,11 @@ def get_arguments():
 
 def main():
     file_name = get_arguments()["file_name"]
+    symbol = get_arguments()["symbol"]
 
     with open(f"{file_name}.py", "w") as file:
         file.write(
-            """from mqpy.src.rates import Rates
+            f"""from mqpy.src.rates import Rates
 from mqpy.src.tick import Tick
 from mqpy.src.trade import Trade
 
@@ -21,7 +22,7 @@ from mqpy.src.trade import Trade
 trade = Trade(
     expert_name="Moving Average Crossover",
     version=1.0,
-    symbol="EURUSD",
+    symbol="{symbol}",
     magic_number=567,
     lot=1.0,
     stop_loss=25,
