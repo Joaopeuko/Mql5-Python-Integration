@@ -6,7 +6,7 @@ long_description = (pathlib.Path(__file__).parent / "README.md").read_text()
 
 setuptools.setup(
     name="mqpy",
-    version="v0.6.7",
+    version="v0.6.8",
     description="I developed this library to simplify the process of creating an Expert Advisor in MQL5. While developing in MQL5 can be complex, the same task is more streamlined in Python.",
     author="Joao Paulo Euko",
     license="MIT",
@@ -19,7 +19,7 @@ setuptools.setup(
     ],
     entry_points={
         "console_scripts": [
-            "mqpy = mqpy.template:main",
+            "mqpy = template:main",
         ],
     },
 )

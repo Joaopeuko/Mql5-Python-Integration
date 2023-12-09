@@ -14,9 +14,9 @@ def main():
 
     with open(f"{file_name}.py", "w") as file:
         file.write(
-            f"""from mqpy.src.rates import Rates
-from mqpy.src.tick import Tick
-from mqpy.src.trade import Trade
+            f"""from mqpy.rates import Rates
+from mqpy.tick import Tick
+from mqpy.trade import Trade
 
 # Initialize the trading strategy
 trade = Trade(
