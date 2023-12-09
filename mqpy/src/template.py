@@ -1,4 +1,19 @@
-from mqpy.src.rates import Rates
+import argparse
+
+
+def get_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--file_name", type=str, action="store", default="demo")
+    parser.add_argument("--symbol", type=str, action="store", default="EURUSD")
+    return vars(parser.parse_args())
+
+
+def main():
+    file_name = get_arguments()["file_name"]
+
+    with open(f"{file_name}.py", "w") as file:
+        file.write(
+            """from mqpy.src.rates import Rates
 from mqpy.src.tick import Tick
 from mqpy.src.trade import Trade
 
@@ -8,7 +23,7 @@ trade = Trade(
     version=1.0,
     symbol="EURUSD",
     magic_number=567,
-    lot=0.1,
+    lot=1.0,
     stop_loss=25,
     emergency_stop_loss=300,
     take_profit=25,
@@ -51,3 +66,5 @@ while True:
 
 print("Finishing the program.")
 print("Program finished.")
+"""
+        )

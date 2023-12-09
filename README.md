@@ -3,7 +3,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/mqpy)
 ![PyPI - License](https://img.shields.io/pypi/l/mqpy)
 
-# Mql5-Python-Integration
+# Mql5-Python-Integration (MQPy)
 
 **Current Version: v0.6.0**
 
@@ -11,10 +11,12 @@ Welcome to the Mql5-Python-Integration project! This project facilitates the int
 
 ## Table of Contents
 
-- [Mql5-Python-Integration](#mql5-python-integration)
+- [Mql5-Python-Integration (MQPy)](#mql5-python-integration-mqpy)
   - [Table of Contents](#table-of-contents)
   - [Project Update: Changes in Progress](#project-update-changes-in-progress)
   - [Installation](#installation)
+  - [Usage](#usage)
+    - [Generate the File](#generate-the-file)
   - [Missing Features/Good Practice](#missing-featuresgood-practice)
     - [Delicate Metatrader5 Environment](#delicate-metatrader5-environment)
     - [Alternative Libraries](#alternative-libraries)
@@ -38,6 +40,26 @@ pip install mqpy
 ```
 
 Make sure to fulfill the prerequisites mentioned above before attempting to use the Mql5-Python-Integration (MQPy) package.
+
+## Usage
+
+Basic Usage
+
+Once installed, you can use the mqpy command to generate the boilerplate code.
+
+### Generate the File
+
+To create a template file for a trading strategy, use the following command:
+
+```bash
+mqpy --symbol <Symbol> --file_name <File Name>
+```
+
+Please change `<Symbol>` and `<File Name>` to the desired values. For example:
+
+```bash
+mqpy --symbol EURUSD --file_name demo
+```
 
 ## Missing Features/Good Practice
 
