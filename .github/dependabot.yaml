@@ -1,9 +1,22 @@
 version: 2
 updates:
-  - package-ecosystem: 'pip'
-    directory: '/'
+  - package-ecosystem: "pip"
+    directory: "/"
     schedule:
-      interval: 'daily'
+      interval: "daily"
+    groups:
+      python-requirements:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "poetry"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    groups:
+      poetry-dependencies:
+        patterns:
+          - "*" 
 
   - package-ecosystem: 'github-actions'
     directory: '/'
