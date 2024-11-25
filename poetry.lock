@@ -139,19 +139,19 @@ colors = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "metatrader5"
-version = "5.0.4682"
+version = "5.0.4687"
 description = "API Connector to MetaTrader 5 Terminal"
 optional = false
 python-versions = "<4,>3.5"
 files = [
-    {file = "MetaTrader5-5.0.4682-cp310-cp310-win_amd64.whl", hash = "sha256:9b4fe3c4586012ab7bd0a8c4ba8ab215ee099d9cf89ce9d8bddbde1054ea50df"},
-    {file = "MetaTrader5-5.0.4682-cp311-cp311-win_amd64.whl", hash = "sha256:f24b58df10a055cf28346dcaef43742f9becb275ddd3cdc2d9d75a224dec9b67"},
-    {file = "MetaTrader5-5.0.4682-cp312-cp312-win_amd64.whl", hash = "sha256:401a848479498485a0e5a8735d19b08b53fb2a1aa44d0cbd9addeca4f5db9be2"},
-    {file = "MetaTrader5-5.0.4682-cp313-cp313-win_amd64.whl", hash = "sha256:a4f814175a2873525154499cd9b3e74c3028fb0de655d600ec048a90693ce73d"},
-    {file = "MetaTrader5-5.0.4682-cp36-cp36m-win_amd64.whl", hash = "sha256:a505c95b492eee000d545294eaa727cbbb6c67074d25c344c2224629a28c8aef"},
-    {file = "MetaTrader5-5.0.4682-cp37-cp37m-win_amd64.whl", hash = "sha256:dafb6bc7f2e439f5990a09f092eb45685b603a15bf554af513f548d01a9a3eb0"},
-    {file = "MetaTrader5-5.0.4682-cp38-cp38-win_amd64.whl", hash = "sha256:cd702b793357e8d420b6aaa000cc46cbeb7436d0c5ced41fe3c8a84a65d07f52"},
-    {file = "MetaTrader5-5.0.4682-cp39-cp39-win_amd64.whl", hash = "sha256:fdc02bfc5be9f643fdfac01f9c7e477e1b5e10b20c594e55e5941d9c534abfdb"},
+    {file = "MetaTrader5-5.0.4687-cp310-cp310-win_amd64.whl", hash = "sha256:c2a7a2bb86ee45e4f5cd4918b097e5536cdcaaf741ffd5d0ff7bd633f7e2d3b6"},
+    {file = "MetaTrader5-5.0.4687-cp311-cp311-win_amd64.whl", hash = "sha256:e4cfe91e205673cc539ac32251a141b9f8c737986089864af1e3e87953421294"},
+    {file = "MetaTrader5-5.0.4687-cp312-cp312-win_amd64.whl", hash = "sha256:dfee4dbf6b9e8e902589b18205c7851a5ab0ee33da80eddc45d1266bf4b03aef"},
+    {file = "MetaTrader5-5.0.4687-cp313-cp313-win_amd64.whl", hash = "sha256:982b97f6a7a083c1adc5652bb5f20382f3d69e0ae4904825c63812d3b2e5298d"},
+    {file = "MetaTrader5-5.0.4687-cp36-cp36m-win_amd64.whl", hash = "sha256:cd23789f103436b3c47d027438ac6860f8dabf0472fb86d545e742077a3e659d"},
+    {file = "MetaTrader5-5.0.4687-cp37-cp37m-win_amd64.whl", hash = "sha256:8fbd1d67d7409865c6e5482a2be1896c0675c12f97980698578af93d464a6ab1"},
+    {file = "MetaTrader5-5.0.4687-cp38-cp38-win_amd64.whl", hash = "sha256:855da7df79b02ed93e8b9979877889a62fe16b2bfeef044454c4a41c7a5e7926"},
+    {file = "MetaTrader5-5.0.4687-cp39-cp39-win_amd64.whl", hash = "sha256:581928d99d1f897e665f096ef3a9660b4ce48270340549c0160c1dd88b54d573"},
 ]
 
 [package.dependencies]
