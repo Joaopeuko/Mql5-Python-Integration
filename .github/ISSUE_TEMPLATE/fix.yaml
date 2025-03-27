@@ -1,0 +1,26 @@
+name: "[fix] Bug Fix Request"
+description: Request a bug fix or patch to resolve an issue in the codebase.
+title: "fix: "
+labels: [bug, fix]
+projects: []
+body:
+  - type: input
+    id: root_path
+    attributes:
+      label: "Where?"
+      description: "Provide path from the root of the repository."
+      placeholder: "mqpy/"
+
+  - type: textarea
+    id: steps_to_reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Provide the steps or code needed to reproduce the bug. Include specific instructions or a code snippet if possible.
+      placeholder: e.g., "1. Go to page A, 2. Click button B, 3. Observe behavior C."
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution
+      description: Suggest a solution to fix the bug. Include any alternative approaches you've considered.
+      placeholder: e.g., "Fix the validation in X module" or "Add a check for Y before proceeding."

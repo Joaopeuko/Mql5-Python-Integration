@@ -1,0 +1,18 @@
+name: "[ci] CI Request"
+description: Changes or updates related to continuous integration (CI) and deployment pipelines.
+title: "ci: "
+labels: [ci]
+projects: []
+body:
+  - type: input
+    id: root_path
+    attributes:
+      label: "Where?"
+      description: "Provide path from the root of the repository."
+      placeholder: "mqpy/"
+  - type: textarea
+    id: ci_modification
+    attributes:
+      label: What CI modification is needed?
+      description: Provide a clear description of the issue or the part of the CI/CD pipeline that requires modification.
+      placeholder: e.g., Fix failing build step, update deployment script, or add new test stage.

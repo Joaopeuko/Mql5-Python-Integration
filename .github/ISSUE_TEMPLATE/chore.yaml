@@ -1,0 +1,19 @@
+name: "[chore] Chore Request"
+description: Routine tasks or administrative updates not affecting code functionality (e.g., updates to documentation, configurations, or non-functional dependencies).
+title: "chore: "
+labels: [chore]
+projects: []
+body:
+  - type: input
+    id: root_path
+    attributes:
+      label: "Where?"
+      description: "Provide path from the root of the repository."
+      placeholder: "mqpy/"
+
+  - type: textarea
+    id: task_description
+    attributes:
+      label: Describe the Task
+      description: Specify the task or update that should be performed.
+      placeholder: e.g., Add secrets to GitHub Secret, update CI config, or clean up old logs.

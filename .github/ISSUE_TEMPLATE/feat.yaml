@@ -1,0 +1,19 @@
+name: "[feat] Task Request"
+description: Request a task or feature to be added to the project.
+title: "feat: "
+labels: [feat]
+projects: []
+body:
+  - type: input
+    id: root_path
+    attributes:
+      label: "Where?"
+      description: "Provide path from the root of the repository."
+      placeholder: "mqpy/"
+
+  - type: textarea
+    id: task
+    attributes:
+      label: Task Description
+      description: Provide a clear and concise description of what needs to be done.
+      placeholder: Describe the problem or proposed solution.

@@ -1,0 +1,19 @@
+name: "[style] Style Refactor Request"
+description: Request for code style and formatting changes without altering functionality.
+title: "style: "
+labels: [style]
+projects: []
+body:
+  - type: input
+    id: root_path
+    attributes:
+      label: "Where?"
+      description: "Provide path from the root of the repository."
+      placeholder: "mqpy/"
+
+  - type: textarea
+    id: style_issues
+    attributes:
+      label: What style improvements are needed?
+      description: Provide a clear description of the style or formatting issues in the code that need to be addressed. Focus on readability, consistency, or adherence to coding standards.
+      placeholder: e.g., "Inconsistent indentation in module X" or "Variable names in function Y don’t follow the naming convention."

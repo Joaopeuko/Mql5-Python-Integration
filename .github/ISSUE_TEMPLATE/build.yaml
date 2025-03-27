@@ -1,0 +1,19 @@
+name: "[build] Build Request"
+description: Changes related to the build system, dependencies, or configuration updates (e.g., build scripts, Dockerfiles, etc.).
+title: "build: "
+labels: [build]
+projects: []
+body:
+  - type: input
+    id: root_path
+    attributes:
+      label: "Where?"
+      description: "Provide path from the root of the repository."
+      placeholder: "mqpy/"
+ 
+  - type: textarea
+    id: requested_change
+    attributes:
+      label: Describe the Requested Change
+      description: Provide a detailed description of the proposed change.
+      placeholder: e.g., Bump package X from 1.0.0 to 1.0.1 or update build script Y.

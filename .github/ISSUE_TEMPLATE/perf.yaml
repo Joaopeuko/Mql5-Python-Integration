@@ -1,0 +1,20 @@
+name: "[perf] Performance Refactor Request"
+description: Request for performance optimizations or refactors to make the code more efficient or faster.
+title: "perf: "
+labels: [perf]
+projects: []
+body:
+  - type: input
+    id: root_path
+    attributes:
+      label: "Where?"
+      description: "Provide path from the root of the repository."
+      placeholder: "mqpy/"
+
+  - type: textarea
+    id: area_for_improvement
+    attributes:
+      label: Area for Performance Improvement
+      description: Specify the part of the codebase or system that requires optimization. Explain why it needs improvement and describe the current performance issue as the proposed solution.
+      placeholder: e.g., "The sorting algorithm in module X is slow when handling large datasets."
+

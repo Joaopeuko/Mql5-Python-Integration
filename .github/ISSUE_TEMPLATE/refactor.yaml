@@ -1,0 +1,19 @@
+name: "[refactor] Code Refactor Request"
+description: Request for code refactoring to enhance code quality, structure, and maintainability.
+title: "refactor: "
+labels: [refactor]
+projects: []
+body:
+  - type: input
+    id: root_path
+    attributes:
+      label: "Where?"
+      description: "Provide path from the root of the repository."
+      placeholder: "mqpy/"
+
+  - type: textarea
+    id: area_to_refactor
+    attributes:
+      label: What needs to be refactored?
+      description: Provide a clear and concise description of the parts of the codebase that should be refactored. Explain any issues with the current implementation, such as complexity, readability, or maintainability problems.
+      placeholder: e.g., "The function X is too complex and difficult to maintain."

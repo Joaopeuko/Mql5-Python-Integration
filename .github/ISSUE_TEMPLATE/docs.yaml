@@ -1,0 +1,19 @@
+name: "[docs] Documentation Request"
+description: Request documentation for functions, scripts, modules, or any other code-related areas that lack clarity.
+title: "docs: "
+labels: [docs]
+projects: []
+body:
+  - type: input
+    id: root_path
+    attributes:
+      label: "Where?"
+      description: "Provide path from the root of the repository."
+      placeholder: "mqpy/"
+
+  - type: textarea
+    id: unclear_section
+    attributes:
+      label: What is unclear?
+      description: Specify the part of the code or documentation that is unclear. Include details about what information is missing or confusing.
+      placeholder: e.g., "The purpose of function X is unclear" or "More details needed about how module Y interacts with Z."

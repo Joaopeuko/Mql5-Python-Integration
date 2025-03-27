@@ -1,0 +1,19 @@
+name: "[test] Test Request"
+description: Suggest updates or additions to test cases, including creating new tests or modifying existing ones.
+title: "test: "
+labels: [test]
+projects: []
+body:
+  - type: input
+    id: root_path
+    attributes:
+      label: "Where?"
+      description: "Provide path from the root of the repository."
+      placeholder: "mqpy/"
+
+  - type: textarea
+    id: test_scope
+    attributes:
+      label: What needs to be tested?
+      description: Provide a clear and concise description of the functionality or components that require testing. Specify if new test cases should be added or if existing ones need modification.
+      placeholder: e.g., "Test the new feature X in module Y" or "Modify the test for function Z to cover edge cases."
