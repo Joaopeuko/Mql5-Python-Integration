@@ -440,3 +440,149 @@
       width: 40px;
       height: 40px;
     }
+
+    @media screen and (max-width: 76.1875em) {
+      .repo-stats {
+        display: none !important;
+      }
+    }
+
+    /* Sponsor popup styling */
+    .sponsor-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .sponsor-popup.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .sponsor-popup-content {
+      background-color: #fff;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+    }
+
+    [data-md-color-scheme="astral-dark"] .sponsor-popup-content {
+      background-color: var(--galaxy);
+      color: var(--white);
+    }
+
+    .sponsor-popup-header {
+      padding: 16px 20px;
+      background-color: var(--rock);
+      color: var(--black);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sponsor-popup-header h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .sponsor-popup-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--black);
+      width: 30px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+    }
+
+    .sponsor-popup-close:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .sponsor-popup-body {
+      padding: 20px;
+    }
+
+    .sponsor-popup-buttons {
+      display: flex;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .sponsor-popup-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 600;
+      background-color: #f0f0f0;
+      color: #333;
+      transition: background-color 0.2s;
+    }
+
+    .sponsor-popup-button.primary {
+      background-color: var(--rock);
+      color: var(--black);
+    }
+
+    .sponsor-popup-button:hover {
+      opacity: 0.9;
+    }
+
+    .sponsor-popup-footer {
+      margin-top: 16px;
+      display: flex;
+      justify-content: flex-end;
+      font-size: 0.9rem;
+    }
+
+    .sponsor-popup-footer label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    /* Sponsor admonition styling */
+    .md-typeset .admonition.sponsor,
+    .md-typeset details.sponsor {
+      border-left-color: var(--rock);
+    }
+
+    .md-typeset .sponsor > .admonition-title,
+    .md-typeset .sponsor > summary {
+      background-color: rgba(255, 215, 0, 0.1);
+    }
+
+    .md-typeset .sponsor > .admonition-title::before,
+    .md-typeset .sponsor > summary::before {
+      background-color: var(--rock);
+      -webkit-mask-image: var(--md-admonition-icon--note);
+              mask-image: var(--md-admonition-icon--note);
+    }
+
+    /* Sponsor button styling */
+    .md-typeset .md-button {
+      margin-top: 0.5em;
+      margin-right: 0.5em;
+    }

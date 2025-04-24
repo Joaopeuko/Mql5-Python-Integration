@@ -144,7 +144,6 @@ plugins:
             show_root_members_full_path: false
             show_module_member_docstring: true
   - mkdocs-jupyter
-
 nav:
 - Home: index.md
 - API Reference: reference/
