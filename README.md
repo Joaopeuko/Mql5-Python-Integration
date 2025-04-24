@@ -1,3 +1,8 @@
+<div style="display: flex; justify-content: center;">
+    <img src="docs/assets/logo.svg" alt="MQPy Logo" style="width: 200px; height: 200px;">
+</div>
+
+
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/mqpy)
 ![PyPI](https://img.shields.io/pypi/v/mqpy)
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/mqpy)

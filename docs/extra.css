@@ -58,25 +58,25 @@
     :root {
       --black: #0b1a34;
       --white: #ffffff;
-      --radiate: #a7ffeb;
-      --flare: #0088cc;
-      --rock: #88a2a6;
-      --galaxy: #10294e;
-      --space: #073642;
-      --comet: #567d8e;
-      --cosmic: #00c3ff;
-      --sun: #66ff66;
-      --electron: #00d4ff;
-      --aurora: #00ffaa;
-      --constellation: #0080ff;
-      --neutron: #ccffee;
-      --proton: #66d9ff;
-      --nebula: #99ddff;
-      --supernova: #b3ffcc;
-      --starlight: #f0f8ff;
-      --lunar: #e6faff;
-      --asteroid: #b2c7d9;
-      --crater: #d1e6f1;
+      --radiate: #ffd700; /* Pure gold */
+      --flare: #ffcc00; /* Yellow gold */
+      --rock: #ffdf00; /* Bright yellow */
+      --galaxy: #665500; /* Dark yellow background */
+      --space: #806600; /* Medium yellow-brown */
+      --comet: #ccaa00; /* Dark yellow */
+      --cosmic: #ffdd00; /* Vibrant yellow */
+      --sun: #ffea00; /* Bright yellow */
+      --electron: #ffbb00; /* Golden yellow */
+      --aurora: #ffe600; /* Electric yellow */
+      --constellation: #ffd100; /* Deep yellow */
+      --neutron: #fff6c3; /* Pale yellow */
+      --proton: #ffe066; /* Light yellow */
+      --nebula: #ffde59; /* Yellow */
+      --supernova: #ffc400; /* Amber yellow */
+      --starlight: #fffacd; /* Light yellow */
+      --lunar: #fffce3; /* Cream */
+      --asteroid: #d4b300; /* Dark gold */
+      --crater: #fff0a0; /* Pale gold */
     }
 
     [data-md-color-scheme="astral-light"] {
@@ -102,8 +102,8 @@
       --md-code-fg-color: var(--white);
       --md-code-bg-color: var(--space);
 
-      --md-code-hl-comment-color: var(--asteroid);
-      --md-code-hl-punctuation-color: var(--asteroid);
+      --md-code-hl-comment-color: var(--crater);
+      --md-code-hl-punctuation-color: var(--crater);
       --md-code-hl-generic-color: var(--supernova);
       --md-code-hl-variable-color: var(--starlight);
       --md-code-hl-string-color: var(--radiate);
@@ -116,7 +116,7 @@
       --md-code-hl-name-color: var(--md-code-fg-color);
 
       --md-typeset-del-color: hsla(6, 90%, 60%, 0.15);
-      --md-typeset-ins-color: hsla(150, 90%, 44%, 0.15);
+      --md-typeset-ins-color: hsla(50, 90%, 44%, 0.15);
 
       --md-typeset-table-color: hsla(0, 0%, 100%, 0.12);
       --md-typeset-table-color--light: hsla(0, 0%, 100%, 0.035);
@@ -383,4 +383,60 @@
     }
     body > div.md-container > main > div > div.md-sidebar.md-sidebar--secondary > div > div > nav > ul > li:nth-child(1) > a > span { 
       display: none !important;
+    }
+
+    /* Custom styles for header and footer */
+    .md-header {
+      background-color: var(--rock);
+      color: var(--black);
+    }
+
+    .md-footer {
+      background-color: var(--cosmic);
+      color: var(--black);
+    }
+
+    .md-footer-meta {
+      background-color: var(--flare);
+      color: var(--black);
+    }
+
+    /* Adjust the nav tabs in header to be more visible */
+    .md-tabs {
+      background-color: var(--electron);
+    }
+
+    .md-tabs__link {
+      color: var(--black);
+      opacity: 0.9;
+    }
+
+    .md-tabs__link--active,
+    .md-tabs__link:hover {
+      color: var(--space);
+      font-weight: bold;
+    }
+
+    /* Adjust nav text for better visibility on yellow */
+    .md-header-nav__title,
+    .md-header-nav__button,
+    .md-footer-nav__link,
+    .md-footer-meta__inner {
+      color: var(--black);
+    }
+
+    /* Set favicon link */
+    [data-md-color-scheme="astral-light"] {
+      --md-favicon: url('assets/favicon.svg');
+    }
+
+    [data-md-color-scheme="astral-dark"] {
+      --md-favicon: url('assets/favicon.svg');
+    }
+
+    /* Logo in header */
+    .md-header-nav__button.md-logo img,
+    .md-header-nav__button.md-logo svg {
+      width: 40px;
+      height: 40px;
     }

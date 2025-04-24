@@ -1,9 +1,37 @@
 site_name: MQPy
 repo_url: https://github.com/Joaopeuko/Mql5-Python-Integration
 repo_name: MQPy
-nav:
-  - Home: index.md
-  - API Reference: reference/
+
+# Enable GitHub repository statistics
+edit_uri: ""  # Disable edit button by setting to empty string
+# Settings for GitHub stars and forks display
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Joaopeuko/Mql5-Python-Integration
+      name: GitHub
+  analytics:
+    provider: google
+    property: !ENV GOOGLE_ANALYTICS_KEY
+  status:
+    new: Recently added
+    deprecated: Deprecated
+  # Display GitHub stars and forks metrics
+  analytics:
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/thumb-up-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/thumb-down-outline
+          name: This page could be improved
+          data: 0
+          note: >- 
+            Thanks for your feedback! Help us improve by using
+            <a href="https://github.com/Joaopeuko/Mql5-Python-Integration/issues/new/?title=[Feedback]+{title}+-+{url}" target="_blank" rel="noopener">our issue tracker</a>.
 
 markdown_extensions:
   - pymdownx.snippets
@@ -18,6 +46,9 @@ markdown_extensions:
   - toc:
       permalink: "#"
   - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: Joaopeuko
+      repo: Mql5-Python-Integration
   - attr_list:
   - md_in_html:
   - pymdownx.highlight:
@@ -30,24 +61,33 @@ markdown_extensions:
 
 theme:
   name: material
-  favicon: /img/favicon.svg
-  logo: /img/favicon.svg
+  favicon: assets/favicon.svg
+  logo: assets/logo.svg
   features:
-  - navigation.instant
-  - navigation.instant.prefetch
-  - navigation.instant.progress
-  - navigation.sections
-  - navigation.indexes
-  - navigation.tracking
-  - content.code.annotate
-  - toc.follow
-  - navigation.footer
-  - navigation.top
-  - content.code.copy
-  - content.tabs.link
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.sections
+    - navigation.indexes
+    - navigation.tracking
+    - content.code.annotate
+    - toc.follow
+    - navigation.footer
+    - navigation.top
+    - content.code.copy
+    - content.tabs.link
+    - content.action.edit
+    - content.action.view
+    - content.tooltips
+    # Enable GitHub repository statistics
+    - content.action.edit
+    - content.action.view
+    - navigation.footer
+    # Shows the GitHub icon with repository stats
+    - header.autohide 
+  icon:
+    repo: fontawesome/brands/github
   palette:
-      # Note: Using the system theme works with the insiders version
-      # https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#automatic-light-dark-mode
       - media: "(prefers-color-scheme)"
         toggle:
           icon: material/brightness-auto
@@ -78,9 +118,9 @@ plugins:
       default_handler: python
       handlers:
         python:
-          paths: [.]  # Look for Python modules in the current directory
+          paths: [.]
           options:
-            show_root_heading: false  # Don't show the module name as a heading
+            show_root_heading: false
             show_root_full_path: false
             show_object_full_path: false
             show_category_heading: false
@@ -88,14 +128,14 @@ plugins:
             show_source: true
             show_bases: true
             show_signature: true
-            heading_level: 2  # Start headings at level 2 (h2)
+            heading_level: 2
             members_order: source
             docstring_style: google
             docstring_section_style: table
             separate_signature: true
             merge_init_into_class: true
             show_submodules: false
-            filters: ["!^_[^_]", "!^__init__"]  # Hide private attributes but show __init__
+            filters: ["!^_[^_]", "!^__init__"]
             show_inherited_members: false
             annotations_path: source
             docstring_options:
@@ -105,5 +145,6 @@ plugins:
             show_module_member_docstring: true
   - mkdocs-jupyter
 
-watch:
-  - mqpy  # Watch for changes in the mqpy directory
+nav:
+- Home: index.md
+- API Reference: reference/

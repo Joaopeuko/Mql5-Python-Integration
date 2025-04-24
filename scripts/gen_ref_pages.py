@@ -51,17 +51,23 @@ for path in sorted(package_dir.glob("**/*.py")):
         # fd.write("---\nhide:\n  - toc\n---\n\n")
         fd.write("<!-- Auto-generated API documentation -->\n\n")
         
-        # # Write documentation for classes and functions instead of the module
-        # # This approach avoids generating the module header while still including all content
+        # Write documentation for classes and functions instead of the module
+        # This approach avoids generating the module header while still including all content
         fd.write(f"::: {import_path}\n")
-    # Add to navigation
-    nav[parts] = doc_path.as_posix()
+    
+    # Create title case version of the module name for navigation
+    title_case_parts = list(parts)
+    title_case_parts[-1] = parts[-1].replace('_', ' ').title()
+    
+    # Add to navigation with title case name
+    nav[title_case_parts] = doc_path.as_posix()
     
     # Update index file with simple links
     with mkdocs_gen_files.open(index_path, "a") as index_file:
         rel_path = doc_path.as_posix()
         module_name = parts[-1]
-        index_file.write(f"- [{module_name}]({rel_path})\n")
+        title_case_name = module_name.replace('_', ' ').title()
+        index_file.write(f"- [{title_case_name}]({rel_path})\n")
 
 # Generate and write the navigation file
 with mkdocs_gen_files.open("reference/SUMMARY.md", "w") as nav_file:
