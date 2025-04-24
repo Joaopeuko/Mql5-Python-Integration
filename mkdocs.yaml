@@ -146,4 +146,5 @@ plugins:
   - mkdocs-jupyter
 nav:
 - Home: index.md
-- API Reference: reference/
+- Contributing: contributing.md
+- Code documentation: reference/
