@@ -14,8 +14,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
     install_requires=[
-        "metatrader5 == 5.0.4874",
-        "setuptools == 78.1.0",
+        "metatrader5 == 5.0.4993",
+        "setuptools == 79.0.1",
     ],
     entry_points={
         "console_scripts": [
