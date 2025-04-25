@@ -1,4 +1,4 @@
-name: Test | Test MetaTrader5 Integration
+name: Test MetaTrader5 Integration
 
 on:
   push:
@@ -39,7 +39,7 @@ jobs:
           exit 1
         }
         
-        # Start MT5 in portable mode
+        # Start MT5 in portable mode and give it time to initialize
         $mtProcess = Start-Process -FilePath $mtPath -ArgumentList "/portable" -PassThru
         $processId = $mtProcess.Id
         Write-Host "Started MetaTrader 5 terminal with process ID: $processId"
@@ -50,38 +50,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install MetaTrader5
 
-    - name: Test MetaTrader5 connection
+    - name: Test MetaTrader5 connection with improved script
       run: |
-        # Create a resilient test script
-        $script = @"
-        import MetaTrader5 as mt5
-        import time
-        import sys
-        
-        print(f"MetaTrader5 package version: {mt5.__version__}")
-        
-        # Try to connect with retries
-        max_attempts = 3
-        for attempt in range(max_attempts):
-            print(f"Connection attempt {attempt+1}/{max_attempts}...")
-            
-            if mt5.initialize():
-                print("MetaTrader5 initialized successfully")
-                mt5.shutdown()
-                sys.exit(0)
-            else:
-                error = mt5.last_error()
-                print(f"initialize() failed, error code = {error}")
-                if attempt < max_attempts - 1:
-                    time.sleep(5)
-        
-        # If we're still running, all attempts failed
-        # But we'll exit with success for CI purposes
-        print("Warning: Could not connect to MetaTrader5, but continuing...")
-        sys.exit(0)
-        "@
-        
-        # Save and run the script
-        $script | Out-File -FilePath "test_mt5_connection.py" -Encoding utf8
-        python test_mt5_connection.py
+        python tests/integration/test_mt5_connection.py
 

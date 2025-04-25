@@ -1,7 +1,8 @@
 """Integration tests for MetaTrader 5 connection functionality."""
 
 import sys
-
+import os
+import time
 import MetaTrader5 as mt5
 
 
@@ -13,22 +14,44 @@ def test_mt5_connection() -> bool:
     """
     print(f"MetaTrader5 package version: {mt5.__version__}")
 
-    # Initialize MetaTrader 5
-    if not mt5.initialize():
-        print(f"initialize() failed, error code = {mt5.last_error()}")
-        sys.exit(1)
+    # Define path to the MetaTrader terminal executable
+    path = "C:\\Program Files\\MetaTrader 5\\terminal64.exe"
+    print(f"MetaTrader5 path: {path}")
 
-    print(mt5.terminal_info())
-    print(f"MetaTrader5 terminal copyright: {mt5.terminal_info().copyright}")
-    print(f"MetaTrader5 terminal name: {mt5.terminal_info().name}")
-    print(f"MetaTrader5 terminal path: {mt5.terminal_info().path}")
+    # Try to initialize with explicit path parameter
+    if not mt5.initialize(path=path):
+        error = mt5.last_error()
+        print(f"initialize() with path failed, error code = {error}")
 
-    authorized = mt5.login()
-    if authorized:
-        print(f"Connected to account: {mt5.account_info().login}")
-        print(f"Balance: {mt5.account_info().balance}")
+        # Try the second method: initialize with just a delay 
+        time.sleep(3)  # Give some time before retry
+        print("Retrying initialization...")
+        if not mt5.initialize():
+            error = mt5.last_error()
+            print(f"initialize() without path failed, error code = {error}")
+            sys.exit(1)
 
+    # Connection successful
+    print("MetaTrader5 initialized successfully")
+
+    # Get account info
+    account_info = mt5.account_info()
+    if account_info is not None:
+        print(f"Account info: server={account_info.server}, balance={account_info.balance}")
+    else:
+        print("Failed to get account info - this is normal without login credentials")
+
+    # Get terminal info
+    terminal_info = mt5.terminal_info()
+    if terminal_info is not None:
+        print(f"Terminal info: connected={terminal_info.connected}, path={terminal_info.path}")
+    else:
+        print("Failed to get terminal info")
+
+    # Shutdown the connection
+    print("Shutting down MetaTrader5 connection...")
     mt5.shutdown()
+    print("Done")
 
     print("Test completed successfully")
     return True
