@@ -20,10 +20,17 @@ jobs:
     - name: Download MetaTrader 5
       run: |
         Invoke-WebRequest -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" -OutFile mt5setup.exe
+        # Verify download was successful
+        if (!(Test-Path "mt5setup.exe")) {
+          Write-Error "MetaTrader 5 download failed."
+          exit 1
+        }
 
     - name: Install MetaTrader 5 silently
       run: |
         Start-Process -FilePath .\mt5setup.exe -ArgumentList "/auto" -Wait
+        # Give installation some time to complete
+        Start-Sleep -Seconds 30
 
     - name: Verify MetaTrader 5 Installation
       run: |
