@@ -1,3 +1,7 @@
+"""EURUSD FiMathe Expert Advisor for MetaTrader 5.
+This Expert Advisor uses Fibonacci retracement levels to determine entry and exit points.
+"""
+
 import MetaTrader5 as Mt5
 import numpy as np
 from include.rates import Rates

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import MetaTrader5 as Mt5
 
@@ -21,11 +21,11 @@ class Book:
         else:
             print(f"Error adding {self.symbol} to the market book. Error: {Mt5.last_error()}")
 
-    def get(self) -> Optional[dict]:
+    def get(self) -> Optional[Dict[str, Any]]:
         """Get the market book for the financial instrument.
 
         Returns:
-            Optional[dict]: A dictionary representing the market book, or None if unsuccessful.
+            Optional[Dict[str, Any]]: A dictionary representing the market book, or None if unsuccessful.
         """
         return Mt5.market_book_get(self.symbol)
 

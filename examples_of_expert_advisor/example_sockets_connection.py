@@ -1,3 +1,7 @@
+"""Example Expert Advisor demonstrating socket connections with MetaTrader 5.
+This example uses stochastic oscillator and moving average indicators to generate trading signals.
+"""
+
 import MetaTrader5 as Mt5
 from include.indicator_connector import Indicator
 from include.rates import Rates

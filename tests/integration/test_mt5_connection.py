@@ -1,10 +1,16 @@
+"""Integration tests for MetaTrader 5 connection functionality."""
+
 import sys
 
 import MetaTrader5 as mt5
 
 
-def test_mt5_connection():
-    """Test basic connection to MetaTrader 5 terminal."""
+def test_mt5_connection() -> bool:
+    """Test basic connection to MetaTrader 5 terminal.
+
+    Returns:
+        bool: True if the connection test was successful.
+    """
     print(f"MetaTrader5 package version: {mt5.__version__}")
 
     # Initialize MetaTrader 5

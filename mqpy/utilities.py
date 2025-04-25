@@ -1,3 +1,7 @@
+"""Utility module for MetaTrader 5 integration.
+Provides helper functions and classes for trading operations.
+"""
+
 from datetime import datetime
 
 import MetaTrader5 as Mt5

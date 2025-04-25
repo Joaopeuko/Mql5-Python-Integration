@@ -1,14 +1,26 @@
+"""Module for generating MT5 expert advisor template files.
+
+Provides functionality to create template files for trading strategies.
+"""
+
 import argparse
+from typing import Any
 
 
-def get_arguments():
+def get_arguments() -> dict[str, Any]:
+    """Parse command line arguments.
+
+    Returns:
+        dict[str, Any]: Dictionary containing the parsed arguments.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--file_name", type=str, action="store", default="demo")
     parser.add_argument("--symbol", type=str, action="store", default="EURUSD")
     return vars(parser.parse_args())
 
 
-def main():
+def main() -> None:
+    """Generate a template file for a trading strategy."""
     file_name = get_arguments()["file_name"]
     symbol = get_arguments()["symbol"]
 

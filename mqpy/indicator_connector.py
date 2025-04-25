@@ -1,5 +1,10 @@
+"""MetaQuotes Language 5 Python integration module for technical indicators.
+This module provides a bridge between Python and MT5 indicators through socket connections.
+"""
+
 import json
 import socket
+from typing import Any, Dict, Optional
 
 # To be able to use it you need the MQL5 Service to send the data, it is possible to found it here:
 # -------------------------------------------------------------------- #
@@ -55,7 +60,7 @@ import socket
 
 
 class Indicator:
-    def __init__(self, address="localhost", port=9090, listen=1):
+    def __init__(self, address: str = "localhost", port: int = 9090, listen: int = 1) -> None:
         self.address = address
         self.port = port
         self.listen = listen
@@ -68,8 +73,8 @@ class Indicator:
     # -------------------------------------------------------------------- #
 
     def accelerator_oscillator(
-        self, symbol, time_frame=1, start_position=0
-    ):  # Change it if you want past values, zero is the most recent.
+        self, symbol: str, time_frame: int = 1, start_position: int = 0
+    ) -> Optional[Dict[str, Any]]:  # Change it if you want past values, zero is the most recent.
         try:
             client_socket, address = self.s.accept()
             message = f"accelerator_oscillator," f"{symbol}," f"{time_frame}," f"{start_position}"
@@ -83,25 +88,27 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
+                return None
 
         except ConnectionResetError:
             pass
-
         except ConnectionAbortedError:
             pass
+
+        return None
 
     # -------------------------------------------------------------------- #
 
     def accumulation_distribution(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
         # applied_volume:
         # 0 - VOLUME_TICK
         # 1 - VOLUME_REAL
-        applied_volume=0,
-    ):
+        applied_volume: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -128,12 +135,12 @@ class Indicator:
 
     def adaptive_moving_average(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        ama_period=9,
-        fast_ma_period=2,
-        slow_ma_period=30,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        ama_period: int = 9,
+        fast_ma_period: int = 2,
+        slow_ma_period: int = 30,
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -142,8 +149,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=4,
-    ):
+        applied_price: int = 4,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -177,18 +184,18 @@ class Indicator:
 
     def alligator(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        jaw_period=13,
-        teeth_period=8,
-        lips_period=5,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        jaw_period: int = 13,
+        teeth_period: int = 8,
+        lips_period: int = 5,
         # method:
         # 0 - MODE_SMA
         # 1 - MODE_EMA
         # 2 - MODE_SMMA
         # 3 - MODE_LWMA
-        ma_method=2,
+        ma_method: int = 2,
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -197,8 +204,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=4,
-    ):
+        applied_price: int = 4,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -232,8 +239,12 @@ class Indicator:
     # -------------------------------------------------------------------- #
 
     def average_directional_index(
-        self, symbol, time_frame=1, period=14, start_position=0
-    ):  # Change it if you want past values, zero is the most recent.
+        self,
+        symbol: str,
+        time_frame: int = 1,
+        period: int = 14,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = f"average_directional_index," f"{symbol}," f"{time_frame}," f"{period}," f"{start_position}"
@@ -254,13 +265,15 @@ class Indicator:
         except ConnectionAbortedError:
             pass
 
-        # -------------------------------------------------------------------- #
+    # -------------------------------------------------------------------- #
 
     def average_directional_index_wilder(
-        self, symbol, time_frame=1, period=14, start_position=0
-    ):  # Change it if you want past values, zero is the most
-        # recent.
-
+        self,
+        symbol: str,
+        time_frame: int = 1,
+        period: int = 14,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -287,11 +300,11 @@ class Indicator:
 
     def average_true_range(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        ma_period=14,
-    ):
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        ma_period: int = 14,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = f"average_true_range," f"{symbol}," f"{time_frame}," f"{start_position}," f"{ma_period}"
@@ -315,8 +328,8 @@ class Indicator:
     # -------------------------------------------------------------------- #
 
     def awesome_oscillator(
-        self, symbol, time_frame=1, start_position=0
-    ):  # Change it if you want past values, zero is the most recent.
+        self, symbol: str, time_frame: int = 1, start_position: int = 0
+    ) -> Optional[Dict[str, Any]]:  # Change it if you want past values, zero is the most recent.
         try:
             client_socket, address = self.s.accept()
             message = f"awesome_oscillator," f"{symbol}," f"{time_frame}," f"{start_position}"
@@ -341,12 +354,12 @@ class Indicator:
     # Free
     def bollinger_bands(
         self,
-        symbol,
-        time_frame=1,
-        period=20,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        ma_shift=0,
-        deviation=2.000,
+        symbol: str,
+        time_frame: int = 1,
+        period: int = 20,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        ma_shift: int = 0,
+        deviation: float = 2.000,
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -355,8 +368,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=0,
-    ):
+        applied_price: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -390,11 +403,11 @@ class Indicator:
 
     def bears_power(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        ma_period=13,
-    ):
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        ma_period: int = 13,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = f"bears_power," f"{symbol}," f"{time_frame}," f"{start_position}," f"{ma_period}"
@@ -419,11 +432,11 @@ class Indicator:
 
     def bulls_power(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        ma_period=13,
-    ):
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        ma_period: int = 13,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = f"bulls_power," f"{symbol}," f"{time_frame}," f"{start_position}," f"{ma_period}"
@@ -448,22 +461,22 @@ class Indicator:
 
     def chaikin_oscillator(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        fast_ma_period=3,
-        slow_ma_period=10,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        fast_ma_period: int = 3,
+        slow_ma_period: int = 10,
         # method:
         # 0 - MODE_SMA
         # 1 - MODE_EMA
         # 2 - MODE_SMMA
         # 3 - MODE_LWMA
-        ma_method=1,
+        ma_method: int = 1,
         # applied_volume:
         # 0 - VOLUME_TICK
         # 1 - VOLUME_REAL
-        applied_volume=0,
-    ):
+        applied_volume: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -497,10 +510,10 @@ class Indicator:
 
     def commodity_channel_index(
         self,
-        symbol,
-        time_frame=1,
-        start_position=1,  # Change it if you want past values, zero is the most recent.
-        ma_period=14,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 1,  # Change it if you want past values, zero is the most recent.
+        ma_period: int = 14,
         # For this Indicator, the applied price is shifted.
         # applied_price:
         # 1 - PRICE_CLOSE
@@ -510,8 +523,8 @@ class Indicator:
         # 5 - PRICE_MEDIAN
         # 6 - PRICE_TYPICAL
         # 7 - PRICE_WEIGHTED
-        applied_price=0,
-    ):
+        applied_price: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -543,11 +556,11 @@ class Indicator:
 
     def demarker(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        period=14,
-    ):
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        period: int = 14,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = f"demarker," f"{symbol}," f"{time_frame}," f"{start_position}," f"{period}"
@@ -572,11 +585,10 @@ class Indicator:
 
     def double_exponential_moving_average(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,
-        # Change it if you want past values, zero is the most recent.
-        ma_period=14,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        ma_period: int = 14,
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -585,8 +597,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=0,
-    ):
+        applied_price: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -618,16 +630,16 @@ class Indicator:
 
     def envelopes(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        ma_period=14,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        ma_period: int = 14,
         # method:
         # 0 - MODE_SMA
         # 1 - MODE_EMA
         # 2 - MODE_SMMA
         # 3 - MODE_LWMA
-        ma_method=0,
+        ma_method: int = 0,
         # For this Indicator, the applied price is shifted.
         # applied_price:
         # 1 - PRICE_CLOSE
@@ -637,9 +649,9 @@ class Indicator:
         # 5 - PRICE_MEDIAN
         # 6 - PRICE_TYPICAL
         # 7 - PRICE_WEIGHTED
-        applied_price=1,
-        deviation=0.100,
-    ):
+        applied_price: int = 1,
+        deviation: float = 0.100,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -671,21 +683,21 @@ class Indicator:
 
     def force_index(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        ma_period=13,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        ma_period: int = 13,
         # method:
         # 0 - MODE_SMA
         # 1 - MODE_EMA
         # 2 - MODE_SMMA
         # 3 - MODE_LWMA
-        ma_method=0,
+        ma_method: int = 0,
         # applied_volume:
         # 0 - VOLUME_TICK
         # 1 - VOLUME_REAL
-        applied_volume=0,
-    ):
+        applied_volume: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -718,10 +730,10 @@ class Indicator:
 
     def fractal_adaptive_moving_average(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        ma_period=14,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        ma_period: int = 14,
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -730,8 +742,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=0,
-    ):
+        applied_price: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -762,8 +774,11 @@ class Indicator:
     # -------------------------------------------------------------------- #
 
     def fractals(
-        self, symbol, time_frame=1, start_position=0
-    ):  # Change it if you want past values, zero is the most recent.
+        self,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = f"fractals," f"{symbol}," f"{time_frame}," f"{start_position}"
@@ -788,21 +803,21 @@ class Indicator:
     # https://www.mql5.com/en/forum/41357
     def gator_oscillator(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        jaw_period=13,
-        jaw_shift=8,
-        teeth_period=8,
-        teeth_shift=5,
-        lips_period=5,
-        lips_shift=3,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        jaw_period: int = 13,
+        jaw_shift: int = 8,
+        teeth_period: int = 8,
+        teeth_shift: int = 5,
+        lips_period: int = 5,
+        lips_shift: int = 3,
         # method:
         # 0 - MODE_SMA
         # 1 - MODE_EMA
         # 2 - MODE_SMMA
         # 3 - MODE_LWMA
-        ma_method=2,
+        ma_method: int = 2,
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -811,8 +826,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=4,
-    ):
+        applied_price: int = 4,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -850,13 +865,13 @@ class Indicator:
 
     def ichimoku_kinko_hyo(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        tenkan_sen=9,
-        kijun_sen=26,
-        senkou_span_b=52,
-    ):
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        tenkan_sen: int = 9,
+        kijun_sen: int = 26,
+        senkou_span_b: int = 52,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -889,12 +904,12 @@ class Indicator:
     # Free
     def macd(
         self,
-        symbol,
-        time_frame=1,
-        fast_ema_period=12,
-        slow_ema_period=26,
-        signal_period=9,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
+        symbol: str,
+        time_frame: int = 1,
+        fast_ema_period: int = 12,
+        slow_ema_period: int = 26,
+        signal_period: int = 9,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -903,8 +918,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=0,
-    ):
+        applied_price: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -938,14 +953,14 @@ class Indicator:
 
     def market_facilitation_index(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
         # applied_volume:
         # 0 - VOLUME_TICK
         # 1 - VOLUME_REAL
-        applied_volume=0,
-    ):
+        applied_volume: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -972,10 +987,10 @@ class Indicator:
 
     def momentum(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        mom_period=14,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        mom_period: int = 14,
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -984,8 +999,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=0,
-    ):
+        applied_price: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1012,15 +1027,15 @@ class Indicator:
 
     def money_flow_index(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        ma_period=14,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        ma_period: int = 14,
         # applied_volume:
         # 0 - VOLUME_TICK
         # 1 - VOLUME_REAL
-        applied_volume=0,
-    ):
+        applied_volume: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1052,16 +1067,16 @@ class Indicator:
     # Free
     def moving_average(
         self,
-        symbol,
-        time_frame=1,
-        period=20,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
+        symbol: str,
+        time_frame: int = 1,
+        period: int = 20,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
         # method:
         # 0 - MODE_SMA
         # 1 - MODE_EMA
         # 2 - MODE_SMMA
         # 3 - MODE_LWMA
-        method=0,
+        method: int = 0,
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -1070,8 +1085,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=0,
-    ):
+        applied_price: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1104,12 +1119,12 @@ class Indicator:
 
     def moving_average_of_oscillator(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        fast_ema_period=12,
-        slow_ema_period=26,
-        macd_sma_period=9,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        fast_ema_period: int = 12,
+        slow_ema_period: int = 26,
+        macd_sma_period: int = 9,
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -1118,8 +1133,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=0,
-    ):
+        applied_price: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1153,14 +1168,14 @@ class Indicator:
     # Free
     def obv(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
         # applied_volume:
         # 0 - VOLUME_TICK
         # 1 - VOLUME_REAL
-        applied_volume=0,
-    ):
+        applied_volume: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = f"obv," f"{symbol}," f"{time_frame}," f"{start_position}," f"{applied_volume}"
@@ -1185,12 +1200,12 @@ class Indicator:
 
     def parabolic_sar(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        step=0.02,
-        maximum=0.2,
-    ):
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        step: float = 0.02,
+        maximum: float = 0.2,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = f"parabolic_sar," f"{symbol}," f"{time_frame}," f"{start_position}," f"{step}," f"{maximum}"
@@ -1215,10 +1230,10 @@ class Indicator:
 
     def relative_strength_index(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        ma_period=14,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        ma_period: int = 14,
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -1227,8 +1242,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=0,
-    ):
+        applied_price: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1260,11 +1275,11 @@ class Indicator:
 
     def relative_vigor_index(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        ma_period=10,
-    ):
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        ma_period: int = 10,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = f"relative_vigor_index," f"{symbol}," f"{time_frame}," f"{start_position}," f"{ma_period}"
@@ -1289,16 +1304,16 @@ class Indicator:
 
     def standard_deviation(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        ma_period=20,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        ma_period: int = 20,
         # method:
         # 0 - MODE_SMA
         # 1 - MODE_EMA
         # 2 - MODE_SMMA
         # 3 - MODE_LWMA
-        ma_method=0,
+        ma_method: int = 0,
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -1307,8 +1322,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=0,
-    ):
+        applied_price: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1341,23 +1356,23 @@ class Indicator:
     # Free
     def stochastic(
         self,
-        symbol,
-        time_frame=1,
-        k_period=5,
-        d_period=3,
-        slowing=3,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
+        symbol: str,
+        time_frame: int = 1,
+        k_period: int = 5,
+        d_period: int = 3,
+        slowing: int = 3,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
         # method:
         # 0 - MODE_SMA
         # 1 - MODE_EMA
         # 2 - MODE_SMMA
         # 3 - MODE_LWMA
-        method=0,
+        method: int = 0,
         # applied_price
         # 0 - STO_LOWHIGH
         # 1 - STO_CLOSECLOSE
-        applied_price=0,
-    ):
+        applied_price: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1392,11 +1407,11 @@ class Indicator:
 
     def triple_exponential_ma_oscillator(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values,
         # zero is the most recent.
-        ma_period=14,
+        ma_period: int = 14,
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -1405,8 +1420,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=0,
-    ):
+        applied_price: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1438,11 +1453,11 @@ class Indicator:
 
     def triple_exponential_moving_average(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values,
         # zero is the most recent.
-        ma_period=14,
+        ma_period: int = 14,
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -1451,8 +1466,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=0,
-    ):
+        applied_price: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1484,11 +1499,11 @@ class Indicator:
 
     def variable_index_dynamic_average(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        cmo_period=9,
-        ema_period=12,
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        cmo_period: int = 9,
+        ema_period: int = 12,
         # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
@@ -1497,8 +1512,8 @@ class Indicator:
         # 4 - PRICE_MEDIAN
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
-        applied_price=0,
-    ):
+        applied_price: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1531,14 +1546,14 @@ class Indicator:
 
     def volumes(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
         # applied_volume:
         # 0 - VOLUME_TICK
         # 1 - VOLUME_REAL
-        applied_volume=0,
-    ):
+        applied_volume: int = 0,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = f"volumes," f"{symbol}," f"{time_frame}," f"{start_position}," f"{applied_volume}"
@@ -1563,11 +1578,11 @@ class Indicator:
 
     def williams_percent_range(
         self,
-        symbol,
-        time_frame=1,
-        start_position=0,  # Change it if you want past values, zero is the most recent.
-        calc_period=14,
-    ):
+        symbol: str,
+        time_frame: int = 1,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        calc_period: int = 14,
+    ) -> Optional[Dict[str, Any]]:
         try:
             client_socket, address = self.s.accept()
             message = f"williams_percent_range," f"{symbol}," f"{time_frame}," f"{start_position}," f"{calc_period}"

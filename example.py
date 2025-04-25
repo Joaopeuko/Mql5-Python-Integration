@@ -1,3 +1,7 @@
+"""Example trading strategy using the MQL5-Python integration.
+This example demonstrates a Moving Average Crossover strategy.
+"""
+
 from mqpy.src.rates import Rates
 from mqpy.src.tick import Tick
 from mqpy.src.trade import Trade
