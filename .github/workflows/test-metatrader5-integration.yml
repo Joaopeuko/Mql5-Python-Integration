@@ -1,4 +1,4 @@
-name: Test | MetaTrader5 Integration
+name: Test | Test MetaTrader5 Initialization
 
 on:
   push:
@@ -22,10 +22,10 @@ jobs:
       run: |
         # Download MT5 setup
         Invoke-WebRequest -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" -OutFile mt5setup.exe
-
+        
         # Install MT5 silently
         Start-Process -FilePath .\mt5setup.exe -ArgumentList "/auto" -Wait
-
+        
         # Verify installation
         $mtPath = "C:\Program Files\MetaTrader 5\terminal64.exe"
         if (Test-Path $mtPath) {
@@ -45,13 +45,12 @@ jobs:
         # Kill any existing MT5 instances
         taskkill /F /IM terminal64.exe 2>$null
         Start-Sleep -Seconds 3
-
+        
         # Start MT5 with the /desktop parameter as suggested in MQL5 forum
         $process = Start-Process -FilePath "C:\Program Files\MetaTrader 5\terminal64.exe" -ArgumentList "/portable", "/desktop" -PassThru
-        $pid = $process.Id
-        Write-Host "Started MetaTrader 5 terminal with PID $pid using /desktop parameter"
+        $processId = $process.Id
+        Write-Host "Started MetaTrader 5 terminal with PID $processId using /desktop parameter"
         Start-Sleep -Seconds 30
 
-    - name: Test MT5 Python integration
-      run: |
-        python -c "import sys, MetaTrader5 as mt5; print(f'MT5 version: {mt5.__version__}'); print('Initializing...'); result = mt5.initialize(path=r'C:\\Program Files\\MetaTrader 5\\terminal64.exe', timeout=60000); print(f'Result: {result}, Error: {mt5.last_error()}'); sys.exit(0)"
+    - name: Test MT5 initialization
+      run: python -c "import sys, MetaTrader5 as mt5; print(f'MT5 version: {mt5.__version__}'); print('Initializing...'); result = mt5.initialize(path=r'C:\\Program Files\\MetaTrader 5\\terminal64.exe', timeout=60000); print(f'Result: {result}, Error: {mt5.last_error()}'); sys.exit(0)"
