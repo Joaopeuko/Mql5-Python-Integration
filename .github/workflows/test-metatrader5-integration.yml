@@ -1,4 +1,4 @@
-name: Test MetaTrader5 Initialization
+name: Test | Test MetaTrader5 Initialization
 
 on:
   push:
