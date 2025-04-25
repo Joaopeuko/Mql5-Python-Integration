@@ -22,10 +22,10 @@ jobs:
       run: |
         # Download MT5 setup
         Invoke-WebRequest -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" -OutFile mt5setup.exe
-        
+
         # Install MT5 silently
         Start-Process -FilePath .\mt5setup.exe -ArgumentList "/auto" -Wait
-        
+
         # Verify installation
         $mtPath = "C:\Program Files\MetaTrader 5\terminal64.exe"
         if (Test-Path $mtPath) {
@@ -45,17 +45,17 @@ jobs:
         # Kill any existing MT5 instances
         taskkill /F /IM terminal64.exe 2>$null
         Start-Sleep -Seconds 3
-        
+
         # Start MT5 with the /desktop parameter as suggested in MQL5 forum
         $process = Start-Process -FilePath "C:\Program Files\MetaTrader 5\terminal64.exe" -ArgumentList "/portable", "/desktop" -PassThru
-        $pid = $process.Id
-        Write-Host "Started MetaTrader 5 terminal with PID $pid using /desktop parameter"
+        $processId = $process.Id
+        Write-Host "Started MetaTrader 5 terminal with PID $processId using /desktop parameter"
         Start-Sleep -Seconds 30
 
     - name: Test MT5 Initialization
       run: |
         # Python script for testing MT5 initialization
-        $script = @"
+        $script = @'
 import sys
 import time
 import MetaTrader5 as mt5
@@ -76,7 +76,7 @@ if result:
     if terminal_info:
         print(f"Terminal info - Path: {terminal_info.path}")
         print(f"Terminal connected: {getattr(terminal_info, 'connected', 'N/A')}")
-    
+
     # Shut down properly
     mt5.shutdown()
 else:
@@ -84,13 +84,13 @@ else:
 
 # Always exit with success for CI
 sys.exit(0)
-"@
+'@
 
         # Save script to temporary file
         $script | Out-File -FilePath "test_mt5.py" -Encoding utf8
-        
+
         # Run the test
         python test_mt5.py
-        
+
         # Always continue build
         exit 0

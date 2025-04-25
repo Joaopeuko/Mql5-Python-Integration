@@ -1,4 +1,5 @@
 """Example Expert Advisor demonstrating socket connections with MetaTrader 5.
+
 This example uses stochastic oscillator and moving average indicators to generate trading signals.
 """
 
@@ -50,12 +51,7 @@ while True:
 
     # It uses "try" and catch because sometimes it returns None.
     try:
-        # When in doubt how to handle the indicator, print it, it returns a Dictionary.
-        # logger.info(moving_average)
-        # It prints:
-        # {'symbol': 'PETR4', 'time_frame': 1, 'period': 50, 'start_position': 0, 'method': 0,
-        # 'applied_price': 0, 'moving_average_result': 23.103}
-
+        # When in doubt how to handle the indicator, it returns a Dictionary.
         k_now = stochastic_now["k_result"]
         d_now = stochastic_now["d_result"]
 

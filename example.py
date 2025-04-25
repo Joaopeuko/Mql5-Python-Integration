@@ -1,4 +1,5 @@
 """Example trading strategy using the MQL5-Python integration.
+
 This example demonstrates a Moving Average Crossover strategy.
 """
 
@@ -52,6 +53,3 @@ while True:
     if trade.days_end():
         trade.close_position("End of the trading day reached.")
         break
-
-print("Finishing the program.")
-print("Program finished.")
