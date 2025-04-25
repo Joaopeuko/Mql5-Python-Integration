@@ -1,4 +1,4 @@
-name: Test MetaTrader5 Integration
+name: Test | Test MetaTrader5 Integration
 
 on:
   push:
@@ -26,15 +26,23 @@ jobs:
         Start-Process -FilePath .\mt5setup.exe -ArgumentList "/auto" -Wait
         
         # Verify installation
-        if (Test-Path "C:\Program Files\MetaTrader 5\terminal64.exe") {
+        $mtPath = "C:\Program Files\MetaTrader 5\terminal64.exe"
+        if (Test-Path $mtPath) {
           Write-Host "MetaTrader 5 installed successfully"
+          Write-Host "MetaTrader 5 found at: $mtPath"
+          
+          # List installation directory for debugging
+          Write-Host "Listing MetaTrader 5 installation directory:"
+          Get-ChildItem "C:\Program Files\MetaTrader 5"
         } else {
           Write-Error "MetaTrader 5 installation failed"
           exit 1
         }
         
         # Start MT5 in portable mode
-        Start-Process -FilePath "C:\Program Files\MetaTrader 5\terminal64.exe" -ArgumentList "/portable" -PassThru
+        $mtProcess = Start-Process -FilePath $mtPath -ArgumentList "/portable" -PassThru
+        $processId = $mtProcess.Id
+        Write-Host "Started MetaTrader 5 terminal with process ID: $processId"
         Start-Sleep -Seconds 30
 
     - name: Install Python dependencies
