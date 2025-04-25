@@ -2,11 +2,17 @@
 This example uses stochastic oscillator and moving average indicators to generate trading signals.
 """
 
+import logging
+
 import MetaTrader5 as Mt5
 from include.indicator_connector import Indicator
 from include.rates import Rates
 from include.tick import Tick
 from include.trade import Trade
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # You need this MQL5 service to use indicator:
 # https://www.mql5.com/en/market/product/57574
@@ -45,7 +51,7 @@ while True:
     # It uses "try" and catch because sometimes it returns None.
     try:
         # When in doubt how to handle the indicator, print it, it returns a Dictionary.
-        # print(moving_average)
+        # logger.info(moving_average)
         # It prints:
         # {'symbol': 'PETR4', 'time_frame': 1, 'period': 50, 'start_position': 0, 'method': 0,
         # 'applied_price': 0, 'moving_average_result': 23.103}
@@ -105,5 +111,5 @@ while True:
         trade.close_position("End of the trading day reached.")
         break
 
-print("Finishing the program.")
-print("Program finished.")
+logger.info("Finishing the program.")
+logger.info("Program finished.")

@@ -22,10 +22,10 @@ jobs:
       run: |
         # Download MT5 setup
         Invoke-WebRequest -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" -OutFile mt5setup.exe
-
+        
         # Install MT5 silently
         Start-Process -FilePath .\mt5setup.exe -ArgumentList "/auto" -Wait
-
+        
         # Verify installation
         $mtPath = "C:\Program Files\MetaTrader 5\terminal64.exe"
         if (Test-Path $mtPath) {
@@ -40,39 +40,57 @@ jobs:
         python -m pip install --upgrade pip
         pip install MetaTrader5
 
-    - name: Run MT5 terminal
+    - name: Run MT5 terminal with desktop parameter
       run: |
-        # Start MT5 in portable mode
-        Start-Process -FilePath "C:\Program Files\MetaTrader 5\terminal64.exe" -ArgumentList "/portable" -PassThru
-        Write-Host "Started MetaTrader 5 terminal"
-        Start-Sleep -Seconds 20
+        # Kill any existing MT5 instances
+        taskkill /F /IM terminal64.exe 2>$null
+        Start-Sleep -Seconds 3
+        
+        # Start MT5 with the /desktop parameter as suggested in MQL5 forum
+        $process = Start-Process -FilePath "C:\Program Files\MetaTrader 5\terminal64.exe" -ArgumentList "/portable", "/desktop" -PassThru
+        $pid = $process.Id
+        Write-Host "Started MetaTrader 5 terminal with PID $pid using /desktop parameter"
+        Start-Sleep -Seconds 30
 
     - name: Test MT5 Initialization
       run: |
-        # Simplified Python script for testing MT5 initialization
+        # Python script for testing MT5 initialization
         $script = @"
-        import sys
-        import time
-        import MetaTrader5 as mt5
+import sys
+import time
+import MetaTrader5 as mt5
 
-        print(f"MetaTrader5 package version: {mt5.__version__}")
-        path = r"C:\Program Files\MetaTrader 5\terminal64.exe"
+print(f"MetaTrader5 package version: {mt5.__version__}")
+path = r"C:\Program Files\MetaTrader 5\terminal64.exe"
 
-        # Try initialization with timeout
-        print("Attempting MT5 initialization...")
-        result = mt5.initialize(path=path, timeout=60000)
-        error = mt5.last_error()
-        print(f"Result: {result}, Error code: {error}")
+# Try initialization with the approach from the forum
+print("Attempting MT5 initialization...")
+result = mt5.initialize(path=path, timeout=60000)
+error = mt5.last_error()
+print(f"Result: {result}, Error code: {error}")
 
-        # Always exit with success for CI
-        sys.exit(0)
-        "@
+if result:
+    print("Successfully initialized MetaTrader 5!")
+    # Get terminal info
+    terminal_info = mt5.terminal_info()
+    if terminal_info:
+        print(f"Terminal info - Path: {terminal_info.path}")
+        print(f"Terminal connected: {getattr(terminal_info, 'connected', 'N/A')}")
+    
+    # Shut down properly
+    mt5.shutdown()
+else:
+    print("Failed to initialize MetaTrader 5")
+
+# Always exit with success for CI
+sys.exit(0)
+"@
 
         # Save script to temporary file
         $script | Out-File -FilePath "test_mt5.py" -Encoding utf8
-
+        
         # Run the test
         python test_mt5.py
-
+        
         # Always continue build
         exit 0

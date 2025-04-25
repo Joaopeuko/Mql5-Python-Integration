@@ -1,8 +1,9 @@
 """WIN FiMathe Expert Advisor for MetaTrader 5.
 
-This Expert Advisor is designed for WING21 futures, using Fibonacci retracement levels to 
+This Expert Advisor is designed for WING21 futures, using Fibonacci retracement levels to
 determine entry and exit points.
 """
+
 import MetaTrader5 as Mt5
 import numpy as np
 from include.rates import Rates
@@ -82,10 +83,13 @@ while True:
                 trade.take_profit = zone_618
 
         if len(Mt5.positions_get(symbol=trade.symbol)) == 1:
-            if Mt5.positions_get(symbol=trade.symbol)[0].type == 0 and tick.last > Mt5.positions_get(symbol=trade.symbol)[0].price_open + zone_236:  # if Buy
-                trade.stop_loss = trade.sl_tp_steps
-
-            elif Mt5.positions_get(symbol=trade.symbol)[0].type == 1 and tick.last < Mt5.positions_get(symbol=trade.symbol)[0].price_open - zone_236:  # if Sell
+            if (
+                Mt5.positions_get(symbol=trade.symbol)[0].type == 0
+                and tick.last > Mt5.positions_get(symbol=trade.symbol)[0].price_open + zone_236
+            ) or (
+                Mt5.positions_get(symbol=trade.symbol)[0].type == 1
+                and tick.last < Mt5.positions_get(symbol=trade.symbol)[0].price_open - zone_236
+            ):  # if Buy
                 trade.stop_loss = trade.sl_tp_steps
 
         trade.emergency_stop_loss = trade.stop_loss
