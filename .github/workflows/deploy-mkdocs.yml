@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - ["*"] # <<<<<<<<< Return this to main before merging
 
 permissions:
   contents: write
