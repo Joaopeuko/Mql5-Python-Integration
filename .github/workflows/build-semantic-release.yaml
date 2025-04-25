@@ -1,0 +1,25 @@
+name: Deploy | Semantic Release
+
+on:
+  push:
+    branches:
+      - "main"
+jobs:
+  release:
+    runs-on: windows-latest
+    concurrency: release
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Python Release
+        uses: python-semantic-release/python-semantic-release@v9.20.0
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            push: "true"
+            changelog: "true"

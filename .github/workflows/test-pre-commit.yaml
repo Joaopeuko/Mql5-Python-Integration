@@ -1,0 +1,21 @@
+name: Test | Pre-commit
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  pre-commit:
+    permissions: write-all
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Pre-commit
+        uses: pre-commit/action@v3.0.1
+        with:
+          extra_args: --all-files
