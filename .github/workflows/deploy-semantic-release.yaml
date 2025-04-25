@@ -2,8 +2,7 @@ name: Deploy | Semantic Release
 
 on:
   push:
-    branches:
-      - "main"
+    branches: ['main']
 jobs:
   release:
     runs-on: windows-latest
