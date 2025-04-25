@@ -1,89 +1,90 @@
-"""Module for creating template files for MetaTrader 5 integration.
+"""Module for generating MT5 expert advisor template files.
 
-Provides functions for generating template files.
+Provides functionality to create template files for trading strategies.
 """
 
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 from typing import Any
 
-import MetaTrader5 as Mt5
-
 
 def get_arguments() -> dict[str, Any]:
-    """Get the arguments for the template.
+    """Parse command line arguments.
 
     Returns:
-        dict[str, Any]: The arguments for the template.
+        dict[str, Any]: Dictionary containing the parsed arguments.
     """
-    return {
-        "symbol": "EURUSD",
-        "time_frame": Mt5.TIMEFRAME_M1,
-        "start_position": 0,
-        "count": 100,
-    }
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--file_name", type=str, action="store", default="demo")
+    parser.add_argument("--symbol", type=str, action="store", default="EURUSD")
+    return vars(parser.parse_args())
 
 
-def create_template(file_name: str) -> None:
-    """Create a template file for the expert advisor.
-
-    Args:
-        file_name (str): The name of the file to create.
-
-    Returns:
-        None
-    """
+def main() -> None:
+    """Generate a template file for a trading strategy."""
+    file_name = get_arguments()["file_name"]
     symbol = get_arguments()["symbol"]
 
     with Path(f"{file_name}.py").open("w") as file:
         file.write(
             f"""from mqpy.rates import Rates
 from mqpy.tick import Tick
-from mqpy.book import Book
 from mqpy.trade import Trade
-from mqpy.utilities import Utilities
 
-def main():
-    # Initialize the expert advisor
-    expert = Trade(
-        expert_name="{file_name}",
-        version="1.0",
-        symbol="{symbol}",
-        magic_number=123456,
-        lot=0.1,
-        stop_loss=100,
-        emergency_stop_loss=200,
-        take_profit=100,
-        emergency_take_profit=200,
-    )
+# Initialize the trading strategy
+trade = Trade(
+    expert_name="Moving Average Crossover",
+    version="1.0",
+    symbol="{symbol}",
+    magic_number=567,
+    lot=1.0,
+    stop_loss=25,
+    emergency_stop_loss=300,
+    take_profit=25,
+    emergency_take_profit=300,
+    start_time="9:15",
+    finishing_time="17:30",
+    ending_time="17:50",
+    fee=0.5,
+)
 
-    # Initialize utilities
-    utilities = Utilities()
+# Main trading loop
+prev_tick_time = 0
+short_window_size = 5
+long_window_size = 20  # Adjust the window size as needed
 
-    while True:
-        # Get the current tick
-        tick = Tick("{symbol}")
+while True:
+    # Fetch tick and rates data
+    current_tick = Tick(trade.symbol)
+    historical_rates = Rates(trade.symbol, long_window_size, 0, 1)
 
-        # Get the current market book
-        book = Book("{symbol}")
+    # Check for new tick
+    if current_tick.time_msc != prev_tick_time:
+        # Calculate moving averages
+        short_ma = sum(historical_rates.close[-short_window_size:]) / short_window_size
+        long_ma = sum(historical_rates.close[-long_window_size:]) / long_window_size
 
-        # Get the current rates
-        rates = Rates("{symbol}", Mt5.TIMEFRAME_M1, 0, 100)
+        # Generate signals based on moving average crossover
+        is_cross_above = short_ma > long_ma and current_tick.last > short_ma
+        is_cross_below = short_ma < long_ma and current_tick.last < short_ma
 
-        # Check if trading is allowed
-        if utilities.check_trade_availability("{symbol}", 5):
-            # Open a position
-            expert.open_position(
-                should_buy=True,
-                should_sell=False,
-                comment="Buy position opened by {file_name}",
-            )
+        # Execute trading positions based on signals
+        trade.open_position(is_cross_above, is_cross_below, "Moving Average Crossover Strategy")
 
-        # Close the market book
-        book.release()
+    prev_tick_time = current_tick.time_msc
+
+    # Check if it's the end of the trading day
+    if trade.days_end():
+        trade.close_position("End of the trading day reached.")
+        break
+
+print("Finishing the program.")
+print("Program finished.")
+"""
+        )
+
 
 if __name__ == "__main__":
     main()
-"""
-        )
