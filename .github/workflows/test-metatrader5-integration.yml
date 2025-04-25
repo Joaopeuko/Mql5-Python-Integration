@@ -31,6 +31,15 @@ jobs:
         Start-Process -FilePath .\mt5setup.exe -ArgumentList "/auto" -Wait
         # Give installation some time to complete
         Start-Sleep -Seconds 60
+        
+    - name: Create MetaTrader configuration
+      run: |
+        # Create directory for MetaTrader configuration
+        $mt5ConfigDir = "C:\Users\runneradmin\AppData\Roaming\MetaQuotes\Terminal"
+        if (!(Test-Path $mt5ConfigDir)) {
+          New-Item -Path $mt5ConfigDir -ItemType Directory -Force
+          Write-Host "Created MetaTrader configuration directory: $mt5ConfigDir"
+        }
 
     - name: Verify MetaTrader 5 Installation and Start Terminal
       run: |
@@ -45,17 +54,23 @@ jobs:
         Write-Host "Listing MetaTrader 5 installation directory:"
         Get-ChildItem "C:\Program Files\MetaTrader 5"
         
-        # Start MT5 terminal and give it time to initialize
-        Start-Process -FilePath $mtPath -ArgumentList "/portable" -PassThru
-        Write-Host "Started MetaTrader 5 terminal"
-        Start-Sleep -Seconds 30
+        # Start MT5 terminal without UI and give it time to initialize
+        # Use /portable mode to avoid login requirements
+        $process = Start-Process -FilePath $mtPath -ArgumentList "/portable", "/skipupdate" -PassThru -WindowStyle Hidden
+        $pid = $process.Id
+        Write-Host "Started MetaTrader 5 terminal with PID: $pid"
         
-        # Verify MT5 process is running
-        $process = Get-Process "terminal64" -ErrorAction SilentlyContinue
-        if ($process) {
-          Write-Host "MetaTrader 5 terminal is running with PID: $($process.Id)"
-        } else {
-          Write-Error "MetaTrader 5 terminal is not running."
+        # Give more time for initialization
+        Write-Host "Waiting 60 seconds for MetaTrader 5 to initialize..."
+        Start-Sleep -Seconds 60
+        
+        # Verify MT5 process is still running
+        try {
+          $runningProcess = Get-Process -Id $pid -ErrorAction Stop
+          Write-Host "MetaTrader 5 terminal is still running with PID: $pid"
+        } catch {
+          Write-Error "MetaTrader 5 terminal is no longer running. It may have crashed."
+          exit 1
         }
 
     - name: Install Python dependencies
@@ -63,11 +78,74 @@ jobs:
         python -m pip install --upgrade pip
         pip install MetaTrader5
 
-    - name: Test MetaTrader5 connection
+    - name: Debug MetaTrader environment
+      run: |
+        # Check running processes
+        Write-Host "Checking for MetaTrader processes:"
+        Get-Process | Where-Object { $_.Name -like "*terminal*" -or $_.Name -like "*meta*" } | Format-Table Id, Name, Path, StartTime
+        
+        # Check MT5 installation directories
+        Write-Host "Checking MetaTrader installation directories:"
+        if (Test-Path "C:\Program Files\MetaTrader 5") {
+          Get-ChildItem "C:\Program Files\MetaTrader 5" -Recurse | Select-Object -First 30 | Format-Table FullName
+        }
+        
+        # Check for MetaQuotes directories in AppData
+        Write-Host "Checking AppData for MetaQuotes directories:"
+        if (Test-Path "C:\Users\runneradmin\AppData\Roaming\MetaQuotes") {
+          Get-ChildItem "C:\Users\runneradmin\AppData\Roaming\MetaQuotes" -Recurse | Select-Object -First 30 | Format-Table FullName
+        }
+
+    - name: Test MetaTrader5 connection with retry
       run: |
         # Print environment information
         Write-Host "Environment variables:"
         Get-ChildItem Env: | Format-Table -AutoSize
         
-        # Run the test with diagnostic info
-        python tests/integration/test_mt5_connection.py
+        # Create a retry script for connection
+        $script = @"
+        import MetaTrader5 as mt5
+        import time
+        import sys
+        
+        print(f"MetaTrader5 package version: {mt5.__version__}")
+        
+        # Try to connect with retries
+        max_attempts = 5
+        for attempt in range(max_attempts):
+            print(f"Connection attempt {attempt+1}/{max_attempts}...")
+            
+            # Initialize MT5 connection
+            if mt5.initialize():
+                print("MetaTrader5 initialized successfully")
+                # Get terminal info
+                terminal_info = mt5.terminal_info()
+                if terminal_info is not None:
+                    print(f"Terminal info: connected={terminal_info.connected}, community_account={terminal_info.community_account}")
+                else:
+                    print("Failed to get terminal info")
+                
+                # Get account info
+                account_info = mt5.account_info()
+                if account_info is not None:
+                    print(f"Account info: server={account_info.server}, balance={account_info.balance}")
+                else:
+                    print("Failed to get account info - this is normal without login credentials")
+                
+                mt5.shutdown()
+                sys.exit(0)
+            else:
+                error = mt5.last_error()
+                print(f"initialize() failed, error code = {error}")
+                # Wait before retrying
+                time.sleep(10)
+        
+        # If we got here, all attempts failed
+        sys.exit(1)
+        "@
+        
+        # Save the script to a file
+        $script | Out-File -FilePath "retry_connection.py" -Encoding utf8
+        
+        # Run the script
+        python retry_connection.py
