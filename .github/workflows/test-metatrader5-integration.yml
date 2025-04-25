@@ -53,4 +53,5 @@ jobs:
         Start-Sleep -Seconds 30
         # Start MT5 with the /desktop parameter as suggested in MQL5 forum
         $process = Start-Process -FilePath "C:\Program Files\MetaTrader 5\terminal64.exe" -ArgumentList "/portable", "/desktop" -PassThru
-      run: python -c "import sys, MetaTrader5 as mt5; print(f'MT5 version: {mt5.__version__}'); print('Initializing...'); result = mt5.initialize(path=r'C:\\Program Files\\MetaTrader 5\\terminal64.exe', timeout=60000); print(f'Result: {result}, Error: {mt5.last_error()}'); sys.exit(0)"
+      run: |
+        python -c "import sys, MetaTrader5 as mt5; print(f'MT5 version: {mt5.__version__}'); print('Initializing...'); result = mt5.initialize(path=r'C:\\Program Files\\MetaTrader 5\\terminal64.exe', timeout=60000); print(f'Result: {result}, Error: {mt5.last_error()}'); sys.exit(0)"
