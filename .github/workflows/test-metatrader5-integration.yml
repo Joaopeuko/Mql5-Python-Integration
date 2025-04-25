@@ -2,9 +2,8 @@ name: Test |Test MetaTrader5 Integration
 
 on:
   push:
-    branches: ['main']
+    branches: ['*'] # <<<<<<<<<<<<<<<<<<<<<<<<<< Return to main before merging
   pull_request:
-    branches: ['main']
 
 jobs:
   test:
