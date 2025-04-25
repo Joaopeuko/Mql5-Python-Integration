@@ -30,13 +30,32 @@ jobs:
       run: |
         Start-Process -FilePath .\mt5setup.exe -ArgumentList "/auto" -Wait
         # Give installation some time to complete
-        Start-Sleep -Seconds 30
+        Start-Sleep -Seconds 60
 
-    - name: Verify MetaTrader 5 Installation
+    - name: Verify MetaTrader 5 Installation and Start Terminal
       run: |
-        if (!(Test-Path "C:\Program Files\MetaTrader 5\terminal64.exe")) {
-          Write-Error "MetaTrader 5 installation failed."
+        $mtPath = "C:\Program Files\MetaTrader 5\terminal64.exe"
+        if (!(Test-Path $mtPath)) {
+          Write-Error "MetaTrader 5 installation failed. Terminal executable not found."
           exit 1
+        }
+        Write-Host "MetaTrader 5 found at: $mtPath"
+        
+        # List installation directory contents for debugging
+        Write-Host "Listing MetaTrader 5 installation directory:"
+        Get-ChildItem "C:\Program Files\MetaTrader 5"
+        
+        # Start MT5 terminal and give it time to initialize
+        Start-Process -FilePath $mtPath -ArgumentList "/portable" -PassThru
+        Write-Host "Started MetaTrader 5 terminal"
+        Start-Sleep -Seconds 30
+        
+        # Verify MT5 process is running
+        $process = Get-Process "terminal64" -ErrorAction SilentlyContinue
+        if ($process) {
+          Write-Host "MetaTrader 5 terminal is running with PID: $($process.Id)"
+        } else {
+          Write-Error "MetaTrader 5 terminal is not running."
         }
 
     - name: Install Python dependencies
@@ -46,4 +65,9 @@ jobs:
 
     - name: Test MetaTrader5 connection
       run: |
+        # Print environment information
+        Write-Host "Environment variables:"
+        Get-ChildItem Env: | Format-Table -AutoSize
+        
+        # Run the test with diagnostic info
         python tests/integration/test_mt5_connection.py
