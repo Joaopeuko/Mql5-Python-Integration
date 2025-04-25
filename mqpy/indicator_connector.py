@@ -477,15 +477,17 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
                 logger.exception("Connection lost to MQL5 Service")
-
         except ConnectionResetError:
-            pass
-
+            logger.exception("Connection reset by MQL5 Service")
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection aborted by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
+
+        return None
 
     # -------------------------------------------------------------------- #
     # Free
@@ -540,15 +542,17 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
                 logger.exception("Connection lost to MQL5 Service")
-
         except ConnectionResetError:
-            pass
-
+            logger.exception("Connection reset by MQL5 Service")
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection aborted by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
+
+        return None
 
     # -------------------------------------------------------------------- #
 
@@ -580,15 +584,17 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
                 logger.exception("Connection lost to MQL5 Service")
-
         except ConnectionResetError:
-            pass
-
+            logger.exception("Connection reset by MQL5 Service")
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection aborted by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
+
+        return None
 
     # -------------------------------------------------------------------- #
 
@@ -620,15 +626,17 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
                 logger.exception("Connection lost to MQL5 Service")
-
         except ConnectionResetError:
-            pass
-
+            logger.exception("Connection reset by MQL5 Service")
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection aborted by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
+
+        return None
 
     # -------------------------------------------------------------------- #
 
@@ -751,7 +759,7 @@ class Indicator:
         except ConnectionAbortedError:
             pass
 
-        # -------------------------------------------------------------------- #
+    # -------------------------------------------------------------------- #
 
     def demarker(
         self,

@@ -6,7 +6,7 @@ import time
 import subprocess
 import MetaTrader5 as mt5
 
-def setup_headless_environment():
+def setup_headless_environment() -> bool:
     """Prepare the environment for headless MT5 operation."""
     # Create required directories that might be expected by MT5
     base_path = os.path.expanduser("~")
