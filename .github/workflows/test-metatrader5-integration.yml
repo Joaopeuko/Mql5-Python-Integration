@@ -25,6 +25,13 @@ jobs:
       run: |
         Start-Process -FilePath .\mt5setup.exe -ArgumentList "/auto" -Wait
 
+    - name: Verify MetaTrader 5 Installation
+      run: |
+        if (!(Test-Path "C:\Program Files\MetaTrader 5\terminal64.exe")) {
+          Write-Error "MetaTrader 5 installation failed."
+          exit 1
+        }
+
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
