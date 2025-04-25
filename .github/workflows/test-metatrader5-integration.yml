@@ -40,16 +40,37 @@ jobs:
         python -m pip install --upgrade pip
         pip install MetaTrader5
 
+    - name: Setup virtual display
+      run: |
+        # Install Chocolatey if not already installed
+        if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+          Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+        }
+        
+        # Install VcXsrv Windows X Server
+        choco install vcxsrv -y
+        
+        # Start VcXsrv in background
+        Start-Process "C:\Program Files\VcXsrv\vcxsrv.exe" -ArgumentList "-multiwindow", "-ac", "-terminate", "-lesspointer", "-wgl", "-dpi auto"
+        
+        # Set DISPLAY environment variable
+        [Environment]::SetEnvironmentVariable("DISPLAY", "127.0.0.1:0.0", "Process")
+        
+        Write-Host "Virtual display configured with DISPLAY=127.0.0.1:0.0"
+        Start-Sleep -Seconds 5
+
     - name: Run MT5 terminal with desktop parameter
       run: |
         # Kill any existing MT5 instances
         taskkill /F /IM terminal64.exe 2>$null
         Start-Sleep -Seconds 3
         
-        # Start MT5 with the /desktop parameter as suggested in MQL5 forum
-        $process = Start-Process -FilePath "C:\Program Files\MetaTrader 5\terminal64.exe" -ArgumentList "/portable", "/desktop" -PassThru
+        # Start MT5 with the /portable parameter
+        $process = Start-Process -FilePath "C:\Program Files\MetaTrader 5\terminal64.exe" -ArgumentList "/portable" -PassThru
         $processId = $process.Id
-        Write-Host "Started MetaTrader 5 terminal with PID $processId using /desktop parameter"
+        Write-Host "Started MetaTrader 5 terminal with PID $processId using virtual display"
         Start-Sleep -Seconds 30
 
     - name: Test MT5 initialization
