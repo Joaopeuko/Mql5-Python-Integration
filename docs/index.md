@@ -4,7 +4,7 @@
 
 !!! sponsor "Support MQPy Development"
     MQPy is a free and open-source project that needs your support to continue development!
-    
+
     [💛 Become a Sponsor](https://github.com/sponsors/Joaopeuko){ .md-button .md-button--primary }
 
 # MQPy

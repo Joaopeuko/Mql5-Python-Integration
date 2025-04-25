@@ -377,11 +377,11 @@
       display: none !important;
     }
 
-    /* Hide all first h1 headers - typically module names */  
+    /* Hide all first h1 headers - typically module names */
     h1:first-of-type {
       display: none !important;
     }
-    body > div.md-container > main > div > div.md-sidebar.md-sidebar--secondary > div > div > nav > ul > li:nth-child(1) > a > span { 
+    body > div.md-container > main > div > div.md-sidebar.md-sidebar--secondary > div > div > nav > ul > li:nth-child(1) > a > span {
       display: none !important;
     }
 

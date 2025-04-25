@@ -7,8 +7,7 @@ class Tick:
     """Represents real-time tick data for a financial instrument."""
 
     def __init__(self, symbol: str) -> None:
-        """
-        Initializes a Tick object.
+        """Initializes a Tick object.
 
         Args:
             symbol (str): The financial instrument symbol.

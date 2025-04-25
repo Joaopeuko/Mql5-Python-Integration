@@ -29,7 +29,7 @@ extra:
         - icon: material/thumb-down-outline
           name: This page could be improved
           data: 0
-          note: >- 
+          note: >-
             Thanks for your feedback! Help us improve by using
             <a href="https://github.com/Joaopeuko/Mql5-Python-Integration/issues/new/?title=[Feedback]+{title}+-+{url}" target="_blank" rel="noopener">our issue tracker</a>.
 
@@ -84,7 +84,7 @@ theme:
     - content.action.view
     - navigation.footer
     # Shows the GitHub icon with repository stats
-    - header.autohide 
+    - header.autohide
   icon:
     repo: fontawesome/brands/github
   palette:

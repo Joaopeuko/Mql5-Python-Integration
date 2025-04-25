@@ -22,11 +22,11 @@ mkdocs build
 # If the build was successful, optionally serve
 if [ $? -eq 0 ]; then
     echo "Documentation built successfully."
-    
+
     if [ "$1" == "--serve" ] || [ "$2" == "--serve" ]; then
         echo "Serving documentation at http://localhost:8000"
         mkdocs serve
     fi
 else
     echo "Error building documentation."
-fi 
+fi

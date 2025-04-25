@@ -4,8 +4,7 @@ import MetaTrader5 as Mt5
 
 
 class Trade:
-    """
-    Represents a trading strategy for a financial instrument.
+    """Represents a trading strategy for a financial instrument.
 
     Args:
         expert_name (str): The name of the expert advisor.
@@ -39,8 +38,7 @@ class Trade:
         ending_time: str = "17:50",
         fee: float = 0.0,
     ) -> None:
-        """
-        Initialize the Trade object.
+        """Initialize the Trade object.
 
         Returns:
             None
@@ -79,8 +77,7 @@ class Trade:
         print()
 
     def initialize(self) -> None:
-        """
-        Initialize the MetaTrader 5 instance.
+        """Initialize the MetaTrader 5 instance.
 
         Returns:
             None
@@ -95,8 +92,7 @@ class Trade:
             )
 
     def select_symbol(self) -> None:
-        """
-        Select the trading symbol.
+        """Select the trading symbol.
 
         Returns:
             None
@@ -104,8 +100,7 @@ class Trade:
         Mt5.symbol_select(self.symbol, True)
 
     def prepare_symbol(self) -> None:
-        """
-        Prepare the trading symbol for opening positions.
+        """Prepare the trading symbol for opening positions.
 
         Returns:
             None
@@ -126,8 +121,7 @@ class Trade:
                 quit()
 
     def summary(self) -> None:
-        """
-        Print a summary of the expert advisor parameters.
+        """Print a summary of the expert advisor parameters.
 
         Returns:
             None
@@ -151,8 +145,7 @@ class Trade:
         )
 
     def statistics(self) -> None:
-        """
-        Print statistics of the expert advisor.
+        """Print statistics of the expert advisor.
 
         Returns:
             None
@@ -166,8 +159,7 @@ class Trade:
             print(f"Accuracy: {round((self.profit_deals / self.total_deals) * 100, 2)}%.\n")
 
     def open_buy_position(self, comment: str = "") -> None:
-        """
-        Open a Buy position.
+        """Open a Buy position.
 
         Args:
             comment (str): A comment for the trade.
@@ -199,8 +191,7 @@ class Trade:
         self.request_result(price, result)
 
     def open_sell_position(self, comment: str = "") -> None:
-        """
-        Open a Sell position.
+        """Open a Sell position.
 
         Args:
             comment (str): A comment for the trade.
@@ -232,13 +223,13 @@ class Trade:
         self.request_result(price, result)
 
     def request_result(self, price: float, result) -> None:
-        """
-        Process the result of a trading request.
+        """Process the result of a trading request.
 
         Args:
             price (float): The price of the trade.
             result (Mt5.TradeResult): The result of the trading request.
-                    Returns:
+
+        Returns:
             None
         """
         # Send a trading request
@@ -256,8 +247,7 @@ class Trade:
                 print(f"Position Closed: {result.price}")
 
     def open_position(self, buy: bool, sell: bool, comment: str = "") -> None:
-        """
-        Open a position based on buy and sell conditions.
+        """Open a position based on buy and sell conditions.
 
         Args:
             buy (bool): True if a Buy position should be opened, False otherwise.
@@ -284,8 +274,7 @@ class Trade:
             self.summary()
 
     def close_position(self, comment: str = "") -> None:
-        """
-        Close an open position.
+        """Close an open position.
 
         Args:
             comment (str): A comment for the trade.
@@ -302,8 +291,7 @@ class Trade:
                 self.open_buy_position(comment)
 
     def stop_and_gain(self, comment: str = "") -> None:
-        """
-        Check for stop loss and take profit conditions and close positions accordingly.
+        """Check for stop loss and take profit conditions and close positions accordingly.
 
         Args:
             comment (str): A comment for the trade.
@@ -353,8 +341,7 @@ class Trade:
                 self.statistics()
 
     def days_end(self) -> bool:
-        """
-        Check if it is the end of trading for the day.
+        """Check if it is the end of trading for the day.
 
         Returns:
             bool: True if it is the end of trading for the day, False otherwise.
@@ -364,15 +351,14 @@ class Trade:
         return False
 
     def trading_time(self) -> bool:
-        """
-        Check if it is within the allowed trading time.
+        """Check if it is within the allowed trading time.
 
         Returns:
             bool: True if it is within the allowed trading time, False otherwise.
         """
         if int(self.start_time_hour) < datetime.now().hour < int(self.finishing_time_hour):
             return True
-        elif datetime.now().hour == int(self.start_time_hour):
+        if datetime.now().hour == int(self.start_time_hour):
             if datetime.now().minute >= int(self.start_time_minutes):
                 return True
         elif datetime.now().hour == int(self.finishing_time_hour):

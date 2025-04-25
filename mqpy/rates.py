@@ -7,8 +7,7 @@ class Rates:
     """Represents historical rates data for a financial instrument."""
 
     def __init__(self, symbol: str, time_frame: int, start_pos: int, period: int) -> None:
-        """
-        Initializes a Rates object.
+        """Initializes a Rates object.
 
         Args:
             symbol (str): The financial instrument symbol.
@@ -34,7 +33,7 @@ class Rates:
 
             # Optionally, you can print statements here for debugging
             # print(f"Rates object created for symbol: {self._symbol}")
-        except Exception as e:
+        except Exception:
             # Optionally, you can print statements here for debugging
             # print(f"Failed to create Rates object for symbol {self._symbol}. Error: {e}")
             raise

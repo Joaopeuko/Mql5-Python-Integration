@@ -83,7 +83,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -118,7 +117,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -168,7 +166,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -225,7 +222,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -251,7 +247,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -281,7 +276,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -311,7 +305,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -337,7 +330,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -387,7 +379,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -417,7 +408,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -447,7 +437,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -497,7 +486,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -544,7 +532,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -574,7 +561,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -621,7 +607,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -677,7 +662,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -723,7 +707,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -769,7 +752,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -795,7 +777,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -858,7 +839,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -898,7 +878,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -948,7 +927,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -983,7 +961,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1024,7 +1001,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1065,7 +1041,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1118,7 +1093,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1168,7 +1142,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1201,7 +1174,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1232,7 +1204,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1278,7 +1249,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1308,7 +1278,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1361,7 +1330,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1413,7 +1381,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1460,7 +1427,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1507,7 +1473,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1555,7 +1520,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1588,7 +1552,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass
@@ -1618,7 +1581,6 @@ class Indicator:
 
             except ValueError:
                 print("Connection lost to MQL5 Service")
-                pass
 
         except ConnectionResetError:
             pass

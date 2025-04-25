@@ -51,7 +51,7 @@ function cleanupClipboardText(targetSelector) {
       // Create popup container
       const popup = document.createElement('div');
       popup.className = 'sponsor-popup';
-      
+
       // Create popup content
       popup.innerHTML = `
         <div class="sponsor-popup-content">
@@ -76,26 +76,26 @@ function cleanupClipboardText(targetSelector) {
           </div>
         </div>
       `;
-      
+
       // Add popup to body
       document.body.appendChild(popup);
-      
+
       // Show popup with animation
       setTimeout(() => {
         popup.classList.add('active');
       }, 1000);
-      
+
       // Close button event
       const closeBtn = popup.querySelector('.sponsor-popup-close');
       closeBtn.addEventListener('click', () => {
         popup.classList.remove('active');
-        
+
         // Check if "don't show again" is checked
         const dontShowAgain = document.getElementById('sponsor-popup-dont-show').checked;
         if (dontShowAgain) {
           localStorage.setItem('mqpy_sponsor_popup_shown', 'true');
         }
-        
+
         // Remove popup after animation
         setTimeout(() => {
           popup.remove();

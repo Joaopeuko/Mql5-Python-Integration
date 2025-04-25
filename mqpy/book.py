@@ -7,8 +7,7 @@ class Book:
     """Represents a market book for a financial instrument."""
 
     def __init__(self, symbol: str) -> None:
-        """
-        Initialize the Book object.
+        """Initialize the Book object.
 
         Args:
             symbol (str): The financial instrument symbol.
@@ -23,8 +22,7 @@ class Book:
             print(f"Error adding {self.symbol} to the market book. Error: {Mt5.last_error()}")
 
     def get(self) -> Optional[dict]:
-        """
-        Get the market book for the financial instrument.
+        """Get the market book for the financial instrument.
 
         Returns:
             Optional[dict]: A dictionary representing the market book, or None if unsuccessful.
@@ -32,8 +30,7 @@ class Book:
         return Mt5.market_book_get(self.symbol)
 
     def release(self) -> bool:
-        """
-        Release the market book for the financial instrument.
+        """Release the market book for the financial instrument.
 
         Returns:
             bool: True if successful, False otherwise.

@@ -16,8 +16,7 @@ class Utilities:
         self.__recent_trade: bool = False
 
     def check_trade_availability(self, symbol: str, count_until: int) -> bool:
-        """
-        Check if trading is allowed based on specified conditions.
+        """Check if trading is allowed based on specified conditions.
 
         Args:
             symbol (str): The financial instrument symbol.

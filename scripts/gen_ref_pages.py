@@ -24,7 +24,9 @@ os.makedirs(project_dir / "docs" / "reference", exist_ok=True)
 index_path = Path("reference", "index.md")
 with mkdocs_gen_files.open(index_path, "w") as index_file:
     index_file.write("# API Reference\n\n")
-    index_file.write(f"This section contains the complete API reference for all public modules and classes in {package_name}.\n\n")
+    index_file.write(
+        f"This section contains the complete API reference for all public modules and classes in {package_name}.\n\n"
+    )
     index_file.write("## Available Modules\n\n")
 
 # Create documentation for each module
@@ -32,41 +34,41 @@ for path in sorted(package_dir.glob("**/*.py")):
     module_path = path.relative_to(project_dir).with_suffix("")
     doc_path = path.relative_to(project_dir).with_suffix(".md")
     full_doc_path = Path("reference", doc_path)
-    
+
     # Skip __init__.py and __main__.py for individual pages
     parts = module_path.parts
     if parts[-1] in ["__init__", "__main__"]:
         continue
-    
+
     # Generate proper import path
     import_path = ".".join(parts)
-    
+
     # Create directory for the documentation
     os.makedirs(full_doc_path.parent, exist_ok=True)
-    
+
     # Write the page content - customized to skip module headers
     with mkdocs_gen_files.open(full_doc_path, "w") as fd:
         # Instead of directly using the main import path, create a custom approach
         # that doesn't show the module header but still shows classes and functions
         # fd.write("---\nhide:\n  - toc\n---\n\n")
         fd.write("<!-- Auto-generated API documentation -->\n\n")
-        
+
         # Write documentation for classes and functions instead of the module
         # This approach avoids generating the module header while still including all content
         fd.write(f"::: {import_path}\n")
-    
+
     # Create title case version of the module name for navigation
     title_case_parts = list(parts)
-    title_case_parts[-1] = parts[-1].replace('_', ' ').title()
-    
+    title_case_parts[-1] = parts[-1].replace("_", " ").title()
+
     # Add to navigation with title case name
     nav[title_case_parts] = doc_path.as_posix()
-    
+
     # Update index file with simple links
     with mkdocs_gen_files.open(index_path, "a") as index_file:
         rel_path = doc_path.as_posix()
         module_name = parts[-1]
-        title_case_name = module_name.replace('_', ' ').title()
+        title_case_name = module_name.replace("_", " ").title()
         index_file.write(f"- [{title_case_name}]({rel_path})\n")
 
 # Generate and write the navigation file

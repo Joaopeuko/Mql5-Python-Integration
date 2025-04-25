@@ -9,28 +9,28 @@ on:
 jobs:
   test:
     runs-on: windows-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-        
+
     - name: Download MetaTrader 5
       run: |
         Invoke-WebRequest -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" -OutFile mt5setup.exe
-        
+
     - name: Install MetaTrader 5 silently
       run: |
         Start-Process -FilePath .\mt5setup.exe -ArgumentList "/auto" -Wait
-        
+
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install MetaTrader5
-        
+
     - name: Test MetaTrader5 connection
       run: |
         python tests/integration/test_mt5_connection.py
