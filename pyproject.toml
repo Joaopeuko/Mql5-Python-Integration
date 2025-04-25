@@ -1,20 +1,134 @@
-[tool.poetry]
+[build-system]
+requires = [
+  "setuptools",
+  "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
 name = "mqpy"
+authors = [
+  {name = "Joao Euko"}
+]
 version = "v0.6.9"
 description = "I developed this library to simplify the process of creating an Expert Advisor in MQL5. While developing in MQL5 can be complex, the same task is more streamlined in Python."
-authors = ["Joao Paulo Euko"]
-license = "MIT"
+requires-python = ">=3.9"
+dependencies = []
+
 readme = "README.md"
+license = "MIT"
 
-[tool.poetry.dependencies]
-python = "^3.8"
-metatrader5 = "^5.0.45"
+[tool.setuptools.packages.find]
+where = []
 
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^3.5.0"
-black = ">=23.11,<25.0"
-isort = "^5.12.0"
+[tool.semantic_release]
+version_variable = [
+  "mqpy/version.py:__version__",
+]
+version_toml = [
+  "pyproject.toml:project.version",
+]
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.semantic_release.changelog]
+retain_old_entries = true
+
+[dependency-groups]
+dev = [
+  "pre-commit>=4.0.1",
+  "pylint>=3.3.3",
+  "pytest>=8.3.4",
+  "pytest-cov>=6.0.0",
+]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-gen-files>=0.5.0",
+    "mkdocs-jupyter>=0.25.1",
+    "mkdocs-literate-nav>=0.6.2",
+    "mkdocs-material>=9.6.12",
+    "mkdocs-section-index>=0.3.10",
+    "mkdocstrings[python]>=0.29.1",
+]
+
+# pre-commit
+[tool.pytest.ini_options]
+markers = []
+
+[tool.mypy]
+warn_unused_configs = true
+ignore_missing_imports = true
+disable_error_code = [
+  "misc",
+  "attr-defined",
+  "call-arg",
+  "name-defined",
+]
+show_error_codes = true
+files = "**/*.py"
+
+[tool.ruff]
+line-length = 120
+# Enable Pyflakes `E` and `F` codes by default.
+lint.select = ["ALL"]
+lint.ignore = [
+  "COM812", # Missing trailing comma, conflicting with the formatter
+  "ISC001", # Single line string concatenation, conflicting with the formatter that does it automatically
+  "ANN002", # MissingTypeArgs
+  "ANN003", # MissingTypeKwargs
+  "ANN101", # MissingTypeSelf
+  "EM101", # Exception must not use a string literal, assign to variable first
+  "EM102", # Exception must not use an f-string literal, assign to variable first
+  "RET504", # Unnecessary variable assignment before `return` statement
+  "S301", # `pickle` and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue
+  "PLR0913", # Too many arguments to function call
+  "PLR0915", # Too many statements
+  "PLE0605", # Invalid format for `__all__`, must be `tuple` or `list`
+  "PLR0912", # Too many branches
+  "G004",    # Logging statement uses an f-string
+  "TD002",   # Missing author in TODO
+  "TD003",   # Missing issue link on the line following this TODO
+  "TRY003",  # Long messages outside exception class
+  "FIX",     # Not allowed to use TODO
+  "DTZ007",  # Naive datetime constructed without %z
+]
+# Exclude a variety of commonly ignored directories.
+lint.exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+]
+lint.fixable = ["ALL"]
+# Allow unused variables when underscore-prefixed.
+lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"conftest.py" = ["S101", "D100", "D103", "D417", "FBT001", "INP001"]
+"test_*.py" = ["S101", "D100", "D103", "D417", "FBT001", "INP001"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.pylint]
+allow-magic-value-types = [
+  "int",
+  "str",
+]
