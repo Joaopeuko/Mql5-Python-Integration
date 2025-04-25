@@ -82,15 +82,17 @@ while True:
                 trade.stop_loss = zone_382
                 trade.take_profit = zone_618
 
-        if len(Mt5.positions_get(symbol=trade.symbol)) == 1:
-            if (
+        if len(Mt5.positions_get(symbol=trade.symbol)) == 1 and (
+            (
                 Mt5.positions_get(symbol=trade.symbol)[0].type == 0
                 and tick.last > Mt5.positions_get(symbol=trade.symbol)[0].price_open + zone_236
-            ) or (
+            )
+            or (
                 Mt5.positions_get(symbol=trade.symbol)[0].type == 1
                 and tick.last < Mt5.positions_get(symbol=trade.symbol)[0].price_open - zone_236
-            ):  # if Buy
-                trade.stop_loss = trade.sl_tp_steps
+            )
+        ):
+            trade.stop_loss = trade.sl_tp_steps
 
         trade.emergency_stop_loss = trade.stop_loss
         trade.emergency_take_profit = trade.take_profit

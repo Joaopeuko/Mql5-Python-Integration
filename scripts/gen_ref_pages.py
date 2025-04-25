@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Generate the API reference pages for the MQPy package."""
 
 import sys
