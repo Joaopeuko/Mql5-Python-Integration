@@ -691,15 +691,17 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
                 logger.exception("Connection lost to MQL5 Service")
-
         except ConnectionResetError:
-            pass
-
+            logger.exception("Connection reset by MQL5 Service")
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection aborted by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
+
+        return None
 
     # -------------------------------------------------------------------- #
 
@@ -749,15 +751,17 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
                 logger.exception("Connection lost to MQL5 Service")
-
         except ConnectionResetError:
-            pass
-
+            logger.exception("Connection reset by MQL5 Service")
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection aborted by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
+
+        return None
 
     # -------------------------------------------------------------------- #
 
@@ -789,15 +793,17 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
                 logger.exception("Connection lost to MQL5 Service")
-
         except ConnectionResetError:
-            pass
-
+            logger.exception("Connection reset by MQL5 Service")
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection aborted by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
+
+        return None
 
     # -------------------------------------------------------------------- #
 
@@ -851,10 +857,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         # -------------------------------------------------------------------- #
 
@@ -920,10 +926,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     def force_index(
         self,
@@ -978,10 +984,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         # -------------------------------------------------------------------- #
 
@@ -1035,10 +1041,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
 
@@ -1073,10 +1079,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
     # https://www.mql5.com/en/forum/41357
@@ -1153,10 +1159,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
 
@@ -1205,10 +1211,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
     # Free
@@ -1268,10 +1274,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
 
@@ -1365,10 +1371,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
 
@@ -1482,10 +1488,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
 
@@ -1545,10 +1551,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
     # Free
@@ -1588,10 +1594,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
 
@@ -1630,10 +1636,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
 
@@ -1687,10 +1693,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
 
@@ -1727,10 +1733,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
 
@@ -1792,10 +1798,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
     # Free
@@ -1858,10 +1864,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
 
@@ -1962,10 +1968,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
 
@@ -2022,10 +2028,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
 
@@ -2065,10 +2071,10 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
     # -------------------------------------------------------------------- #
 
@@ -2105,7 +2111,7 @@ class Indicator:
                 logger.exception("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
 
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
