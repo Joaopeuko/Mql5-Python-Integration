@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """Generate the API reference pages for the MQPy package."""
 
-import os
 import sys
 from pathlib import Path
 
@@ -18,7 +17,8 @@ package_name = "mqpy"
 nav = mkdocs_gen_files.Nav()
 
 # Ensure the reference directory exists
-os.makedirs(project_dir / "docs" / "reference", exist_ok=True)
+reference_dir = project_dir / "docs" / "reference"
+reference_dir.mkdir(parents=True, exist_ok=True)
 
 # Create an index page with a better layout
 index_path = Path("reference", "index.md")
@@ -44,17 +44,13 @@ for path in sorted(package_dir.glob("**/*.py")):
     import_path = ".".join(parts)
 
     # Create directory for the documentation
-    os.makedirs(full_doc_path.parent, exist_ok=True)
+    full_doc_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Write the page content - customized to skip module headers
+    # Write the page content
     with mkdocs_gen_files.open(full_doc_path, "w") as fd:
-        # Instead of directly using the main import path, create a custom approach
-        # that doesn't show the module header but still shows classes and functions
-        # fd.write("---\nhide:\n  - toc\n---\n\n")
         fd.write("<!-- Auto-generated API documentation -->\n\n")
 
-        # Write documentation for classes and functions instead of the module
-        # This approach avoids generating the module header while still including all content
+        # Write documentation for classes and functions
         fd.write(f"::: {import_path}\n")
 
     # Create title case version of the module name for navigation

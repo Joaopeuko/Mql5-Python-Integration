@@ -1,4 +1,4 @@
-"""MetaQuotes Language 5 Python integration module for technical indicators.
+"""  Python integration module for technical indicators.
 
 This module provides a bridge between Python and MT5 indicators through socket connections.
 """
