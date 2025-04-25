@@ -3,8 +3,7 @@ name: Deploy | Deploy MkDocs
 on:
   workflow_dispatch:
   push:
-    branches:
-      - ["*"] # <<<<<<<<< Return this to main before merging
+    branches: ['*'] # <<<<<<<<< Return this to main before merging
 
 permissions:
   contents: write
