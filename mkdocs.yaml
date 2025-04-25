@@ -10,29 +10,12 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/Joaopeuko/Mql5-Python-Integration
       name: GitHub
-  analytics:
-    provider: google
-    property: !ENV GOOGLE_ANALYTICS_KEY
+  # analytics:
+  #   provider: google
+  #   property: !ENV GOOGLE_ANALYTICS_KEY
   status:
     new: Recently added
     deprecated: Deprecated
-  # Display GitHub stars and forks metrics
-  analytics:
-    feedback:
-      title: Was this page helpful?
-      ratings:
-        - icon: material/thumb-up-outline
-          name: This page was helpful
-          data: 1
-          note: >-
-            Thanks for your feedback!
-        - icon: material/thumb-down-outline
-          name: This page could be improved
-          data: 0
-          note: >-
-            Thanks for your feedback! Help us improve by using
-            <a href="https://github.com/Joaopeuko/Mql5-Python-Integration/issues/new/?title=[Feedback]+{title}+-+{url}" target="_blank" rel="noopener">our issue tracker</a>.
-
 markdown_extensions:
   - pymdownx.snippets
   - pymdownx.tasklist:
