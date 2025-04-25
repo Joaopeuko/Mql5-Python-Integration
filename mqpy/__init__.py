@@ -4,4 +4,4 @@ This package provides a bridge between Python and MetaTrader 5, allowing users t
 create Expert Advisors and implement trading strategies in Python.
 """
 
-from .version import __version__
+from .version import __version__ as __version__
