@@ -5,8 +5,6 @@ Provides the Tick class for accessing current market price information.
 
 from __future__ import annotations
 
-from typing import Optional
-
 import MetaTrader5 as Mt5
 
 
@@ -75,7 +73,7 @@ class Tick:
         return self._flags
 
     @property
-    def volume_real(self) -> Optional[float]:
+    def volume_real(self) -> float | None:
         """Real volume (if available)."""
         return self._volume_real
 
