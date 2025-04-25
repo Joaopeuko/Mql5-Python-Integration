@@ -1,10 +1,24 @@
 """MetaQuotes Language 5 Python integration module for technical indicators.
+
 This module provides a bridge between Python and MT5 indicators through socket connections.
 """
 
+from __future__ import annotations
+
 import json
+import logging
 import socket
 from typing import Any, Dict, Optional
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# Create console handler with formatting
+console_handler = logging.StreamHandler()
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
 
 # To be able to use it you need the MQL5 Service to send the data, it is possible to found it here:
 # -------------------------------------------------------------------- #
@@ -60,7 +74,24 @@ from typing import Any, Dict, Optional
 
 
 class Indicator:
+    """A class for connecting to and retrieving data from MetaTrader 5 technical indicators.
+
+    This class provides methods to connect to various technical indicators in MetaTrader 5
+    through a socket connection. Each method corresponds to a specific technical indicator
+    and returns its calculated values.
+    """
+
     def __init__(self, address: str = "localhost", port: int = 9090, listen: int = 1) -> None:
+        """Initialize the Indicator connector.
+
+        Args:
+            address (str): The address to bind to. Defaults to "localhost".
+            port (int): The port to bind to. Defaults to 9090.
+            listen (int): The number of connections to accept. Defaults to 1.
+
+        Returns:
+            None
+        """
         self.address = address
         self.port = port
         self.listen = listen
@@ -74,10 +105,20 @@ class Indicator:
 
     def accelerator_oscillator(
         self, symbol: str, time_frame: int = 1, start_position: int = 0
-    ) -> Optional[Dict[str, Any]]:  # Change it if you want past values, zero is the most recent.
+    ) -> dict[str, Any] | None:  # Change it if you want past values, zero is the most recent.
+        """Calculate the Accelerator Oscillator.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+
+        Returns:
+            dict[str, Any] | None: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
-            message = f"accelerator_oscillator," f"{symbol}," f"{time_frame}," f"{start_position}"
+            message = f"accelerator_oscillator,{symbol},{time_frame},{start_position}"
 
             client_socket.send(bytes(message, "utf-8"))
             data = client_socket.recv(1024)
@@ -85,15 +126,15 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
-                print("Connection lost to MQL5 Service")
-                return None
-
+                logger.exception("Connection lost to MQL5 Service")
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection aborted by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
 
         return None
 
@@ -109,6 +150,17 @@ class Indicator:
         # 1 - VOLUME_REAL
         applied_volume: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Accumulation/Distribution.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            applied_volume (int): The volume type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -123,7 +175,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -151,6 +203,20 @@ class Indicator:
         # 6 - PRICE_WEIGHTED
         applied_price: int = 4,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Adaptive Moving Average.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            ama_period (int): The period for the Adaptive Moving Average. Defaults to 9.
+            fast_ma_period (int): The fast moving average period. Defaults to 2.
+            slow_ma_period (int): The slow moving average period. Defaults to 30.
+            applied_price (int): The price type for calculations. Defaults to 4.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -172,7 +238,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -206,6 +272,21 @@ class Indicator:
         # 6 - PRICE_WEIGHTED
         applied_price: int = 4,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Alligator.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            jaw_period (int): The period for the Alligator's jaw. Defaults to 13.
+            teeth_period (int): The period for the Alligator's teeth. Defaults to 8.
+            lips_period (int): The period for the Alligator's lips. Defaults to 5.
+            ma_method (int): The method for the Alligator's moving average. Defaults to 2.
+            applied_price (int): The price type for calculations. Defaults to 4.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -228,7 +309,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -245,6 +326,17 @@ class Indicator:
         period: int = 14,
         start_position: int = 0,  # Change it if you want past values, zero is the most recent.
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Average Directional Index.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            period (int): The period for the Average Directional Index. Defaults to 14.
+            start_position (int): Starting position for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = f"average_directional_index," f"{symbol}," f"{time_frame}," f"{period}," f"{start_position}"
@@ -257,7 +349,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -274,6 +366,17 @@ class Indicator:
         period: int = 14,
         start_position: int = 0,  # Change it if you want past values, zero is the most recent.
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Average Directional Index Wilder.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            period (int): The period for the Average Directional Index Wilder. Defaults to 14.
+            start_position (int): Starting position for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -288,7 +391,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -305,6 +408,17 @@ class Indicator:
         start_position: int = 0,  # Change it if you want past values, zero is the most recent.
         ma_period: int = 14,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Average True Range.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            ma_period (int): The period for the Average True Range. Defaults to 14.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = f"average_true_range," f"{symbol}," f"{time_frame}," f"{start_position}," f"{ma_period}"
@@ -317,7 +431,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -330,6 +444,16 @@ class Indicator:
     def awesome_oscillator(
         self, symbol: str, time_frame: int = 1, start_position: int = 0
     ) -> Optional[Dict[str, Any]]:  # Change it if you want past values, zero is the most recent.
+        """Calculate the Awesome Oscillator.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = f"awesome_oscillator," f"{symbol}," f"{time_frame}," f"{start_position}"
@@ -342,7 +466,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -370,6 +494,20 @@ class Indicator:
         # 6 - PRICE_WEIGHTED
         applied_price: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Bollinger Bands.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            period (int): The period for the Bollinger Bands. Defaults to 20.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            ma_shift (int): The shift for the moving average. Defaults to 0.
+            deviation (float): The deviation for the Bollinger Bands. Defaults to 2.000.
+            applied_price (int): The price type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -391,7 +529,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -408,6 +546,17 @@ class Indicator:
         start_position: int = 0,  # Change it if you want past values, zero is the most recent.
         ma_period: int = 13,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Bears Power.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            ma_period (int): The period for the Bears Power. Defaults to 13.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = f"bears_power," f"{symbol}," f"{time_frame}," f"{start_position}," f"{ma_period}"
@@ -420,7 +569,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -437,6 +586,17 @@ class Indicator:
         start_position: int = 0,  # Change it if you want past values, zero is the most recent.
         ma_period: int = 13,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Bulls Power.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            ma_period (int): The period for the Bulls Power. Defaults to 13.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = f"bulls_power," f"{symbol}," f"{time_frame}," f"{start_position}," f"{ma_period}"
@@ -449,7 +609,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -477,6 +637,20 @@ class Indicator:
         # 1 - VOLUME_REAL
         applied_volume: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Chaikin Oscillator.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            fast_ma_period (int): The period for the fast moving average. Defaults to 3.
+            slow_ma_period (int): The period for the slow moving average. Defaults to 10.
+            ma_method (int): The method for the moving average. Defaults to 1.
+            applied_volume (int): The volume type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -498,7 +672,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -525,6 +699,18 @@ class Indicator:
         # 7 - PRICE_WEIGHTED
         applied_price: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Commodity Channel Index.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 1.
+            ma_period (int): The period for the Commodity Channel Index. Defaults to 14.
+            applied_price (int): The price type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -544,7 +730,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -561,6 +747,17 @@ class Indicator:
         start_position: int = 0,  # Change it if you want past values, zero is the most recent.
         period: int = 14,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the DeMarker.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            period (int): The period for the DeMarker. Defaults to 14.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = f"demarker," f"{symbol}," f"{time_frame}," f"{start_position}," f"{period}"
@@ -573,7 +770,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -599,6 +796,18 @@ class Indicator:
         # 6 - PRICE_WEIGHTED
         applied_price: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Double Exponential Moving Average.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            ma_period (int): The period for the Double Exponential Moving Average. Defaults to 14.
+            applied_price (int): The price type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -618,7 +827,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -652,6 +861,20 @@ class Indicator:
         applied_price: int = 1,
         deviation: float = 0.100,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Envelopes.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            ma_period (int): The period for the Envelopes. Defaults to 14.
+            ma_method (int): The method for the Envelopes. Defaults to 0.
+            applied_price (int): The price type for calculations. Defaults to 1.
+            deviation (float): The deviation for the Envelopes. Defaults to 0.100.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -673,7 +896,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -698,6 +921,19 @@ class Indicator:
         # 1 - VOLUME_REAL
         applied_volume: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Force Index.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            ma_period (int): The period for the Force Index. Defaults to 13.
+            ma_method (int): The method for the Force Index. Defaults to 0.
+            applied_volume (int): The volume type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -718,7 +954,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -744,6 +980,18 @@ class Indicator:
         # 6 - PRICE_WEIGHTED
         applied_price: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Fractal Adaptive Moving Average.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            ma_period (int): The period for the Fractal Adaptive Moving Average. Defaults to 14.
+            applied_price (int): The price type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -763,7 +1011,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -779,6 +1027,16 @@ class Indicator:
         time_frame: int = 1,
         start_position: int = 0,  # Change it if you want past values, zero is the most recent.
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Fractals.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = f"fractals," f"{symbol}," f"{time_frame}," f"{start_position}"
@@ -791,7 +1049,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -828,6 +1086,24 @@ class Indicator:
         # 6 - PRICE_WEIGHTED
         applied_price: int = 4,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Gator Oscillator.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            jaw_period (int): The period for the jaw. Defaults to 13.
+            jaw_shift (int): The shift for the jaw. Defaults to 8.
+            teeth_period (int): The period for the teeth. Defaults to 8.
+            teeth_shift (int): The shift for the teeth. Defaults to 5.
+            lips_period (int): The period for the lips. Defaults to 5.
+            lips_shift (int): The shift for the lips. Defaults to 3.
+            ma_method (int): The method for the moving average. Defaults to 2.
+            applied_price (int): The price type for calculations. Defaults to 4.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -853,7 +1129,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -872,6 +1148,19 @@ class Indicator:
         kijun_sen: int = 26,
         senkou_span_b: int = 52,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Ichimoku Kinko Hyo.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            tenkan_sen (int): The period for the Tenkan-sen. Defaults to 9.
+            kijun_sen (int): The period for the Kijun-sen. Defaults to 26.
+            senkou_span_b (int): The period for the Senkou Span B. Defaults to 52.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -892,7 +1181,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -920,6 +1209,20 @@ class Indicator:
         # 6 - PRICE_WEIGHTED
         applied_price: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Moving Average Convergence Divergence.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            fast_ema_period (int): The period for the fast EMA. Defaults to 12.
+            slow_ema_period (int): The period for the slow EMA. Defaults to 26.
+            signal_period (int): The period for the signal line. Defaults to 9.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            applied_price (int): The price type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -941,7 +1244,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -960,7 +1263,18 @@ class Indicator:
         # 0 - VOLUME_TICK
         # 1 - VOLUME_REAL
         applied_volume: int = 0,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
+        """Calculate the Market Facilitation Index.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            applied_volume (int): Volume type to use in calculations. Defaults to 0 (VOLUME_TICK).
+
+        Returns:
+            dict[str, Any] | None: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -973,15 +1287,15 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
-                print("Connection lost to MQL5 Service")
-
+                logger.exception("Connection lost to MQL5 Service")
         except ConnectionResetError:
-            pass
+            logger.exception("Connection reset by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
 
-        except ConnectionAbortedError:
-            pass
+        return None
 
     # -------------------------------------------------------------------- #
 
@@ -1001,6 +1315,18 @@ class Indicator:
         # 6 - PRICE_WEIGHTED
         applied_price: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Momentum.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            mom_period (int): The period for the Momentum. Defaults to 14.
+            applied_price (int): The price type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1015,7 +1341,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -1036,6 +1362,18 @@ class Indicator:
         # 1 - VOLUME_REAL
         applied_volume: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Money Flow Index.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            ma_period (int): The period for the Money Flow Index. Defaults to 14.
+            applied_volume (int): The volume type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1055,7 +1393,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -1087,6 +1425,19 @@ class Indicator:
         # 6 - PRICE_WEIGHTED
         applied_price: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Moving Average.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            period (int): The period for the Moving Average. Defaults to 20.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            method (int): The method for the Moving Average. Defaults to 0.
+            applied_price (int): The price type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1107,7 +1458,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -1135,6 +1486,20 @@ class Indicator:
         # 6 - PRICE_WEIGHTED
         applied_price: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Moving Average of Oscillator.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            fast_ema_period (int): The period for the fast EMA. Defaults to 12.
+            slow_ema_period (int): The period for the slow EMA. Defaults to 26.
+            macd_sma_period (int): The period for the MACD SMA. Defaults to 9.
+            applied_price (int): The price type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1156,7 +1521,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -1176,6 +1541,17 @@ class Indicator:
         # 1 - VOLUME_REAL
         applied_volume: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the On Balance Volume.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            applied_volume (int): The volume type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = f"obv," f"{symbol}," f"{time_frame}," f"{start_position}," f"{applied_volume}"
@@ -1188,7 +1564,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -1206,6 +1582,18 @@ class Indicator:
         step: float = 0.02,
         maximum: float = 0.2,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Parabolic SAR.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            step (float): The step for the Parabolic SAR. Defaults to 0.02.
+            maximum (float): The maximum for the Parabolic SAR. Defaults to 0.2.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = f"parabolic_sar," f"{symbol}," f"{time_frame}," f"{start_position}," f"{step}," f"{maximum}"
@@ -1218,7 +1606,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -1244,6 +1632,18 @@ class Indicator:
         # 6 - PRICE_WEIGHTED
         applied_price: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Relative Strength Index.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            ma_period (int): The period for the Relative Strength Index. Defaults to 14.
+            applied_price (int): The price type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1263,7 +1663,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -1280,6 +1680,17 @@ class Indicator:
         start_position: int = 0,  # Change it if you want past values, zero is the most recent.
         ma_period: int = 10,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Relative Vigor Index.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            ma_period (int): The period for the Relative Vigor Index. Defaults to 10.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = f"relative_vigor_index," f"{symbol}," f"{time_frame}," f"{start_position}," f"{ma_period}"
@@ -1292,7 +1703,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -1324,6 +1735,19 @@ class Indicator:
         # 6 - PRICE_WEIGHTED
         applied_price: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Standard Deviation.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            ma_period (int): The period for the Standard Deviation. Defaults to 20.
+            ma_method (int): The method for the Standard Deviation. Defaults to 0.
+            applied_price (int): The price type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1344,7 +1768,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -1373,6 +1797,21 @@ class Indicator:
         # 1 - STO_CLOSECLOSE
         applied_price: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Stochastic.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            k_period (int): The period for the Stochastic. Defaults to 5.
+            d_period (int): The period for the Stochastic. Defaults to 3.
+            slowing (int): The slowing for the Stochastic. Defaults to 3.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            method (int): The method for the Stochastic. Defaults to 0.
+            applied_price (int): The price type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1395,7 +1834,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -1408,11 +1847,10 @@ class Indicator:
     def triple_exponential_ma_oscillator(
         self,
         symbol: str,
-        time_frame: int = 1,
-        start_position: int = 0,  # Change it if you want past values,
-        # zero is the most recent.
+        time_frame: int,
+        start_position: int = 0,  # Change it if you want past values, zero is the most recent.
+        count: int = 100,  # Number of elements to be calculated.
         ma_period: int = 14,
-        # applied_price:
         # 0 - PRICE_CLOSE
         # 1 - PRICE_OPEN
         # 2 - PRICE_HIGH
@@ -1421,33 +1859,34 @@ class Indicator:
         # 5 - PRICE_TYPICAL
         # 6 - PRICE_WEIGHTED
         applied_price: int = 0,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
+        """Calculate the Triple Exponential Moving Average Oscillator.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            count (int): Number of elements to calculate. Defaults to 100.
+            ma_period (int): Moving average period. Defaults to 14.
+            applied_price (int): Price type to use in calculations. Defaults to 0 (PRICE_CLOSE).
+
+        Returns:
+            dict[str, Any] | None: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
-            message = (
-                f"triple_exponential_ma_oscillator,"
-                f"{symbol},"
-                f"{time_frame},"
-                f"{start_position},"
-                f"{ma_period},"
-                f"{applied_price}"
-            )
-
-            client_socket.send(bytes(message, "utf-8"))
-            data = client_socket.recv(1024)
-
-            result = data.decode("utf-8")
             try:
-                return json.loads(result)
-
+                data = f"TEMA_OSC,{symbol},{time_frame},{start_position},{count},{ma_period},{applied_price}"
+                client_socket.send(data.encode())
+                response = client_socket.recv(1024).decode()
+                return eval(response)
             except ValueError:
-                print("Connection lost to MQL5 Service")
-
+                logger.error("Connection lost to MQL5 Service")
         except ConnectionResetError:
-            pass
-
-        except ConnectionAbortedError:
-            pass
+            logger.error("Connection reset by MQL5 Service")
+        finally:
+            client_socket.close()
+        return None
 
     # -------------------------------------------------------------------- #
 
@@ -1468,6 +1907,17 @@ class Indicator:
         # 6 - PRICE_WEIGHTED
         applied_price: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Triple Exponential Moving Average.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            applied_price (int): The price type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = (
@@ -1487,7 +1937,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -1514,8 +1964,20 @@ class Indicator:
         # 6 - PRICE_WEIGHTED
         applied_price: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Variable Index Dynamic Average.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            cmo_period (int): The period for the CMO. Defaults to 9.
+            ema_period (int): The period for the EMA. Defaults to 12.
+            applied_price (int): The price type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
-            client_socket, address = self.s.accept()
             message = (
                 f"variable_index_dynamic_average,"
                 f"{symbol},"
@@ -1534,7 +1996,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -1554,6 +2016,17 @@ class Indicator:
         # 1 - VOLUME_REAL
         applied_volume: int = 0,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Volumes.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            applied_volume (int): The volume type for calculations. Defaults to 0.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = f"volumes," f"{symbol}," f"{time_frame}," f"{start_position}," f"{applied_volume}"
@@ -1566,7 +2039,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
@@ -1583,6 +2056,17 @@ class Indicator:
         start_position: int = 0,  # Change it if you want past values, zero is the most recent.
         calc_period: int = 14,
     ) -> Optional[Dict[str, Any]]:
+        """Calculate the Williams Percent Range.
+
+        Args:
+            symbol (str): The financial instrument symbol.
+            time_frame (int): The time frame for calculations. Defaults to 1.
+            start_position (int): Starting position for calculations. Defaults to 0.
+            calc_period (int): The period for the Williams Percent Range. Defaults to 14.
+
+        Returns:
+            Optional[Dict[str, Any]]: The calculated values if successful, None otherwise.
+        """
         try:
             client_socket, address = self.s.accept()
             message = f"williams_percent_range," f"{symbol}," f"{time_frame}," f"{start_position}," f"{calc_period}"
@@ -1595,7 +2079,7 @@ class Indicator:
                 return json.loads(result)
 
             except ValueError:
-                print("Connection lost to MQL5 Service")
+                logger.error("Connection lost to MQL5 Service")
 
         except ConnectionResetError:
             pass
