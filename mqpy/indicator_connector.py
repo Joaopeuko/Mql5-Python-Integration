@@ -5,6 +5,7 @@ This module provides a bridge between Python and MT5 indicators through socket c
 
 from __future__ import annotations
 
+import ast
 import json
 import logging
 import socket
@@ -173,15 +174,17 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
                 logger.exception("Connection lost to MQL5 Service")
-
         except ConnectionResetError:
-            pass
-
+            logger.exception("Connection reset by MQL5 Service")
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection aborted by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
+
+        return None
 
     # -------------------------------------------------------------------- #
 
@@ -236,15 +239,17 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
                 logger.exception("Connection lost to MQL5 Service")
-
         except ConnectionResetError:
-            pass
-
+            logger.exception("Connection reset by MQL5 Service")
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection aborted by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
+
+        return None
 
     # -------------------------------------------------------------------- #
 
@@ -307,15 +312,17 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
                 logger.exception("Connection lost to MQL5 Service")
-
         except ConnectionResetError:
-            pass
-
+            logger.exception("Connection reset by MQL5 Service")
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection aborted by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
+
+        return None
 
     # -------------------------------------------------------------------- #
 
@@ -347,15 +354,17 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
                 logger.exception("Connection lost to MQL5 Service")
-
         except ConnectionResetError:
-            pass
-
+            logger.exception("Connection reset by MQL5 Service")
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection aborted by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
+
+        return None
 
     # -------------------------------------------------------------------- #
 
@@ -389,15 +398,17 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
                 logger.exception("Connection lost to MQL5 Service")
-
         except ConnectionResetError:
-            pass
-
+            logger.exception("Connection reset by MQL5 Service")
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection aborted by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
+
+        return None
 
     # -------------------------------------------------------------------- #
 
@@ -429,15 +440,17 @@ class Indicator:
             result = data.decode("utf-8")
             try:
                 return json.loads(result)
-
             except ValueError:
                 logger.exception("Connection lost to MQL5 Service")
-
         except ConnectionResetError:
-            pass
-
+            logger.exception("Connection reset by MQL5 Service")
         except ConnectionAbortedError:
-            pass
+            logger.exception("Connection aborted by MQL5 Service")
+        finally:
+            if "client_socket" in locals():
+                client_socket.close()
+
+        return None
 
     # -------------------------------------------------------------------- #
 
@@ -1879,7 +1892,7 @@ class Indicator:
                 data = f"TEMA_OSC,{symbol},{time_frame},{start_position},{count},{ma_period},{applied_price}"
                 client_socket.send(data.encode())
                 response = client_socket.recv(1024).decode()
-                return eval(response)
+                return ast.literal_eval(response)
             except ValueError:
                 logger.exception("Connection lost to MQL5 Service")
         except ConnectionResetError:
