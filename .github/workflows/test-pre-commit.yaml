@@ -3,7 +3,7 @@ name: Test | Pre-commit
 on:
   pull_request:
   push:
-    branches: ['main']
+    branches: ['*']
 
 jobs:
   pre-commit:
