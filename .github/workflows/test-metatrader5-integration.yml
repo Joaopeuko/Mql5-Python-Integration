@@ -46,7 +46,7 @@ jobs:
         mkdir -p "$env:APPDATA\MetaTrader5Portable"
         
         # Set environment variables to make MT5 run in headless mode
-        echo "MT5_DISABLE_UI=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        echo "MT5_HEADLESS=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         echo "MT5_PORTABLE_PATH=$env:APPDATA\MetaTrader5Portable" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         
         # Copy MT5 files to portable location if needed
@@ -64,80 +64,87 @@ jobs:
 
     - name: Test MT5 initialization
       run: |
-        python "
-        import sys, os, time
-        import MetaTrader5 as mt5
+        # Create a Python script file
+        $pythonScript = @'
+import sys, os, time
+import MetaTrader5 as mt5
+
+print(f'MT5 version: {mt5.__version__}')
+print('MT5_HEADLESS:', os.environ.get('MT5_HEADLESS'))
+print('MT5_PORTABLE_PATH:', os.environ.get('MT5_PORTABLE_PATH'))
+print('Initializing...')
+
+# Try initialization using portable path and headless mode
+portable_path = os.environ.get('MT5_PORTABLE_PATH')
+mt5_path = os.path.join(portable_path, 'terminal64.exe')
+
+print('Starting MT5 initialization...')
+
+# Set environment variable directly in Python
+os.environ['MT5_HEADLESS'] = '1'
+
+# Initialize with minimal parameters
+result = mt5.initialize()
+
+print(f'Initial result: {result}, Error code: {mt5.last_error()}')
+
+# If the initial attempt fails, try additional methods
+if not result:
+    print('Initial attempt failed. Trying with portable path...')
+    result = mt5.initialize(
+        path=mt5_path,
+        login=0,
+        password='',
+        server='',
+        timeout=60000
+    )
+
+    print(f'Result with portable path: {result}, Error code: {mt5.last_error()}')
+
+    # If first attempt fails, try alternative approach
+    if not result:
+        print('First attempt failed. Trying default initialization...')
+        mt5.shutdown()
+        time.sleep(2)
         
-        print(f'MT5 version: {mt5.__version__}')
-        print('MT5_DISABLE_UI:', os.environ.get('MT5_DISABLE_UI'))
-        print('MT5_PORTABLE_PATH:', os.environ.get('MT5_PORTABLE_PATH'))
-        print('Initializing...')
+        # Second attempt: default init
+        result = mt5.initialize(timeout=60000)
+        print(f'Result with default init: {result}, Error code: {mt5.last_error()}')
         
-        # Try initialization using portable path and headless mode
-        portable_path = os.environ.get('MT5_PORTABLE_PATH')
-        mt5_path = os.path.join(portable_path, 'terminal64.exe')
-        
-        print('Starting MT5 initialization...')
-        
-        # Set environment variable directly in Python
-        os.environ['MT5_HEADLESS'] = '1'
-        
-        # Initialize with minimal parameters
-        result = mt5.initialize()
-        
-        print(f'Initial result: {result}, Error code: {mt5.last_error()}')
-        
-        # If the initial attempt fails, try additional methods
+        # Third attempt: standard path
         if not result:
-            print('Initial attempt failed. Trying with portable path...')
+            print('Second attempt failed. Trying with standard path...')
+            mt5.shutdown()
+            time.sleep(2)
             result = mt5.initialize(
-                path=mt5_path,
-                login=0,
-                password='',
-                server='',
+                path='C:\\Program Files\\MetaTrader 5\\terminal64.exe',
                 timeout=60000
             )
-        
-            print(f'Result with portable path: {result}, Error code: {mt5.last_error()}')
-        
-            # If first attempt fails, try alternative approach
+            print(f'Result with standard path: {result}, Error code: {mt5.last_error()}')
+            
             if not result:
-                print('First attempt failed. Trying default initialization...')
-                mt5.shutdown()
-                time.sleep(2)
-                
-                # Second attempt: default init
-                result = mt5.initialize(timeout=60000)
-                print(f'Result with default init: {result}, Error code: {mt5.last_error()}')
-                
-                # Third attempt: standard path
-                if not result:
-                    print('Second attempt failed. Trying with standard path...')
-                    mt5.shutdown()
-                    time.sleep(2)
-                    result = mt5.initialize(
-                        path='C:\\\\Program Files\\\\MetaTrader 5\\\\terminal64.exe',
-                        timeout=60000
-                    )
-                    print(f'Result with standard path: {result}, Error code: {mt5.last_error()}')
-                    
-                    if not result:
-                        print('All initialization attempts failed')
-                        sys.exit(1)
+                print('All initialization attempts failed')
+                sys.exit(1)
+
+print('MT5 initialized successfully')
+account_info = mt5.account_info()
+if account_info is not None:
+    print(f'Account info: {account_info}')
+else:
+    print('No account info available (demo mode)')
+    
+symbol_info = mt5.symbol_info('EURUSD')
+if symbol_info is not None:
+    print(f'Symbol info available: {symbol_info.name}')
+else:
+    print('Symbol info not available')
+    
+mt5.shutdown()
+sys.exit(0)
+'@
+
+        # Write the script to a file
+        $pythonScript | Out-File -FilePath "test_mt5.py" -Encoding utf8
         
-        print('MT5 initialized successfully')
-        account_info = mt5.account_info()
-        if account_info is not None:
-            print(f'Account info: {account_info}')
-        else:
-            print('No account info available (demo mode)')
-            
-        symbol_info = mt5.symbol_info('EURUSD')
-        if symbol_info is not None:
-            print(f'Symbol info available: {symbol_info.name}')
-        else:
-            print('Symbol info not available')
-            
-        mt5.shutdown()
-        sys.exit(0)
-        "
+        # Run the script
+        python test_mt5.py
