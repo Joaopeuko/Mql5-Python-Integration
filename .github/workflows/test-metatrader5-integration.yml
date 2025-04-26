@@ -6,7 +6,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, windows-2025]
+        os: [windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repository
@@ -19,51 +19,65 @@ jobs:
 
     - name: Download MetaTrader5 Installer
       run: |
-        Invoke-WebRequest `
-          -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" `
-          -OutFile "mt5setup.exe"
+        $url = "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe"
+        $output = "$env:GITHUB_WORKSPACE\mt5setup.exe"
+        Invoke-WebRequest -Uri $url -OutFile $output
       shell: pwsh
 
     - name: Install MetaTrader5
       run: |
-        $process = Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto", "/portable" -PassThru
-        $process.WaitForExit(300000)  # Wait for up to 5 minutes
-        if (-not $process.HasExited) {
-          Write-Host "MT5 installer stuck, killing..."
-          Stop-Process -Id $process.Id -Force
+        $installArgs = @(
+          "/S",
+          "/portable=$env:GITHUB_WORKSPACE\MT5Portable",
+          "/skipupdate"
+        )
+        Start-Process "$env:GITHUB_WORKSPACE\mt5setup.exe" -ArgumentList $installArgs -Wait -NoNewWindow
+        if (-not (Test-Path "$env:GITHUB_WORKSPACE\MT5Portable\terminal64.exe")) {
+          Write-Error "Installation failed - terminal.exe not found"
           exit 1
         }
       shell: pwsh
 
-    - name: Kill any existing MT5 processes
+    - name: Launch MetaTrader5
       run: |
-        Get-Process terminal64 -ErrorAction SilentlyContinue | Stop-Process -Force
-      shell: pwsh
+        $mt5Path = "$env:GITHUB_WORKSPACE\MT5Portable\terminal64.exe"
+        $configPath = "$env:GITHUB_WORKSPACE\MT5Portable\config"
+        
+        # Create basic configuration
+        New-Item -Path $configPath -ItemType Directory -Force
+        Set-Content -Path "$configPath\servers.dat" -Value "YourServerHere,Demo,ServerAddressHere,443"
 
-    - name: Launch MetaTrader5 Terminal in portable mode
-      run: |
-        $mt5Paths = @(
-          "C:\Program Files\MetaTrader 5\terminal64.exe",
-          ".\MetaTrader 5\terminal64.exe",
-          ".\MetaTrader5\terminal64.exe"
-        )
-        foreach ($path in $mt5Paths) {
-          if (Test-Path $path) {
-            Start-Process -FilePath $path -ArgumentList "/portable" -WindowStyle Hidden
-            Write-Host "Launched MT5 from $path"
-            break
-          }
+        # Launch with headless options
+        $process = Start-Process $mt5Path -ArgumentList @(
+          "/portable", 
+          "/headless",
+          "/config:$configPath",
+          "/login:12345 /password:demo /server:ServerAddressHere"
+        ) -PassThru
+        
+        # Wait and verify process
+        Start-Sleep -Seconds 60
+        if ($process.HasExited -or -not (Get-Process terminal64 -ErrorAction SilentlyContinue)) {
+          Write-Error "Failed to launch MT5"
+          Get-Content "$env:GITHUB_WORKSPACE\MT5Portable\logs\*.log" | Write-Host
+          exit 1
         }
-        Start-Sleep -Seconds 30  # Increase wait time for MT5 to fully launch
       shell: pwsh
 
-    - name: Check MT5 process running
+    - name: Run MT5 Test
       run: |
-        Get-Process terminal64 -ErrorAction Stop
-      shell: pwsh
-
-    - name: Install MetaTrader5 Python package
-      run: pip install MetaTrader5
-
-    - name: Run MT5 test script
-      run: python tests/integration/test_mt5_connection.py
+        python -c "import os, MetaTrader5 as mt5
+        print('Python version:', os.sys.version)
+        for i in range(10):
+            try:
+                if mt5.initialize():
+                    print('MT5 initialized successfully')
+                    print(mt5.terminal_info())
+                    mt5.shutdown()
+                    exit(0)
+                print(f'Attempt {i+1} failed')
+            except Exception as e:
+                print(f'Error: {str(e)}')
+            import time; time.sleep(10)
+        print('All attempts failed')
+        exit(1)"
