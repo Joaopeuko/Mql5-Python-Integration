@@ -71,7 +71,7 @@ jobs:
         python -c "import os, MetaTrader5 as mt5
         print('Python version:', os.sys.version)
         print('MetaTrader5 version:', mt5.__version__)
-        print('MetaTrader5 Initialization:', mt5.initialize(path='C:\Program Files\MetaTrader 5\terminal64.exe', login=25115284, server="MetaQuotes-Demo",password="4zatlbqx"))
+        print('MetaTrader5 Initialization:', mt5.initialize(login=25115284, server="MetaQuotes-Demo",password="4zatlbqx"))
         for i in range(10):
             try:
                 if mt5.initialize(login=int(os.getenv('MT5_AT_ACC')),
