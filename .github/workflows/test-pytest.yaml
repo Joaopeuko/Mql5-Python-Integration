@@ -33,7 +33,7 @@ jobs:
         shell: pwsh
         run: |
           "## Test Coverage Summary" | Out-File -FilePath summary.md -Encoding utf8
-          "```" | Out-File -FilePath summary.md -Append -Encoding utf8
+          '```' | Out-File -FilePath summary.md -Append -Encoding utf8
           Get-Content pytest-coverage.txt | Out-File -FilePath summary.md -Append -Encoding utf8
-          "```" | Out-File -FilePath summary.md -Append -Encoding utf8
+          '```' | Out-File -FilePath summary.md -Append -Encoding utf8
           Get-Content summary.md | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
