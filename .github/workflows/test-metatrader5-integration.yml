@@ -1,4 +1,4 @@
-name: MetaTrader5 CI Headless Setup
+name: Test | MetaTrader5 Integration Test
 
 on: [push]
 
@@ -21,9 +21,16 @@ jobs:
           -OutFile "mt5setup.exe"
       shell: pwsh
 
-    - name: Install MetaTrader5 silently
+    - name: Install MetaTrader5
       run: |
-        Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/silent" -Wait
+        # Start installer with /auto and /portable, with timeout protection
+        $process = Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto", "/portable" -PassThru
+        $process.WaitForExit(300000)  # Wait max 5 minutes
+        if (-not $process.HasExited) {
+          Write-Host "MT5 installer stuck, killing..."
+          Stop-Process -Id $process.Id -Force
+          exit 1
+        }
       shell: powershell
 
     - name: Kill any existing MT5 processes
