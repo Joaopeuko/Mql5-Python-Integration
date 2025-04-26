@@ -26,11 +26,14 @@ jobs:
         # Install with modern silent parameters
         Start-Process -FilePath .\mt5setup.exe -ArgumentList "/auto", "/portable" -Wait
         
-        # Check standard and portable locations
+        # Check standard and portable locations for both 32-bit and 64-bit versions
         $possiblePaths = @(
           "C:\Program Files\MetaTrader 5\terminal64.exe",
+          "C:\Program Files\MetaTrader 5\terminal.exe",
           ".\MetaTrader 5\terminal64.exe",
-          "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal64.exe"
+          ".\MetaTrader 5\terminal.exe",
+          "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal64.exe",
+          "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal.exe"
         )
         
         $found = $false
@@ -68,27 +71,94 @@ jobs:
         
         # Set environment variables for headless operation
         echo "MT5_HEADLESS=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        echo "MT5_TIMEOUT=60000" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        echo "MT5_DEBUG=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         
-        # Find MT5 path to pass to the test
+        # Find MT5 path to pass to the test - check both 32-bit and 64-bit versions
         $mt5Path = ""
         $possiblePaths = @(
           "C:\Program Files\MetaTrader 5\terminal64.exe",
+          "C:\Program Files\MetaTrader 5\terminal.exe",
           ".\MetaTrader 5\terminal64.exe",
-          "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal64.exe"
+          ".\MetaTrader 5\terminal.exe",
+          "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal64.exe",
+          "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal.exe"
         )
         
         foreach ($path in $possiblePaths) {
           if (Test-Path $path) {
             $mt5Path = $path
+            $mt5Dir = Split-Path -Parent $mt5Path
             echo "MT5_PATH=$mt5Path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            echo "MT5_DIR=$mt5Dir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
             Write-Host "Setting MT5_PATH to $mt5Path"
+            Write-Host "Setting MT5_DIR to $mt5Dir"
+            
+            # Create minimal configuration file to help with headless mode
+            $configContent = @"
+[Common]
+Login=0
+ProxyEnable=0
+CertCheckDisable=1
+AutoUpdate=0
+DisableStartupCompany=1
+EnableOpenCL=0
+News=0
+StartupCompany=0
+Community=0
+AutoUpdate.Enable=0
+"@
+            $configPath = Join-Path $mt5Dir "config\default.ini"
+            New-Item -Path (Split-Path -Parent $configPath) -ItemType Directory -Force
+            Set-Content -Path $configPath -Value $configContent
+            Write-Host "Created default config at $configPath"
+            
             break
           }
         }
 
+    - name: Debug environment
+      run: |
+        Write-Host "Environment variables:"
+        Get-ChildItem Env:
+        
+        Write-Host "MT5 directory contents:"
+        if (Test-Path $env:MT5_DIR) {
+          Get-ChildItem -Path $env:MT5_DIR -Recurse -Depth 1 | Select-Object FullName
+        }
+        
+        Write-Host "System processes:"
+        Get-Process | Where-Object { $_.Name -like "*MetaTrader*" -or $_.Name -like "*terminal*" } | Format-Table -AutoSize
+
     - name: Test MT5 initialization
       run: |
+        # Kill any existing MT5 processes
+        Get-Process | Where-Object { $_.Name -like "*MetaTrader*" -or $_.Name -like "*terminal*" } | ForEach-Object { 
+          Write-Host "Killing process $($_.Name) with ID $($_.Id)"
+          Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue 
+        }
+        
+        # Give system time to clean up processes
+        Start-Sleep -Seconds 5
+        
+        # Start MT5 manually first with configurations that help in headless mode
+        $mt5Process = Start-Process -FilePath $env:MT5_PATH -ArgumentList "/portable", "/config:default.ini", "/skipupdate", "/minimize" -PassThru
+        Write-Host "Started MT5 process with ID $($mt5Process.Id)"
+        
+        # Give MT5 time to fully initialize before Python tries to connect
+        Start-Sleep -Seconds 10
+        
+        # Check process is still running
+        $mt5Running = Get-Process -Id $mt5Process.Id -ErrorAction SilentlyContinue
+        if ($mt5Running) {
+          Write-Host "MT5 process is still running with ID $($mt5Process.Id)"
+        } else {
+          Write-Host "Warning: MT5 process is no longer running"
+        }
+        
         # Use the existing test script
         python test/integration/test_mt5_initialization.py
       env:
         MT5_HEADLESS: 1
+        MT5_TIMEOUT: 60000
+        MT5_DEBUG: 1
