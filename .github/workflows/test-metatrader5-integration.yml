@@ -18,51 +18,77 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Download and Install MetaTrader 5
+    - name: Direct Download and Install MetaTrader 5
       run: |
-        # Download MT5 setup
+        # Download latest MT5 setup directly from official source
         Invoke-WebRequest -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" -OutFile mt5setup.exe
         
-        # Install MT5 silently
-        Start-Process -FilePath .\mt5setup.exe -ArgumentList "/auto" -Wait
+        # Install with modern silent parameters
+        Start-Process -FilePath .\mt5setup.exe -ArgumentList "/auto", "/portable" -Wait
         
-        # Verify installation
-        $mtPath = "C:\Program Files\MetaTrader 5\terminal64.exe"
-        if (Test-Path $mtPath) {
-          Write-Host "MetaTrader 5 installed successfully"
-        } else {
-          Write-Error "MetaTrader 5 installation failed"
+        # Check standard and portable locations
+        $possiblePaths = @(
+          "C:\Program Files\MetaTrader 5\terminal64.exe",
+          ".\MetaTrader 5\terminal64.exe",
+          "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal64.exe"
+        )
+        
+        $found = $false
+        foreach ($path in $possiblePaths) {
+          if (Test-Path $path) {
+            Write-Host "MetaTrader 5 found at: $path"
+            $found = $true
+            break
+          }
+        }
+        
+        if (-not $found) {
+          Write-Error "MetaTrader 5 installation not found in expected locations"
+          
+          # Search for installation
+          Write-Host "Searching for MT5 installation..."
+          $foundPaths = Get-ChildItem -Path "C:\" -Filter "terminal64.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+          foreach ($path in $foundPaths) {
+            Write-Host "Found MT5 at: $path"
+          }
+          
           exit 1
         }
 
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install MetaTrader5
+        pip install MetaTrader5 pytest
 
-    # - name: Create MT5 portable configuration
-    #   run: |
-    #     # Create a portable MT5 directory
-    #     mkdir -p "$env:APPDATA\MetaTrader5Portable"
+    - name: Configure MT5 for headless operation
+      run: |
+        # Create data directory for portable mode
+        $mt5DataDir = ".\MT5_Data"
+        New-Item -Path $mt5DataDir -ItemType Directory -Force
         
-    #     # Set environment variables to make MT5 run in headless mode
-    #     echo "MT5_HEADLESS=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-    #     echo "MT5_PORTABLE_PATH=$env:APPDATA\MetaTrader5Portable" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        # Set environment variables for headless operation
+        echo "MT5_HEADLESS=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         
-    #     # Copy MT5 files to portable location if needed
-    #     if (-not (Test-Path "$env:APPDATA\MetaTrader5Portable\terminal64.exe")) {
-    #       Copy-Item -Path "C:\Program Files\MetaTrader 5\*" -Destination "$env:APPDATA\MetaTrader5Portable\" -Recurse
-    #     }
+        # Find MT5 path to pass to the test
+        $mt5Path = ""
+        $possiblePaths = @(
+          "C:\Program Files\MetaTrader 5\terminal64.exe",
+          ".\MetaTrader 5\terminal64.exe",
+          "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal64.exe"
+        )
         
-    #     # Verify portable setup
-    #     if (Test-Path "$env:APPDATA\MetaTrader5Portable\terminal64.exe") {
-    #       Write-Host "MetaTrader 5 portable setup created successfully"
-    #     } else {
-    #       Write-Error "MetaTrader 5 portable setup failed"
-    #       exit 1
-    #     }
+        foreach ($path in $possiblePaths) {
+          if (Test-Path $path) {
+            $mt5Path = $path
+            echo "MT5_PATH=$mt5Path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            Write-Host "Setting MT5_PATH to $mt5Path"
+            break
+          }
+        }
 
     - name: Test MT5 initialization
       run: |
-        # Run the MT5 initialization test script from the repository
+        # Use the existing test script
         python test/integration/test_mt5_initialization.py
+      env:
+        MT5_HEADLESS: 1
