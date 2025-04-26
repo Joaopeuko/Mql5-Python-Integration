@@ -4,7 +4,7 @@
 # for creating Expert Advisors in MetaTrader 5.
 # """
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name="mqpy",
