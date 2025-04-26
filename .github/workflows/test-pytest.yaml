@@ -26,13 +26,14 @@ jobs:
         
       - name: Run tests with coverage
         run: |
-          pytest \
-            -k . \
-            --cov=mqpy \
-            --cov-append \
-            --cov-report=term-missing:skip-covered \
-            --junitxml=pytest.xml \
-            -x | tee pytest-coverage.txt
+          pytest -k . --cov=mqpy --cov-append --cov-report=term-missing:skip-covered --junitxml=pytest.xml -x | tee pytest-coverage.txt
+          
+      - name: Generate coverage summary
+        run: |
+          echo "## Test Coverage Summary" > summary.md
+          echo "```" >> summary.md
+          type pytest-coverage.txt >> summary.md
+          echo "```" >> summary.md
 
       - name: Add coverage summary to GitHub summary
         run: |
