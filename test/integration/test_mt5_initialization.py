@@ -16,6 +16,7 @@ def test_mt5_initialization():
     # Find MetaTrader 5 installation paths
     possible_paths = [
         r"C:\Program Files\MetaTrader 5\terminal64.exe",
+        r"C:/Program Files/MetaTrader 5/terminal64.exe",
         r"C:\Program Files (x86)\MetaTrader 5\terminal64.exe",
         os.path.join(os.environ.get('APPDATA', ''), 'MetaTrader 5', 'terminal64.exe'),
         os.path.join(os.environ.get('LOCALAPPDATA', ''), 'MetaTrader 5', 'terminal64.exe'),
