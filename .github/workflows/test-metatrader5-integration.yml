@@ -72,6 +72,8 @@ jobs:
       run: |
         python -c "import os, MetaTrader5 as mt5
         print('Python version:', os.sys.version)
+        print('MetaTrader5 version:', mt5.__version__)
+        print('MetaTrader5 Initialization:', mt5.initialize())
         for i in range(10):
             try:
                 if mt5.initialize():
