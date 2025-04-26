@@ -1,6 +1,13 @@
 import MetaTrader5 as mt5
 import time
 import sys
+import os
+import logging
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 
 print('Testing MT5 initialization...')
 
