@@ -97,7 +97,28 @@ jobs:
             }
             error_desc = error_messages.get(error_code, 'Unknown error')
             print(f'Detailed error: {error_desc}')
-            sys.exit(1)
+            
+            # Instead of exiting with error, try a different approach
+            # Recommended by GitHub repo ricardokj/mt5_python_actions
+            print('Trying alternative initialization approach...')
+            
+            # Use an approach similar to that used by ricardokj/mt5_python_actions
+            # This approach relies on portable mode without display requirements
+            import os
+            import subprocess
+            
+            # Initialize without displaying UI
+            os.environ['MT5_DISABLE_UI'] = '1'
+            
+            # Try a simpler initialization with fewer parameters
+            mt5.shutdown()
+            time.sleep(2)
+            result = mt5.initialize(timeout=60000)
+            print(f'Alternative initialization result: {result}, Error: {mt5.last_error()}')
+            
+            if not result:
+                print('Both initialization methods failed.')
+                sys.exit(1)
         else:
             print('MT5 initialized successfully')
             print(f'Terminal info: {mt5.terminal_info()}')
