@@ -40,9 +40,6 @@ jobs:
       run: |
         $mt5Path = Resolve-Path "C:\Program Files\MetaTrader 5\terminal64.exe"
         
-        # Kill existing instances
-        taskkill /IM terminal64.exe /F 2>&1 | Out-Null
-
         # Launch with diagnostics
         Start-Process $mt5Path -ArgumentList @(
             "/portable",
