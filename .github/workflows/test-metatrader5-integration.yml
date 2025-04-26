@@ -77,7 +77,7 @@ jobs:
                 if mt5.initialize(login=int(os.getenv('MT5_AT_ACC')),
                           password=os.getenv('MT5_PW'),
                           server=os.getenv('MT5_AT_SRV'),
-                          path="C:\\Program Files\\MetaTrader 5\\terminal64.exe"):
+                          path='C:\\Program Files\\MetaTrader 5\\terminal64.exe'):
                     print('MT5 initialized successfully')
                     print(mt5.terminal_info())
                     mt5.shutdown()
