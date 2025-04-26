@@ -3,9 +3,9 @@
 This example demonstrates a Moving Average Crossover strategy.
 """
 
-from mqpy.src.rates import Rates
-from mqpy.src.tick import Tick
-from mqpy.src.trade import Trade
+from mqpy.rates import Rates
+from mqpy.tick import Tick
+from mqpy.trade import Trade
 
 # Initialize the trading strategy
 trade = Trade(
@@ -45,7 +45,7 @@ while True:
         is_cross_below = short_ma < long_ma and current_tick.last < short_ma
 
         # Execute trading positions based on signals
-        trade.open_position(is_cross_above, is_cross_below, "Moving Average Crossover Strategy")
+        trade.open_position(should_buy=is_cross_above, should_sell=is_cross_below, comment="Moving Average Crossover Strategy")
 
     prev_tick_time = current_tick.time_msc
 

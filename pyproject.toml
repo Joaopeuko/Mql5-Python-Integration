@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-  "setuptools",
+  "setuptools>=61.0",
   "wheel",
 ]
 build-backend = "setuptools.build_meta"
@@ -8,31 +8,20 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mqpy"
 authors = [
-  {name = "Joao Euko"}
+  {email = "joao@example.com", name = "Joao Euko"},
 ]
 version = "v0.6.9"
 description = "I developed this library to simplify the process of creating an Expert Advisor in MQL5. While developing in MQL5 can be complex, the same task is more streamlined in Python."
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 dependencies = []
 
 readme = "README.md"
-license = "MIT"
+license = {text = "MIT"}
 
-[tool.setuptools.packages.find]
-where = []
+[project.scripts]
+mqpy = "mqpy.__main__:main"
 
-[tool.semantic_release]
-version_variable = [
-  "mqpy/version.py:__version__",
-]
-version_toml = [
-  "pyproject.toml:project.version",
-]
-
-[tool.semantic_release.changelog]
-retain_old_entries = true
-
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
   "pre-commit>=4.0.1",
   "pylint>=3.3.3",
@@ -48,6 +37,20 @@ docs = [
     "mkdocs-section-index>=0.3.10",
     "mkdocstrings[python]>=0.29.1",
 ]
+
+[tool.setuptools]
+packages = ["mqpy"]
+
+[tool.semantic_release]
+version_variable = [
+  "mqpy/version.py:__version__",
+]
+version_toml = [
+  "pyproject.toml:project.version",
+]
+
+[tool.semantic_release.changelog]
+retain_old_entries = true
 
 # pre-commit
 [tool.pytest.ini_options]
