@@ -88,5 +88,8 @@ def test_mt5_initialization():
     return False
 
 if __name__ == "__main__":
+    print('Running MT5 initialization test...')
+    result = mt5.initialize()
+    print(f'Initial result: {result}, Error code: {mt5.last_error()}')
     success = test_mt5_initialization()
     sys.exit(0 if success else 1)
