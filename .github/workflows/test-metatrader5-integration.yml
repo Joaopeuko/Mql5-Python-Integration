@@ -55,10 +55,10 @@ jobs:
             Write-Host "Found MT5 at: $path"
           }
           
-          exit 1
-        }
-
-    - name: Install Python dependencies
+          exit 1details about system architecture
+        } $architecture = [System.Environment]::Is64BitOperatingSystem ? "64-bit" : "32-bit" 
+          Write-Host "System Architecture: $architecture"
+    - name: Install Python dependenciesecture: $([IntPtr]::Size * 8)-bit"
       run: |
         python -m pip install --upgrade pip
         pip install MetaTrader5 pytest
@@ -66,98 +66,143 @@ jobs:
     - name: Configure MT5 for headless operation
       run: |
         # Create data directory for portable mode
-        $mt5DataDir = ".\MT5_Data"
+        $mt5DataDir = ".\MT5_Data"test
         New-Item -Path $mt5DataDir -ItemType Directory -Force
-        
+        me: Configure MT5 for headless operation
         # Set environment variables for headless operation
         echo "MT5_HEADLESS=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         echo "MT5_TIMEOUT=60000" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         echo "MT5_DEBUG=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         
         # Find MT5 path to pass to the test - check both 32-bit and 64-bit versions
-        $mt5Path = ""
-        $possiblePaths = @(
-          "C:\Program Files\MetaTrader 5\terminal64.exe",
+        $mt5Path = ""DLESS=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        $possiblePaths = @(0000" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "C:\Program Files\MetaTrader 5\terminal64.exe",UB_ENV -Encoding utf8 -Append
           "C:\Program Files\MetaTrader 5\terminal.exe",
-          ".\MetaTrader 5\terminal64.exe",
+          ".\MetaTrader 5\terminal64.exe",t - check both 32-bit and 64-bit versions
           ".\MetaTrader 5\terminal.exe",
           "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal64.exe",
           "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal.exe"
-        )
-        
+        ) "C:\Program Files\MetaTrader 5\terminal.exe",
+          ".\MetaTrader 5\terminal64.exe",
         foreach ($path in $possiblePaths) {
-          if (Test-Path $path) {
-            $mt5Path = $path
+          if (Test-Path $path) {es\Terminal\MetaTrader5\terminal64.exe",
+            $mt5Path = $pathQuotes\Terminal\MetaTrader5\terminal.exe"
             $mt5Dir = Split-Path -Parent $mt5Path
             echo "MT5_PATH=$mt5Path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
             echo "MT5_DIR=$mt5Dir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
             Write-Host "Setting MT5_PATH to $mt5Path"
             Write-Host "Setting MT5_DIR to $mt5Dir"
-            
-            # Create minimal configuration file to help with headless mode
-            $configLines = @(
-              '[Common]',
-              'Login=0',
+            $mt5Dir = Split-Path -Parent $mt5Path
+            # Create minimal configuration file to help with headless mode-Encoding utf8 -Append
+            $configLines = @(5Dir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+              '[Common]',etting MT5_PATH to $mt5Path"
+              'Login=0',Setting MT5_DIR to $mt5Dir"
               'ProxyEnable=0',
-              'CertCheckDisable=1',
+              'CertCheckDisable=1',uration file to help with headless mode
               'AutoUpdate=0',
               'DisableStartupCompany=1',
               'EnableOpenCL=0',
-              'News=0',
-              'StartupCompany=0',
-              'Community=0',
-              'AutoUpdate.Enable=0'
-            )
+              'News=0',ble=0',
+              'StartupCompany=0',',
+              'Community=0',,
+              'AutoUpdate.Enable=0'y=1',
+            ) 'EnableOpenCL=0',
             $configPath = Join-Path $mt5Dir "config\default.ini"
             New-Item -Path (Split-Path -Parent $configPath) -ItemType Directory -Force
             $configLines | Out-File -FilePath $configPath -Encoding utf8
             Write-Host "Created default config at $configPath"
-            
-            break
-          }
+            )
+            breakigPath = Join-Path $mt5Dir "config\default.ini"
+          } New-Item -Path (Split-Path -Parent $configPath) -ItemType Directory -Force
+        }   $configLines | Out-File -FilePath $configPath -Encoding utf8
+            Write-Host "Created default config at $configPath"
+    - name: Configure system for MT5 communication
+      run: |break
+        # Create registry settings that can help with IPC communication
+        Write-Host "Configuring system registry for MT5 communication"
+        
+        # Ensure the MetaTrader registry key exists
+        $registryPath = "HKCU:\Software\MetaQuotes"
+        if (-not (Test-Path $registryPath)) {
+            New-Item -Path $registryPath -Force | Out-Nullet-ChildItem Env:
         }
-
+        ents:"
+        # Configure Terminal settings if needed
+        $terminalPath = "$registryPath\Terminal"          Get-ChildItem -Path $env:MT5_DIR -Recurse -Depth 1 | Select-Object FullName
+        if (-not (Test-Path $terminalPath)) {
+            New-Item -Path $terminalPath -Force | Out-Null
+        }
+        oSize
+        # Set some registry values that may help with IPC
+        Set-ItemProperty -Path $terminalPath -Name "HeadlessMode" -Value 1 -Type DWORD -Force
+        Set-ItemProperty -Path $terminalPath -Name "AllowDllImport" -Value 1 -Type DWORD -Force: |
+        # Kill any existing MT5 processes
+        # Check if Python DLLs are accessible from the MT5 installationke "*MetaTrader*" -or $_.Name -like "*terminal*" } | ForEach-Object { 
+        $pythonDllPath = Join-Path (Split-Path -Parent (Get-Command python).Path) "python311.dll"process $($_.Name) with ID $($_.Id)"
+        if (Test-Path $pythonDllPath) {  Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue 
+            Write-Host "Python DLL found at: $pythonDllPath"
+            # Copy Python DLL to MT5 directory to help with IPC
+            if (Test-Path $env:MT5_DIR) {
+                Copy-Item -Path $pythonDllPath -Destination $env:MT5_DIR -ForceStart-Sleep -Seconds 5
+                Write-Host "Copied Python DLL to MT5 directory"
+            }rst with configurations that help in headless mode
+        } else {$mt5Process = Start-Process -FilePath $env:MT5_PATH -ArgumentList "/portable", "/config:default.ini", "/skipupdate", "/minimize" -PassThru
+            Write-Host "Python DLL not found at expected location"with ID $($mt5Process.Id)"
+        }
+ fully initialize before Python tries to connect
     - name: Debug environment
       run: |
         Write-Host "Environment variables:"
-        Get-ChildItem Env:
-        
-        Write-Host "MT5 directory contents:"
-        if (Test-Path $env:MT5_DIR) {
-          Get-ChildItem -Path $env:MT5_DIR -Recurse -Depth 1 | Select-Object FullName
-        }
-        
-        Write-Host "System processes:"
-        Get-Process | Where-Object { $_.Name -like "*MetaTrader*" -or $_.Name -like "*terminal*" } | Format-Table -AutoSize
-
-    - name: Test MT5 initialization
-      run: |
-        # Kill any existing MT5 processes
-        Get-Process | Where-Object { $_.Name -like "*MetaTrader*" -or $_.Name -like "*terminal*" } | ForEach-Object { 
-          Write-Host "Killing process $($_.Name) with ID $($_.Id)"
-          Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue 
-        }
-        
-        # Give system time to clean up processes
-        Start-Sleep -Seconds 5
-        
-        # Start MT5 manually first with configurations that help in headless mode
-        $mt5Process = Start-Process -FilePath $env:MT5_PATH -ArgumentList "/portable", "/config:default.ini", "/skipupdate", "/minimize" -PassThru
-        Write-Host "Started MT5 process with ID $($mt5Process.Id)"
-        
-        # Give MT5 time to fully initialize before Python tries to connect
-        Start-Sleep -Seconds 10
-        
-        # Check process is still running
-        $mt5Running = Get-Process -Id $mt5Process.Id -ErrorAction SilentlyContinue
+        Get-ChildItem Env:mt5Running = Get-Process -Id $mt5Process.Id -ErrorAction SilentlyContinue
         if ($mt5Running) {
-          Write-Host "MT5 process is still running with ID $($mt5Process.Id)"
-        } else {
-          Write-Host "Warning: MT5 process is no longer running"
+        Write-Host "MT5 directory contents:"till running with ID $($mt5Process.Id)"
+        if (Test-Path $env:MT5_DIR) {
+          Get-ChildItem -Path $env:MT5_DIR -Recurse -Depth 1 | Select-Object FullNameWrite-Host "Warning: MT5 process is no longer running"
         }
         
-        # Use the existing test script
-        python test/integration/test_mt5_initialization.py
+        Write-Host "System processes:"isting test script
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        MT5_WAIT_PERIOD: 5000  # Wait 5 seconds between attempts        MT5_DEBUG: 1        MT5_TIMEOUT: 120000  # Increase timeout to 2 minutes        MT5_HEADLESS: 1      env:        python test/integration/test_mt5_initialization.py        # Use the existing test script with expanded timeout                }          Write-Host "Warning: MT5 process is no longer running"        } else {          Write-Host "Process details: $($mt5Running | Format-List | Out-String)"          Write-Host "MT5 process is still running with ID $($mt5Process.Id)"        if ($mt5Running) {        $mt5Running = Get-Process -Id $mt5Process.Id -ErrorAction SilentlyContinue        # Check process is still running and get details                Start-Sleep -Seconds 30        # Give MT5 more time to initialize - increase wait time                Write-Host "Started MT5 process with ID $($mt5Process.Id)"        $mt5Process = Start-Process -FilePath $env:MT5_PATH -ArgumentList "/portable", "/config:default.ini", "/skipupdate", "/minimize" -PassThru        # Start MT5 manually with a combination of flags known to work better in CI                $env:MT5_IPC_PORT = "8228"  # Use a standard port for IPC        $env:MT5_IPC_HOST = "localhost"         # Start MT5 with more aggressive IPC settings                Start-Sleep -Seconds 5        # Give system time to clean up processes                }          Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue           Write-Host "Killing process $($_.Name) with ID $($_.Id)"        Get-Process | Where-Object { $_.Name -like "*MetaTrader*" -or $_.Name -like "*terminal*" } | ForEach-Object {         # Kill any existing MT5 processes      run: |    - name: Test MT5 initialization        Get-Process | Where-Object { $_.Name -like "*MetaTrader*" -or $_.Name -like "*terminal*" } | Format-Table -AutoSize        python test/integration/test_mt5_initialization.py
       env:
         MT5_HEADLESS: 1
         MT5_TIMEOUT: 60000
