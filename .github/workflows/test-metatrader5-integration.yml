@@ -95,22 +95,22 @@ jobs:
             Write-Host "Setting MT5_DIR to $mt5Dir"
             
             # Create minimal configuration file to help with headless mode
-            $configContent = @"
-[Common]
-Login=0
-ProxyEnable=0
-CertCheckDisable=1
-AutoUpdate=0
-DisableStartupCompany=1
-EnableOpenCL=0
-News=0
-StartupCompany=0
-Community=0
-AutoUpdate.Enable=0
-"@
+            $configLines = @(
+              '[Common]',
+              'Login=0',
+              'ProxyEnable=0',
+              'CertCheckDisable=1',
+              'AutoUpdate=0',
+              'DisableStartupCompany=1',
+              'EnableOpenCL=0',
+              'News=0',
+              'StartupCompany=0',
+              'Community=0',
+              'AutoUpdate.Enable=0'
+            )
             $configPath = Join-Path $mt5Dir "config\default.ini"
             New-Item -Path (Split-Path -Parent $configPath) -ItemType Directory -Force
-            Set-Content -Path $configPath -Value $configContent
+            $configLines | Out-File -FilePath $configPath -Encoding utf8
             Write-Host "Created default config at $configPath"
             
             break
