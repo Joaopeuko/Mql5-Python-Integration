@@ -16,8 +16,8 @@ jobs:
 
     - name: Download MetaTrader5 Installer
       run: |
-        Invoke-WebRequest 
-          -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" 
+        Invoke-WebRequest `
+          -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" `
           -OutFile "mt5setup.exe"
       shell: pwsh
 
