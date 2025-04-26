@@ -40,88 +40,92 @@ jobs:
         python -m pip install --upgrade pip
         pip install MetaTrader5
 
-    - name: Install Xvfb (Virtual Display)
+    - name: Create MT5 portable configuration
       run: |
-        choco install -y xvfb
+        # Create a portable MT5 directory
+        mkdir -p "$env:APPDATA\MetaTrader5Portable"
         
-    - name: Start MT5 with Virtual Display
-      run: |
-        # Set display variable to use virtual display
-        $env:DISPLAY = ":1"
+        # Set environment variables to make MT5 run in headless mode
+        echo "MT5_DISABLE_UI=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        echo "MT5_PORTABLE_PATH=$env:APPDATA\MetaTrader5Portable" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         
-        # Start Xvfb
-        Start-Process -FilePath "C:\ProgramData\chocolatey\bin\xvfb.exe" -ArgumentList "-ac :1 -screen 0 1280x1024x24" -PassThru
-        Start-Sleep -Seconds 5
+        # Copy MT5 files to portable location if needed
+        if (-not (Test-Path "$env:APPDATA\MetaTrader5Portable\terminal64.exe")) {
+          Copy-Item -Path "C:\Program Files\MetaTrader 5\*" -Destination "$env:APPDATA\MetaTrader5Portable\" -Recurse
+        }
         
-        # Start MT5 with virtual display
-        $process = Start-Process -FilePath "C:\Program Files\MetaTrader 5\terminal64.exe" -ArgumentList "/portable" -PassThru
-        $processId = $process.Id
-        Write-Host "Started MetaTrader 5 terminal with PID $processId using virtual display"
-        Start-Sleep -Seconds 45  # Give more time to initialize
+        # Verify portable setup
+        if (Test-Path "$env:APPDATA\MetaTrader5Portable\terminal64.exe") {
+          Write-Host "MetaTrader 5 portable setup created successfully"
+        } else {
+          Write-Error "MetaTrader 5 portable setup failed"
+          exit 1
+        }
 
     - name: Test MT5 initialization
       run: |
-        # Set display variable to use virtual display
-        $env:DISPLAY = ":1"
-        
         python -c "
         import sys, os, time
         import MetaTrader5 as mt5
         
         print(f'MT5 version: {mt5.__version__}')
-        print('Display environment:', os.environ.get('DISPLAY'))
+        print('MT5_DISABLE_UI:', os.environ.get('MT5_DISABLE_UI'))
+        print('MT5_PORTABLE_PATH:', os.environ.get('MT5_PORTABLE_PATH'))
         print('Initializing...')
         
-        # Try initialization with increased timeout
+        # Try initialization using portable path and headless mode
+        portable_path = os.environ.get('MT5_PORTABLE_PATH')
+        mt5_path = os.path.join(portable_path, 'terminal64.exe')
+        
+        # First attempt: using portable path
         result = mt5.initialize(
-            path='C:\\Program Files\\MetaTrader 5\\terminal64.exe',
+            path=mt5_path,
             login=0,
             password='',
             server='',
-            timeout=120000
+            timeout=60000
         )
         
-        print(f'Result: {result}, Error code: {mt5.last_error()}')
+        print(f'Result with portable path: {result}, Error code: {mt5.last_error()}')
         
+        # If first attempt fails, try alternative approach
         if not result:
-            error_code = mt5.last_error()
-            error_messages = {
-                10001: 'Connection error',
-                10002: 'Reconnection error',
-                10003: 'Connection timeout',
-                10004: 'Internal error',
-                10005: 'Invalid version',
-                10006: 'Invalid account',
-                10007: 'Unsupported trading mode',
-                10008: 'No connection'
-            }
-            error_desc = error_messages.get(error_code, 'Unknown error')
-            print(f'Detailed error: {error_desc}')
-            
-            # Instead of exiting with error, try a different approach
-            # Recommended by GitHub repo ricardokj/mt5_python_actions
-            print('Trying alternative initialization approach...')
-            
-            # Use an approach similar to that used by ricardokj/mt5_python_actions
-            # This approach relies on portable mode without display requirements
-            import os
-            import subprocess
-            
-            # Initialize without displaying UI
-            os.environ['MT5_DISABLE_UI'] = '1'
-            
-            # Try a simpler initialization with fewer parameters
+            print('First attempt failed. Trying default initialization...')
             mt5.shutdown()
             time.sleep(2)
-            result = mt5.initialize(timeout=60000)
-            print(f'Alternative initialization result: {result}, Error: {mt5.last_error()}')
             
+            # Second attempt: default init
+            result = mt5.initialize(timeout=60000)
+            print(f'Result with default init: {result}, Error code: {mt5.last_error()}')
+            
+            # Third attempt: standard path
             if not result:
-                print('Both initialization methods failed.')
-                sys.exit(1)
+                print('Second attempt failed. Trying with standard path...')
+                mt5.shutdown()
+                time.sleep(2)
+                result = mt5.initialize(
+                    path='C:\\\\Program Files\\\\MetaTrader 5\\\\terminal64.exe',
+                    timeout=60000
+                )
+                print(f'Result with standard path: {result}, Error code: {mt5.last_error()}')
+                
+                if not result:
+                    print('All initialization attempts failed')
+                    sys.exit(1)
+        
+        print('MT5 initialized successfully')
+        account_info = mt5.account_info()
+        if account_info is not None:
+            print(f'Account info: {account_info}')
         else:
-            print('MT5 initialized successfully')
-            print(f'Terminal info: {mt5.terminal_info()}')
-            mt5.shutdown()
-            sys.exit(0)
+            print('No account info available (demo mode)')
+            
+        symbol_info = mt5.symbol_info('EURUSD')
+        if symbol_info is not None:
+            print(f'Symbol info available: {symbol_info.name}')
+        else:
+            print('Symbol info not available')
+            
+        mt5.shutdown()
+        sys.exit(0)
         "
