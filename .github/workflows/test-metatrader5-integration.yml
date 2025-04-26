@@ -19,20 +19,26 @@ jobs:
 
     - name: Download MetaTrader5 Installer
       run: |
-        Invoke-WebRequest `
-          -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" `
+        Invoke-WebRequest ` 
+          -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" ` 
           -OutFile "mt5setup.exe"
       shell: pwsh
 
     - name: Install MetaTrader5
       run: |
         $process = Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto", "/portable" -PassThru
-        $process.WaitForExit(300000)
+        $process.WaitForExit(300000)  # Wait for up to 5 minutes
         if (-not $process.HasExited) {
           Write-Host "MT5 installer stuck, killing..."
           Stop-Process -Id $process.Id -Force
           exit 1
         }
+      shell: pwsh
+
+    - name: Copy MT5 configuration
+      run: |
+        # Ensure the config folder exists and copy the saved config files
+        Copy-Item -Path ".github/mt5-config/*" -Destination ".\MetaTrader 5\config" -Recurse -Force
       shell: pwsh
 
     - name: Kill any existing MT5 processes
@@ -64,7 +70,6 @@ jobs:
 
     - name: Install MetaTrader5 Python package
       run: pip install MetaTrader5
-
 
     - name: Run MT5 test script
       run: python tests/integration/test_mt5_connection.py
