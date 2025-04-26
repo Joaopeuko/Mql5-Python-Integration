@@ -64,6 +64,9 @@ jobs:
             throw "MT5 failed to start"
         }
 
+    - name: Install MetaTrader5 Python package
+      run: pip install MetaTrader5
+
     - name: Run MT5 Test
       shell: pwsh
       run: |
