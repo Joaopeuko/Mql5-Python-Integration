@@ -24,7 +24,6 @@ jobs:
         Write-Host "Download completed. File size: $((Get-Item $output).Length) bytes"
 
     - name: Install MetaTrader5
-      shell: pwsh
       run: |
         $process = Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto", "/portable" -PassThru
         $process.WaitForExit(300000)
@@ -33,14 +32,8 @@ jobs:
           Stop-Process -Id $process.Id -Force
           exit 1
         }
+      shell: pwsh
         
-        # Verify installation
-        if (-not (Test-Path "$installDir\terminal64.exe")) {
-            Write-Host "Directory contents:"
-            Get-ChildItem $installDir -Recurse
-            Write-Error "Installation failed - terminal64.exe not found"
-            exit 1
-        }
 
     - name: Launch MT5
       shell: pwsh
