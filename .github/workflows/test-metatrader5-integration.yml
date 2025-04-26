@@ -60,18 +60,4 @@ jobs:
     - name: Run Python inline script
       shell: pwsh
       run: |
-        python - <<EOF
-import MetaTrader5 as mt5
-import time
-
-print('Testing MT5 initialization...')
-time.sleep(5)  # Extra sleep to ensure MT5 ready
-
-if not mt5.initialize():
-    print('Failed to initialize:', mt5.last_error())
-    exit(1)
-else:
-    print('MT5 initialized successfully')
-    mt5.shutdown()
-EOF
-
+        python -c "import MetaTrader5 as mt5; import time; print('Testing MT5 initialization...'); time.sleep(5); assert mt5.initialize(), f'Failed to initialize: {mt5.last_error()}'; print('MT5 initialized successfully'); mt5.shutdown()"
