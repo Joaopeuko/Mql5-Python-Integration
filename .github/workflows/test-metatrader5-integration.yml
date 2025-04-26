@@ -25,7 +25,7 @@ jobs:
       run: |
         # Start installer with /auto and /portable, with timeout protection
         $process = Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto", "/portable" -PassThru
-        $process.WaitForExit(300)  # 300 seconds = 5 minutes
+        $process.WaitForExit(30000)  # 300 seconds = 5 minutes
         if (-not $process.HasExited) {
           Write-Host "MT5 installer stuck, killing..."
           Stop-Process -Id $process.Id -Force
@@ -60,17 +60,17 @@ jobs:
     - name: Run Python inline script
       run: |
         python -c "
-        import MetaTrader5 as mt5
-        import time
+import MetaTrader5 as mt5
+import time
 
-        print('Testing MT5 initialization...')
-        time.sleep(5)  # Extra sleep to ensure MT5 ready
+print('Testing MT5 initialization...')
+time.sleep(5)  # Extra sleep to ensure MT5 ready
 
-        if not mt5.initialize():
-            print('Failed to initialize:', mt5.last_error())
-            exit(1)
-        else:
-            print('MT5 initialized successfully')
-            mt5.shutdown()
-        "
+if not mt5.initialize():
+    print('Failed to initialize:', mt5.last_error())
+    exit(1)
+else:
+    print('MT5 initialized successfully')
+    mt5.shutdown()
+"
       shell: pwsh
