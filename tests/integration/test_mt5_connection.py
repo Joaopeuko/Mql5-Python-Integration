@@ -25,7 +25,7 @@ logger.info("Testing MT5 initialization...")
 success = False
 for attempt in range(10):
     if mt5.initialize(
-        login=os.getenv("MT5_LOGIN"),
+        login=int(os.getenv("MT5_LOGIN")),  # type: ignore[arg-type]
         password=os.getenv("MT5_PASSWORD"),
         server=os.getenv("MT5_SERVER"),
         path=os.getenv("MT5_PATH"),
