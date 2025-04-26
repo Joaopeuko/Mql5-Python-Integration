@@ -6,7 +6,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, windows-2022]  # run on both Win runners
+        os: [windows-latest, windows-2022]
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repository
@@ -27,7 +27,7 @@ jobs:
     - name: Install MetaTrader5
       run: |
         $process = Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto", "/portable" -PassThru
-        $process.WaitForExit(300000)  # 5 minutes timeout
+        $process.WaitForExit(300000)
         if (-not $process.HasExited) {
           Write-Host "MT5 installer stuck, killing..."
           Stop-Process -Id $process.Id -Force
@@ -66,17 +66,14 @@ jobs:
       run: pip install MetaTrader5
 
     - name: Run Python inline script
-      shell: pwsh
       run: |
-        python -c "import MetaTrader5 as mt5; import time; print('Testing MT5 initialization...'); \
+        python -c "import MetaTrader5 as mt5; import time; print('Testing MT5 initialization...'); import sys; \
 for attempt in range(12): \
     if mt5.initialize(): \
         print('MT5 initialized successfully'); \
         mt5.shutdown(); \
-        break; \
+        sys.exit(0); \
     else: \
         print(f'Attempt {attempt+1}: Not ready yet, sleeping...'); \
         time.sleep(5); \
-else: \
-    print('Failed to initialize MT5 after waiting.'); \
-    exit(1)"
+print('Failed to initialize MT5 after waiting.'); sys.exit(1)"
