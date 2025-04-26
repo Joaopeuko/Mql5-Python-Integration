@@ -34,71 +34,54 @@ jobs:
         }
       shell: pwsh
         
-
-    # - name: Launch MT5
-    #   shell: pwsh
-    #   run: |
-    #     $mt5Path = Resolve-Path "C:\Program Files\MetaTrader 5\terminal64.exe"
+    - name: Launch MT5
+      shell: pwsh
+      run: |
+        $mt5Path = Resolve-Path "C:\Program Files\MetaTrader 5\terminal64.exe"
         
-    #     # Launch with diagnostics
-    #     Start-Process $mt5Path -ArgumentList @(
-    #         "/portable",
-    #         "/headless",
-    #         "/config:config",
-    #         "/noreport"
-    #     ) -NoNewWindow
+        # Launch with diagnostics
+        Start-Process $mt5Path -ArgumentList @(
+            "/portable",
+            "/headless",
+            "/config:config",
+            "/noreport"
+        ) -NoNewWindow
 
-    #     # Verify process start
-    #     $attempts = 0
-    #     while ($attempts -lt 10) {
-    #         if (Get-Process terminal64 -ErrorAction SilentlyContinue) {
-    #             Write-Host "MT5 process detected"
-    #             break
-    #         }
-    #         $attempts++
-    #         Start-Sleep 5
-    #     }
+        # Verify process start
+        $attempts = 0
+        while ($attempts -lt 10) {
+            if (Get-Process terminal64 -ErrorAction SilentlyContinue) {
+                Write-Host "MT5 process detected"
+                break
+            }
+            $attempts++
+            Start-Sleep 5
+        }
 
-    #     if (-not (Get-Process terminal64 -ErrorAction SilentlyContinue)) {
-    #         Get-Content ".\MetaTrader 5\logs\*.log" | Write-Host
-    #         throw "MT5 failed to start"
-    #     }
+        if (-not (Get-Process terminal64 -ErrorAction SilentlyContinue)) {
+            Get-Content ".\MetaTrader 5\logs\*.log" | Write-Host
+            throw "MT5 failed to start"
+        }
 
     - name: Install MetaTrader5 Python package
       run: pip install MetaTrader5
 
-    - name: Configure Server for MT5 (Headless)
-      shell: pwsh
-      run: |
-        $configPath = ".\MetaTrader 5\config"; New-Item -Path $configPath -ItemType Directory -Force; $serverConfig = @"FreeDemoServer,Demo,demo.server.com,443"@; Set-Content "$configPath\servers.dat" -Value $serverConfig; $accountConfig = @"demouser,demo_password,demo.server.com,443"@; Set-Content "$configPath\accounts.dat" -Value $accountConfig
-
-    - name: Launch MT5 Headless
-      shell: pwsh
-      run: |
-        $mt5Path = Resolve-Path "C:\Program Files\MetaTrader 5\terminal64.exe"
-        Start-Process $mt5Path -ArgumentList @("/portable", "/headless", "/config:config", "/noreport") -NoNewWindow
-        Start-Sleep -Seconds 15
-        if (-not (Get-Process terminal64 -ErrorAction SilentlyContinue)) {
-            throw "MT5 failed to start"
-        }
-
     - name: Run MT5 Test
-      shell: pwsh
       run: |
         python -c "import os, MetaTrader5 as mt5
         print('Python version:', os.sys.version)
-        print('MetaTrader5 version:', mt5.__version__)
-        # print('MetaTrader5 Initialization:', mt5.initialize(path='C:\Program Files\MetaTrader 5\terminal64.exe', portable=True))
         for i in range(10):
             try:
+                if mt5.initialize():
+                    print('MT5 initialized successfully')
+        print('MetaTrader5 version:', mt5.__version__)
+        # print('MetaTrader5 Initialization:', mt5.initialize(path='C:\Program Files\MetaTrader 5\terminal64.exe', portable=True))
+                    print(mt5.terminal_info())
+                    mt5.shutdown()
                 if mt5.initialize(login=int(os.getenv('MT5_AT_ACC')),
                           password=os.getenv('MT5_PW'),
                           server=os.getenv('MT5_AT_SRV'),
                           path="C:\\Program Files\\MetaTrader 5\\terminal64.exe"):
-                    print('MT5 initialized successfully')
-                    print(mt5.terminal_info())
-                    mt5.shutdown()
-                    exit(0)
                 print(f'Attempt {i+1} failed')
             except Exception as e:
                 print(f'Error: {str(e)}')
