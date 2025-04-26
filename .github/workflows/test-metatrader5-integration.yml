@@ -6,7 +6,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, windows-2022]
+        os: [windows-latest, windows-2025]
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repository
@@ -35,12 +35,6 @@ jobs:
         }
       shell: pwsh
 
-    - name: Copy MT5 configuration
-      run: |
-        # Ensure the config folder exists and copy the saved config files
-        Copy-Item -Path ".github/mt5-config/*" -Destination ".\MetaTrader 5\config" -Recurse -Force
-      shell: pwsh
-
     - name: Kill any existing MT5 processes
       run: |
         Get-Process terminal64 -ErrorAction SilentlyContinue | Stop-Process -Force
@@ -60,7 +54,7 @@ jobs:
             break
           }
         }
-        Start-Sleep -Seconds 15
+        Start-Sleep -Seconds 30  # Increase wait time for MT5 to fully launch
       shell: pwsh
 
     - name: Check MT5 process running
