@@ -40,44 +40,67 @@ jobs:
         python -m pip install --upgrade pip
         pip install MetaTrader5
 
-    - name: Setup virtual display
+    - name: Install Xvfb (Virtual Display)
       run: |
-        # Install Chocolatey if not already installed
-        if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-          Set-ExecutionPolicy Bypass -Scope Process -Force
-          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-          Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-        }
+        choco install -y xvfb
         
-        # Install VcXsrv Windows X Server
-        choco install vcxsrv -y
+    - name: Start MT5 with Virtual Display
+      run: |
+        # Set display variable to use virtual display
+        $env:DISPLAY = ":1"
         
-        # Start VcXsrv in background
-        Start-Process "C:\Program Files\VcXsrv\vcxsrv.exe" -ArgumentList "-multiwindow", "-ac", "-terminate", "-lesspointer", "-wgl", "-dpi auto"
-        
-        # Set DISPLAY environment variable
-        [Environment]::SetEnvironmentVariable("DISPLAY", "127.0.0.1:0.0", "Process")
-        
-        Write-Host "Virtual display configured with DISPLAY=127.0.0.1:0.0"
+        # Start Xvfb
+        Start-Process -FilePath "C:\ProgramData\chocolatey\bin\xvfb.exe" -ArgumentList "-ac :1 -screen 0 1280x1024x24" -PassThru
         Start-Sleep -Seconds 5
-
-    - name: Run MT5 terminal with desktop parameter
-      run: |
-        # Kill any existing MT5 instances
-        taskkill /F /IM terminal64.exe 2>$null
-        Start-Sleep -Seconds 3
         
-        # Start MT5 with the /portable parameter
+        # Start MT5 with virtual display
         $process = Start-Process -FilePath "C:\Program Files\MetaTrader 5\terminal64.exe" -ArgumentList "/portable" -PassThru
         $processId = $process.Id
         Write-Host "Started MetaTrader 5 terminal with PID $processId using virtual display"
-        Start-Sleep -Seconds 30
+        Start-Sleep -Seconds 45  # Give more time to initialize
 
     - name: Test MT5 initialization
-      run: >
-        python -c "import sys, MetaTrader5 as mt5; 
-        print(f'MT5 version: {mt5.__version__}'); 
-        print('Initializing...'); 
-        result = mt5.initialize(path='C:\\\\Program Files\\\\MetaTrader 5\\\\terminal64.exe', timeout=60000); 
-        print(f'Result: {result}, Error: {mt5.last_error()}'); 
-        sys.exit(0)"
+      run: |
+        # Set display variable to use virtual display
+        $env:DISPLAY = ":1"
+        
+        python -c "
+        import sys, os, time
+        import MetaTrader5 as mt5
+        
+        print(f'MT5 version: {mt5.__version__}')
+        print('Display environment:', os.environ.get('DISPLAY'))
+        print('Initializing...')
+        
+        # Try initialization with increased timeout
+        result = mt5.initialize(
+            path='C:\\Program Files\\MetaTrader 5\\terminal64.exe',
+            login=0,
+            password='',
+            server='',
+            timeout=120000
+        )
+        
+        print(f'Result: {result}, Error code: {mt5.last_error()}')
+        
+        if not result:
+            error_code = mt5.last_error()
+            error_messages = {
+                10001: 'Connection error',
+                10002: 'Reconnection error',
+                10003: 'Connection timeout',
+                10004: 'Internal error',
+                10005: 'Invalid version',
+                10006: 'Invalid account',
+                10007: 'Unsupported trading mode',
+                10008: 'No connection'
+            }
+            error_desc = error_messages.get(error_code, 'Unknown error')
+            print(f'Detailed error: {error_desc}')
+            sys.exit(1)
+        else:
+            print('MT5 initialized successfully')
+            print(f'Terminal info: {mt5.terminal_info()}')
+            mt5.shutdown()
+            sys.exit(0)
+        "
