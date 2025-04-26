@@ -73,4 +73,4 @@ jobs:
         MT5_SERVER: "'MetaQuotes-Demo'"
         MT5_PATH: "C:\\Program Files\\MetaTrader 5\\terminal64.exe"
       run: |
-        python -c tests/integration/test_mt5_connection.py
+        python tests/integration/test_mt5_connection.py
