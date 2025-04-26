@@ -38,4 +38,4 @@ jobs:
 
       - name: Add coverage summary to GitHub summary
         run: |
-          cat summary.md >> $GITHUB_STEP_SUMMARY
+          type summary.md >> $env:GITHUB_STEP_SUMMARY
