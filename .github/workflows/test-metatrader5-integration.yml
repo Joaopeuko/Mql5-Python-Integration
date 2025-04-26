@@ -1,76 +1,59 @@
-name: MetaTrader5 Integration Test
+name: Test | MetaTrader5 Integration Test
 
 on: [push]
 
 jobs:
-  test:
+  build:
     runs-on: windows-latest
-    timeout-minutes: 15  # Increased timeout
+    timeout-minutes: 15
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install MT5 (Portable)
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Download MetaTrader5 Installer
       shell: pwsh
       run: |
-        # Clean previous installation
-        if (Test-Path ".\MetaTrader 5") {
-            Remove-Item -Recurse -Force ".\MetaTrader 5"
-        }
+        $url = "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe"
+        $output = "$env:GITHUB_WORKSPACE\mt5setup.exe"
+        Invoke-WebRequest -Uri $url -OutFile $output
+        Write-Host "Download completed. File size: $((Get-Item $output).Length) bytes"
 
-        # Download with retries
-        $retries = 3
-        do {
-            try {
-                Invoke-WebRequest https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe `
-                    -OutFile mt5setup.exe -TimeoutSec 60
-                break
-            } catch {
-                $retries--
-                if ($retries -eq 0) { throw }
-                Write-Host "Download failed, retries left: $retries"
-                Start-Sleep 5
-            }
-        } while ($retries -gt 0)
-
-        # Install with explicit paths
-        $installProcess = Start-Process .\mt5setup.exe `
-            -ArgumentList @("/portable", "/skipupdate", "/auto") `
-            -PassThru -NoNewWindow
+    - name: Install MetaTrader5
+      shell: pwsh
+      run: |
+        $installDir = "$env:GITHUB_WORKSPACE\MT5Portable"
         
-        # Wait with timeout
-        if (-not $installProcess.WaitForExit(180000)) {
-            Write-Error "Installation timed out after 3 minutes"
+        # Verify and clean installation directory
+        if (Test-Path $installDir) {
+            Remove-Item -Recurse -Force $installDir
+        }
+        
+        # Run installer with explicit paths
+        $process = Start-Process "$env:GITHUB_WORKSPACE\mt5setup.exe" `
+            -ArgumentList @(
+                "/S",
+                "/portable=`"$installDir`"",
+                "/skipupdate"
+            ) -PassThru -NoNewWindow
+
+        # Wait for installation with timeout
+        if (-not $process.WaitForExit(300000)) {
+            Write-Error "Installation timed out after 5 minutes"
             exit 1
         }
-
-        # Verify installation
-        if (-not (Test-Path ".\MetaTrader 5\terminal64.exe")) {
-            Write-Host "Installed directory contents:"
-            Get-ChildItem ".\MetaTrader 5" -Recurse
-            throw "Installation failed - terminal64.exe missing"
-        }
-
-    - name: Configure Server
-      shell: pwsh
-      run: |
-        $configPath = ".\MetaTrader 5\config"
-        New-Item -Path $configPath -ItemType Directory -Force
         
-        # Create server configuration
-        @"
-DemoServer,Demo,demo.example.com,443
-"@ | Set-Content "$configPath\servers.dat"
-
-        # Create basic terminal configuration
-        @"
-[Common]
-Language=English
-AutoUpdate=0
-EnableNews=0
-[Connection]
-EnableWebRequest=0
-"@ | Set-Content "$configPath\terminal.ini"
+        # Verify installation
+        if (-not (Test-Path "$installDir\terminal64.exe")) {
+            Write-Host "Directory contents:"
+            Get-ChildItem $installDir -Recurse
+            Write-Error "Installation failed - terminal64.exe not found"
+            exit 1
+        }
 
     - name: Launch MT5
       shell: pwsh
@@ -104,29 +87,21 @@ EnableWebRequest=0
             throw "MT5 failed to start"
         }
 
-    - name: Test Connection
+    - name: Run MT5 Test
       shell: pwsh
       run: |
-        # Allow more time for terminal initialization
-        Start-Sleep -Seconds 45
-
-        python -c "
-import MetaTrader5 as mt5
-from time import sleep
-import sys
-
-max_attempts = 8
-for attempt in range(max_attempts):
-    try:
-        if mt5.initialize():
-            print(f'Successfully connected to MT5 {mt5.version()}')
-            print('Terminal info:', mt5.terminal_info()._asdict())
-            mt5.shutdown()
-            sys.exit(0)
-        print(f'Attempt {attempt+1}/{max_attempts}: Initialize failed')
-    except Exception as e:
-        print(f'Attempt {attempt+1}/{max_attempts}: Error - {str(e)}')
-    sleep(10)
-print('All connection attempts failed')
-sys.exit(1)
-        "
+        python -c "import os, MetaTrader5 as mt5
+        print('Python version:', os.sys.version)
+        for i in range(10):
+            try:
+                if mt5.initialize():
+                    print('MT5 initialized successfully')
+                    print(mt5.terminal_info())
+                    mt5.shutdown()
+                    exit(0)
+                print(f'Attempt {i+1} failed')
+            except Exception as e:
+                print(f'Error: {str(e)}')
+            import time; time.sleep(10)
+        print('All attempts failed')
+        exit(1)"
