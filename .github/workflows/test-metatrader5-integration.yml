@@ -33,12 +33,12 @@ jobs:
           exit 1
         }
       shell: pwsh
-        
+
     - name: Launch MT5
       shell: pwsh
       run: |
         $mt5Path = Resolve-Path "C:\Program Files\MetaTrader 5\terminal64.exe"
-        
+
         # Launch with diagnostics
         Start-Process $mt5Path -ArgumentList @(
             "/portable",

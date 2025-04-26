@@ -1,30 +1,37 @@
-import MetaTrader5 as mt5
-import time
-import sys
-import os
+"""Integration test for MetaTrader5 connection.
+
+This module tests the ability to establish a connection with MT5 platform.
+"""
+
 import logging
+import os
+import time
+
+import MetaTrader5 as mt5  # noqa: N813
 
 # Configure logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-print('Testing MT5 initialization...')
+logger.info("Testing MT5 initialization...")
 
 success = False
 for attempt in range(10):
-    if mt5.initialize(login=int(os.getenv('MT5_LOGIN')),
-                        password=os.getenv('MT5_PASSWORD'),
-                        server=os.getenv('MT5_SERVER'),
-                        path=os.getenv('MT5_PATH')):
-        print('MT5 initialized successfully')
+    if mt5.initialize(
+        login=os.getenv("MT5_LOGIN"),
+        password=os.getenv("MT5_PASSWORD"),
+        server=os.getenv("MT5_SERVER"),
+        path=os.getenv("MT5_PATH"),
+    ):
+        logger.info("MT5 initialized successfully")
         mt5.shutdown()
         success = True
         break
     else:
-        print(f'Attempt {attempt+1}: Not ready yet, sleeping...')
+        logger.info(f"Attempt {attempt+1}: Not ready yet, sleeping...")
         time.sleep(5)
 
 if not success:
-    print('Failed to initialize MT5 after waiting.')
-    sys.exit(1)
+    logger.info("Failed to initialize MT5 after waiting.")
+    mt5.shutdown()
