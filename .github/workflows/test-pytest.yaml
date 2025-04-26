@@ -30,12 +30,10 @@ jobs:
           pytest -k . --cov=mqpy --cov-append --cov-report=term-missing:skip-covered --junitxml=pytest.xml -x | tee pytest-coverage.txt
           
       - name: Generate coverage summary
+        shell: pwsh
         run: |
-          echo "## Test Coverage Summary" > summary.md
-          echo "```" >> summary.md
-          type pytest-coverage.txt >> summary.md
-          echo "```" >> summary.md
-
-      - name: Add coverage summary to GitHub summary
-        run: |
-          type summary.md >> $env:GITHUB_STEP_SUMMARY
+          "## Test Coverage Summary" | Out-File -FilePath summary.md -Encoding utf8
+          "```" | Out-File -FilePath summary.md -Append -Encoding utf8
+          Get-Content pytest-coverage.txt | Out-File -FilePath summary.md -Append -Encoding utf8
+          "```" | Out-File -FilePath summary.md -Append -Encoding utf8
+          Get-Content summary.md | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
