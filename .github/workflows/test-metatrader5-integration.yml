@@ -25,18 +25,58 @@ jobs:
       shell: pwsh
 
     - name: Install MetaTrader5
-      run: |
-        $installArgs = @(
-          "/S",
-          "/portable=$env:GITHUB_WORKSPACE\MT5Portable",
-          "/skipupdate"
-        )
-        Start-Process "$env:GITHUB_WORKSPACE\mt5setup.exe" -ArgumentList $installArgs -Wait -NoNewWindow
-        if (-not (Test-Path "$env:GITHUB_WORKSPACE\MT5Portable\terminal64.exe")) {
-          Write-Error "Installation failed - terminal.exe not found"
-          exit 1
-        }
       shell: pwsh
+      run: |
+        $installDir = "$env:GITHUB_WORKSPACE\MT5Portable"
+        
+        # Clean previous installations
+        if (Test-Path $installDir) {
+            Remove-Item -Recurse -Force $installDir
+        }
+
+        # Verify installer exists
+        if (-not (Test-Path "$env:GITHUB_WORKSPACE\mt5setup.exe")) {
+            Write-Error "Installer not found!"
+            exit 1
+        }
+
+        # Run installer with timeout
+        $process = Start-Process "$env:GITHUB_WORKSPACE\mt5setup.exe" `
+            -ArgumentList @(
+                "/S",
+                "/portable=$installDir",
+                "/skipupdate"
+            ) `
+            -PassThru `
+            -NoNewWindow
+
+        try {
+            # Wait with timeout (120 seconds)
+            if (-not $process.WaitForExit(120000)) {
+                Write-Error "Installer timed out after 2 minutes"
+                Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+                exit 1
+            }
+            
+            # Verify exit code
+            if ($process.ExitCode -ne 0) {
+                Write-Error "Installer failed with exit code $($process.ExitCode)"
+                exit 1
+            }
+        }
+        catch {
+            Write-Error "Installation error: $_"
+            exit 1
+        }
+
+        # Verify installation
+        if (-not (Test-Path "$installDir\terminal64.exe")) {
+            Get-ChildItem $installDir -Recurse | Out-Host
+            Write-Error "Installation verification failed"
+            exit 1
+        }
+
+        Write-Host "MT5 installed successfully in $installDir"
 
     - name: Launch MetaTrader5
       run: |
