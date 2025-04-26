@@ -1,6 +1,9 @@
 name: Test | Integration Test
 
-on: [push]
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 0' # Run every week monday at 00:00
 
 jobs:
   build:

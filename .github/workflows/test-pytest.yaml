@@ -8,11 +8,11 @@ on:
 jobs:
   pytest:
     runs-on: windows-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -24,11 +24,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest pytest-cov MetaTrader5
           pip install -e .
-        
+
       - name: Run tests with coverage
         run: |
           pytest -k . --cov=mqpy --cov-append --cov-report=term-missing:skip-covered --junitxml=pytest.xml -x | tee pytest-coverage.txt
-          
+
       - name: Generate coverage summary
         shell: pwsh
         run: |

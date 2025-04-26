@@ -30,15 +30,15 @@ for attempt in range(10):
             password=os.getenv("MT5_PASSWORD"),
             server=os.getenv("MT5_SERVER"),
             path=os.getenv("MT5_PATH"),
-             ):
+        ):
             logger.info("MT5 initialized successfully")
             mt5.shutdown()
             success = True
             break
-    except Exception as e:
+    except Exception:
         try:
             mt5.initialize()
-        except Exception as e:
+        except Exception:
             logger.info(f"Attempt {attempt+1}: Not ready yet, sleeping...")
             time.sleep(5)
 
