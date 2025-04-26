@@ -4,7 +4,10 @@ on: [push]
 
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [windows-latest, windows-2022]  # run on both Win runners
+    runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -23,9 +26,8 @@ jobs:
 
     - name: Install MetaTrader5
       run: |
-        # Start installer with /auto and /portable, with timeout protection
         $process = Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto", "/portable" -PassThru
-        $process.WaitForExit(300000)  # 300 seconds = 5 minutes
+        $process.WaitForExit(300000)  # 5 minutes timeout
         if (-not $process.HasExited) {
           Write-Host "MT5 installer stuck, killing..."
           Stop-Process -Id $process.Id -Force
@@ -42,16 +44,22 @@ jobs:
       run: |
         $mt5Paths = @(
           "C:\Program Files\MetaTrader 5\terminal64.exe",
-          ".\MetaTrader 5\terminal64.exe"
+          ".\MetaTrader 5\terminal64.exe",
+          ".\MetaTrader5\terminal64.exe"
         )
         foreach ($path in $mt5Paths) {
           if (Test-Path $path) {
-            Start-Process -FilePath $path -ArgumentList "/portable"
+            Start-Process -FilePath $path -ArgumentList "/portable" -WindowStyle Hidden
             Write-Host "Launched MT5 from $path"
             break
           }
         }
         Start-Sleep -Seconds 15
+      shell: pwsh
+
+    - name: Check MT5 process running
+      run: |
+        Get-Process terminal64 -ErrorAction Stop
       shell: pwsh
 
     - name: Install MetaTrader5 Python package
@@ -60,4 +68,15 @@ jobs:
     - name: Run Python inline script
       shell: pwsh
       run: |
-        python -c "import MetaTrader5 as mt5; import time; print('Testing MT5 initialization...'); time.sleep(5); assert mt5.initialize(), f'Failed to initialize: {mt5.last_error()}'; print('MT5 initialized successfully'); mt5.shutdown()"
+        python -c "import MetaTrader5 as mt5; import time; print('Testing MT5 initialization...'); \
+for attempt in range(12): \
+    if mt5.initialize(): \
+        print('MT5 initialized successfully'); \
+        mt5.shutdown(); \
+        break; \
+    else: \
+        print(f'Attempt {attempt+1}: Not ready yet, sleeping...'); \
+        time.sleep(5); \
+else: \
+    print('Failed to initialize MT5 after waiting.'); \
+    exit(1)"
