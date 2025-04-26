@@ -10,15 +10,6 @@ def test_mt5_initialization():
     print('MT5_PORTABLE_PATH:', os.environ.get('MT5_PORTABLE_PATH'))
     print('Initializing...')
 
-    # Try initialization using portable path and headless mode
-    portable_path = os.environ.get('MT5_PORTABLE_PATH')
-    if portable_path:
-        mt5_path = os.path.join(portable_path, 'terminal64.exe')
-    else:
-        mt5_path = None
-
-    print('Starting MT5 initialization...')
-
     # Set environment variable directly in Python to ensure it's available
     os.environ['MT5_HEADLESS'] = '1'
 
@@ -26,42 +17,33 @@ def test_mt5_initialization():
     print(f'Initial result: {result}, Error code: {mt5.last_error()}')
 
     # If the initial attempt fails, try additional methods
-    if not result and mt5_path:
-        print('Initial attempt failed. Trying with portable path...')
+    if not result:
+        print('Initial attempt failed. Trying with standard path...')
+        
+        # Attempt 2: initialize with standard path
         result = mt5.initialize(
-            path="C:\\Program Files\\MetaTrader 5\\terminal64.exe,
+            path="C:\\Program Files\\MetaTrader 5\\terminal64.exe",
             login=0,
-            password='',
-            server='',
+            password="",
+            server="",
             timeout=60000
         )
 
-        print(f'Result with portable path: {result}, Error code: {mt5.last_error()}')
+        print(f'Result with standard path: {result}, Error code: {mt5.last_error()}')
 
         # If first attempt fails, try alternative approach
         if not result:
-            print('First attempt failed. Trying default initialization...')
+            print('Second attempt failed. Trying with increased timeout...')
             mt5.shutdown()
             time.sleep(2)
             
-            # Attempt 2: default init with timeout
-            result = mt5.initialize(timeout=60000)
-            print(f'Result with default init: {result}, Error code: {mt5.last_error()}')
-            
-            # Attempt 3: standard path
-            if not result:
-                print('Second attempt failed. Trying with standard path...')
-                mt5.shutdown()
-                time.sleep(2)
-                result = mt5.initialize(
-                    path='C:\\Program Files\\MetaTrader 5\\terminal64.exe',
-                    timeout=60000
-                )
-                print(f'Result with standard path: {result}, Error code: {mt5.last_error()}')
+            # Attempt 3: default init with longer timeout
+            result = mt5.initialize(timeout=120000)
+            print(f'Result with increased timeout: {result}, Error code: {mt5.last_error()}')
                 
-                if not result:
-                    print('All initialization attempts failed')
-                    return False
+            if not result:
+                print('All initialization attempts failed')
+                return False
 
     # Check if initialization was successful
     if result:
