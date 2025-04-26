@@ -1,251 +1,57 @@
-name: Test | Test MetaTrader5 Initialization
+name: MetaTrader5 CI Headless Setup
 
-on:
-  push:
-    branches: ['*']
-  pull_request:
+on: [push]
 
 jobs:
-  test:
+  build:
     runs-on: windows-latest
-    timeout-minutes: 15
-
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
 
-    - name: Direct Download and Install MetaTrader 5
+    - name: Download MetaTrader5 Installer
       run: |
-        # Download latest MT5 setup directly from official source
-        Invoke-WebRequest -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" -OutFile mt5setup.exe
-        
-        # Install with modern silent parameters
-        Start-Process -FilePath .\mt5setup.exe -ArgumentList "/auto", "/portable" -Wait
-        
-        # Check standard and portable locations for both 32-bit and 64-bit versions
-        $possiblePaths = @(
-          "C:\Program Files\MetaTrader 5\terminal64.exe",
-          "C:\Program Files\MetaTrader 5\terminal.exe",
-          ".\MetaTrader 5\terminal64.exe",
-          ".\MetaTrader 5\terminal.exe",
-          "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal64.exe",
-          "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal.exe"
-        )
-        
-        $found = $false
-        foreach ($path in $possiblePaths) {
-          if (Test-Path $path) {
-            Write-Host "MetaTrader 5 found at: $path"
-            $found = $true
-            break
-          }
-        }
-        
-        if (-not $found) {
-          Write-Error "MetaTrader 5 installation not found in expected locations"
-          
-          # Search for installation
-          Write-Host "Searching for MT5 installation..."
-          $foundPaths = Get-ChildItem -Path "C:\" -Filter "terminal*.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
-          foreach ($path in $foundPaths) {
-            Write-Host "Found MT5 at: $path" "C:\" -Filter "terminal.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
-          }foundPaths += Get-ChildItem -Path "C:\" -Filter "terminal64.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
-          
-          # Add details about system architecture
-          $architecture = [System.Environment]::Is64BitOperatingSystem ? "64-bit" : "32-bit" 
-          Write-Host "System Architecture: $architecture"
-          Write-Host "PowerShell Architecture: $([IntPtr]::Size * 8)-bit"
-          # Add details about system architecture
-          exit 1tecture = [System.Environment]::Is64BitOperatingSystem ? "64-bit" : "32-bit" 
-        } Write-Host "System Architecture: $architecture"
-          Write-Host "PowerShell Architecture: $([IntPtr]::Size * 8)-bit"
-    - name: Install Python dependencies
-      run: |it 1
-        python -m pip install --upgrade pip
-        pip install MetaTrader5 pytest
-    - name: Install Python dependencies
-    - name: Configure MT5 for headless operation
-      run: |on -m pip install --upgrade pip
-        # Create data directory for portable mode
-        $mt5DataDir = ".\MT5_Data"
-        New-Item -Path $mt5DataDir -ItemType Directory -Force
-        n: |
-        # Set environment variables for headless operation
-        echo "MT5_HEADLESS=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        echo "MT5_TIMEOUT=60000" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Appendd
-        echo "MT5_DEBUG=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        # Set environment variables for headless operation
-        # Find MT5 path to pass to the test - check both 32-bit and 64-bit versions in a 32-bit environmentAppend
-        $mt5Path = ""EOUT=60000" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        $possiblePaths = @(| Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "C:\Program Files\MetaTrader 5\terminal64.exe",
-          "C:\Program Files\MetaTrader 5\terminal.exe",h 32-bit and 64-bit versions
-          ".\MetaTrader 5\terminal64.exe",
-          ".\MetaTrader 5\terminal.exe",nal\MetaTrader5\terminal.exe",
-          "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal64.exe",
-          "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal.exe"
-        ) ".\MetaTrader 5\terminal64.exe", ".\MetaTrader 5\terminal64.exe",
-          "$env:APPDATA\MetaQuotes\Terminal\MetaTrader5\terminal64.exe"  ".\MetaTrader 5\terminal.exe",
-        foreach ($path in $possiblePaths) {
-          if (Test-Path $path) {terminal.exe"
-            $mt5Path = $pathossiblePaths) {
-            $mt5Dir = Split-Path -Parent $mt5Path
-            echo "MT5_PATH=$mt5Path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-            echo "MT5_DIR=$mt5Dir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-            Write-Host "Setting MT5_PATH to $mt5Path"Path $env:GITHUB_ENV -Encoding utf8 -Append
-            Write-Host "Setting MT5_DIR to $mt5Dir"Path $env:GITHUB_ENV -Encoding utf8 -Append
-            Write-Host "Setting MT5_PATH to $mt5Path"echo "MT5_PATH=$mt5Path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-            # Create minimal configuration file to help with headless mode
-            $configLines = @(t5Path"
-              '[Common]',mal configuration file to help with headless modeetting MT5_DIR to $mt5Dir"
-              'Login=0', = @(
-              'ProxyEnable=0',uration file to help with headless mode
-              'CertCheckDisable=1',
-              'AutoUpdate=0',,
-              'DisableStartupCompany=1',
-              'EnableOpenCL=0',
-              'News=0',tartupCompany=1',kDisable=1',
-              'StartupCompany=0',
-              'Community=0',any=1',
-              'AutoUpdate.Enable=0'
-            ) 'Community=0', 'News=0',
-            $configPath = Join-Path $mt5Dir "config\default.ini"
-            New-Item -Path (Split-Path -Parent $configPath) -ItemType Directory -Force
-            $configLines | Out-File -FilePath $configPath -Encoding utf8
-            Write-Host "Created default config at $configPath"temType Directory -Force
-            $configLines | Out-File -FilePath $configPath -Encoding utf8$configPath = Join-Path $mt5Dir "config\default.ini"
-            break-Host "Created default config at $configPath"tem -Path (Split-Path -Parent $configPath) -ItemType Directory -Force
-          }  $configLines | Out-File -FilePath $configPath -Encoding utf8
-        }   break   Write-Host "Created default config at $configPath"
-          }            
-    - name: Configure system for MT5 communication
+        Invoke-WebRequest `
+          -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" `
+          -OutFile "mt5setup.exe"
+      shell: pwsh
+
+    - name: Install MetaTrader5 silently
       run: |
-        # Create registry settings that can help with IPC communication
-        Write-Host "Configuring system registry for MT5 communication"
-        # Create registry settings that can help with IPC communicationme: Configure system for MT5 communication
-        # Ensure the MetaTrader registry key exists MT5 communication"
-        $registryPath = "HKCU:\Software\MetaQuotes"
-        if (-not (Test-Path $registryPath)) {existsry for MT5 communication"
-            New-Item -Path $registryPath -Force | Out-Null
-        }f (-not (Test-Path $registryPath)) { Ensure the MetaTrader registry key exists
-            New-Item -Path $registryPath -Force | Out-Null$registryPath = "HKCU:\Software\MetaQuotes"
-        # Configure Terminal settings if needed
-        $terminalPath = "$registryPath\Terminal"
-        if (-not (Test-Path $terminalPath)) {ed
-            New-Item -Path $terminalPath -Force | Out-Null
-        }f (-not (Test-Path $terminalPath)) { Configure Terminal settings if needed
-            New-Item -Path $terminalPath -Force | Out-Null$terminalPath = "$registryPath\Terminal"
-        # Set some registry values that may help with IPC
-        Set-ItemProperty -Path $terminalPath -Name "HeadlessMode" -Value 1 -Type DWORD -Force
-        Set-ItemProperty -Path $terminalPath -Name "AllowDllImport" -Value 1 -Type DWORD -Force
-        Set-ItemProperty -Path $terminalPath -Name "HeadlessMode" -Value 1 -Type DWORD -Force
-        # Check if Python DLLs are accessible from the MT5 installationlue 1 -Type DWORD -Force
-        $pythonDllPath = Join-Path (Split-Path -Parent (Get-Command python).Path) "python311.dll"
-        if (Test-Path $pythonDllPath) {ssible from the MT5 installationlPath -Name "AllowDllImport" -Value 1 -Type DWORD -Force
-            Write-Host "Python DLL found at: $pythonDllPath"Command python).Path) "python311.dll"
-            # Copy Python DLL to MT5 directory to help with IPC
-            if (Test-Path $env:MT5_DIR) {at: $pythonDllPath"-Path -Parent (Get-Command python).Path) "python311.dll"
-                Copy-Item -Path $pythonDllPath -Destination $env:MT5_DIR -Force
-                Write-Host "Copied Python DLL to MT5 directory"
-            }   Copy-Item -Path $pythonDllPath -Destination $env:MT5_DIR -Force Copy Python DLL to MT5 directory to help with IPC
-        } else {Write-Host "Copied Python DLL to MT5 directory"Test-Path $env:MT5_DIR) {
-            Write-Host "Python DLL not found at expected location"
-        } else {       Write-Host "Copied Python DLL to MT5 directory"
-            Write-Host "Python DLL not found at expected location"            }
-    - name: Debug environment
-      run: |Python DLL not found at expected location"
-        Write-Host "Environment variables:"
-        Get-ChildItem Env:
-        Write-Host "Environment variables:"me: Debug environment
-        Write-Host "MT5 directory contents:"
-        if (Test-Path $env:MT5_DIR) {
-          Get-ChildItem -Path $env:MT5_DIR -Recurse -Depth 1 | Select-Object FullName
-        }f (Test-Path $env:MT5_DIR) {
-          Get-ChildItem -Path $env:MT5_DIR -Recurse -Depth 1 | Select-Object FullNameWrite-Host "MT5 directory contents:"
-        Write-Host "System processes:"
-        Get-Process | Where-Object { $_.Name -like "*MetaTrader*" -or $_.Name -like "*terminal*" } | Format-Table -AutoSize
-        Write-Host "System processes:"        }
-    - name: Test MT5 initialization{ $_.Name -like "*MetaTrader*" -or $_.Name -like "*terminal*" } | Format-Table -AutoSize
-      run: |em processes:"
-        # Kill any existing MT5 processesike "*MetaTrader*" -or $_.Name -like "*terminal*" } | Format-Table -AutoSize
-        Get-Process | Where-Object { $_.Name -like "*MetaTrader*" -or $_.Name -like "*terminal*" } | ForEach-Object { 
-          Write-Host "Killing process $($_.Name) with ID $($_.Id)"
-          Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue $_.Name -like "*terminal*" } | ForEach-Object { 
-        } Write-Host "Killing process $($_.Name) with ID $($_.Id)" Kill any existing MT5 processes
-          Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue Get-Process | Where-Object { $_.Name -like "*MetaTrader*" -or $_.Name -like "*terminal*" } | ForEach-Object { 
-        # Give system time to clean up processes
-        Start-Sleep -Seconds 5 SilentlyContinue 
-        # Give system time to clean up processes}
-        # Set explicit environment variables that can help with IPC
-        $env:MT5_IPC_HOST = "localhost" 
-        $env:MT5_IPC_PORT = "8228"  # Use a standard port for IPC
-        $env:MT5_64BIT = "0"  # Force 32-bit mode for the Python module$env:MT5_IPC_HOST = "localhost" 
-        
-        # Create a custom settings file for the Python MT5 test
-        $settingsContent = @"work better in CI
-[MT5]$mt5Process = Start-Process -FilePath $env:MT5_PATH -ArgumentList "/portable", "/config:default.ini", "/skipupdate", "/minimize" -PassThru
-path=$($env:MT5_PATH)d)"to work better in CI
-debug=1_PATH -ArgumentList "/portable", "/config:default.ini", "/skipupdate", "/minimize" -PassThru
-timeout=120000# Give MT5 more time to initialize - increase wait timeWrite-Host "Started MT5 process with ID $($mt5Process.Id)"
-headless=1
-ipc_host=localhost
-ipc_port=8228 still running and get detailsds 30
-"@tinue
-        Set-Content -Path ".\mt5_settings.ini" -Value $settingsContent
-        Host "MT5 process is still running with ID $($mt5Process.Id)"ing = Get-Process -Id $mt5Process.Id -ErrorAction SilentlyContinue
-        # Start MT5 manually with a combination of flags known to work better in CIst | Out-String)"
-        $startArgs = @("/portable") else { Write-Host "MT5 process is still running with ID $($mt5Process.Id)"
-          Write-Host "Warning: MT5 process is no longer running"  Write-Host "Process details: $($mt5Running | Format-List | Out-String)"
-        # Add config argument if it exists
-        $configPath = Join-Path (Split-Path -Parent $env:MT5_PATH) "config\default.ini"
-        if (Test-Path $configPath) {Use the existing test script with expanded timeout
-            $startArgs += "/config:default.ini"egration/test_mt5_initialization.py
-        }
-        : 1integration/test_mt5_initialization.py
-        $startArgs += "/skipupdate"
+        Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/silent" -Wait
+      shell: powershell
 
+    - name: Kill any existing MT5 processes
+      run: |
+        Get-Process terminal64 -ErrorAction SilentlyContinue | Stop-Process -Force
+      shell: powershell
 
+    - name: Launch MetaTrader5 Terminal in portable mode
+      run: |
+        Start-Process "C:\Program Files\MetaTrader 5\terminal64.exe" -ArgumentList "/portable"
+        Start-Sleep -Seconds 15
+      shell: powershell
 
+    - name: Install MetaTrader5 Python package
+      run: pip install MetaTrader5
 
+    - name: Run your Python script
+      run: |
+        python - << 'EOF'
+        import MetaTrader5 as mt5
 
+        if not mt5.initialize(path=r"C:/Program Files/MetaTrader 5/terminal64.exe", timeout=300000):
+            print("initialize() failed, error code:", mt5.last_error())
+            exit(1)
 
+        # Example: print account info
+        print(mt5.account_info())
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        MT5_VERBOSE: 1  # Enable verbose logging        MT5_64BIT: 0  # Force 32-bit mode        MT5_WAIT_PERIOD: 10000  # Wait 10 seconds between attempts        MT5_DEBUG: 1        MT5_TIMEOUT: 180000  # Increase timeout to 3 minutes        MT5_HEADLESS: 1      env:        python test/integration/test_mt5_initialization.py        Write-Host "Running Python test script with expanded timeout..."        # Use the existing test script with expanded timeout                }          Write-Host "Warning: MT5 process is no longer running"        } else {          $env:MT5_VERBOSE = "1"          # Add verbose flag to the test script for more detailed output                    Get-Process | Where-Object { $_.Name -like "*MetaTrader*" -or $_.Name -like "*terminal*" } | Format-Table -AutoSize          Write-Host "All running processes:"          # List all processes to debug                    Write-Host "Process details: $($mt5Running | Format-List | Out-String)"          Write-Host "MT5 process is still running with ID $($mt5Process.Id)"        if ($mt5Running) {        $mt5Running = Get-Process -Id $mt5Process.Id -ErrorAction SilentlyContinue        # Check process is still running and get details                Start-Sleep -Seconds 45        Write-Host "Waiting 45 seconds for MT5 to initialize..."        # Give MT5 more time to initialize - increase wait time                Write-Host "Started MT5 process with ID $($mt5Process.Id)"        $mt5Process = Start-Process -FilePath $env:MT5_PATH -ArgumentList $startArgs -PassThru        Write-Host "Starting MT5 with arguments: $startArgs"                $startArgs += "/minimize"
-
-        MT5_WAIT_PERIOD: 5000  # Wait 5 seconds between attempts        MT5_DEBUG: 1        MT5_HEADLESS: 1
-        MT5_TIMEOUT: 120000  # Increase timeout to 2 minutes
-        MT5_DEBUG: 1
-        MT5_WAIT_PERIOD: 5000  # Wait 5 seconds between attempts
+        mt5.shutdown()
+        EOF
+      shell: pwsh
