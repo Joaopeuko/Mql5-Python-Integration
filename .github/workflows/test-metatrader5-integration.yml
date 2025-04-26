@@ -47,18 +47,17 @@ jobs:
     - name: Install MetaTrader5 Python package
       run: pip install MetaTrader5
 
-    - name: Run your Python script
+    - name: Run Python inline script
       run: |
-        python - << 'EOF'
+        python -c "
         import MetaTrader5 as mt5
-
-        if not mt5.initialize(path=r"C:/Program Files/MetaTrader 5/terminal64.exe", timeout=300000):
-            print("initialize() failed, error code:", mt5.last_error())
+        print('Testing MT5 initialization...')
+        if not mt5.initialize():
+            print('Failed to initialize:', mt5.last_error())
             exit(1)
-
-        # Example: print account info
-        print(mt5.account_info())
-
-        mt5.shutdown()
-        EOF
+        else:
+            print('MT5 initialized successfully')
+            mt5.shutdown()
+       "
       shell: pwsh
+
