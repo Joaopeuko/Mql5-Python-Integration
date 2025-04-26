@@ -53,4 +53,5 @@ class Book:
         Returns:
             bool: True if successful, False otherwise.
         """
-        return Mt5.market_book_release(self.symbol)
+        result = Mt5.market_book_release(self.symbol)
+        return False if result is None else result

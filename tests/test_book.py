@@ -91,31 +91,24 @@ def test_full_workflow(symbol):
 
 def test_multiple_symbols():
     """Test using Book with multiple symbols simultaneously."""
-    # Get available symbols
     symbols = Mt5.symbols_get()
     if len(symbols) < 2:
         pytest.skip("Need at least 2 symbols for this test")
     
-    # Select two different symbols
     symbol1 = symbols[0].name
     symbol2 = symbols[1].name
     
-    # Create books for both symbols
     book1 = Book(symbol1)
     book2 = Book(symbol2)
     
-    # Wait for market books to populate
     time.sleep(1)
     
-    # Get market data for both symbols
     data1 = book1.get()
     data2 = book2.get()
     
-    # Verify both returned data
     assert data1 is not None
     assert data2 is not None
     
-    # Clean up
     book1.release()
     book2.release()
 
@@ -123,13 +116,10 @@ def test_unavailable_symbol(caplog):
     """Test behavior with an unavailable symbol."""
     caplog.set_level(logging.ERROR)
     
-    # Use an invalid symbol name
     invalid_symbol = "INVALID_SYMBOL_THAT_DOESNT_EXIST"
     
-    # Create a book with invalid symbol
     book = Book(invalid_symbol)
     
-    # Check that an error was logged
     assert "Error adding INVALID_SYMBOL_THAT_DOESNT_EXIST to the market book" in caplog.text
     
     release_result = book.release()
