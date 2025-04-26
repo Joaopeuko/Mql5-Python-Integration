@@ -26,25 +26,12 @@ jobs:
     - name: Install MetaTrader5
       shell: pwsh
       run: |
-        $installDir = "$env:GITHUB_WORKSPACE\MT5Portable"
-        
-        # Verify and clean installation directory
-        if (Test-Path $installDir) {
-            Remove-Item -Recurse -Force $installDir
-        }
-        
-        # Run installer with explicit paths
-        $process = Start-Process "$env:GITHUB_WORKSPACE\mt5setup.exe" `
-            -ArgumentList @(
-                "/S",
-                "/portable=`"$installDir`"",
-                "/skipupdate"
-            ) -PassThru -NoNewWindow
-
-        # Wait for installation with timeout
-        if (-not $process.WaitForExit(300000)) {
-            Write-Error "Installation timed out after 5 minutes"
-            exit 1
+        $process = Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto", "/portable" -PassThru
+        $process.WaitForExit(300000)
+        if (-not $process.HasExited) {
+          Write-Host "MT5 installer stuck, killing..."
+          Stop-Process -Id $process.Id -Force
+          exit 1
         }
         
         # Verify installation
