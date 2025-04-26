@@ -70,7 +70,7 @@ jobs:
       env:
         MT5_LOGIN: ${{ secrets.MT5_LOGIN }}
         MT5_PASSWORD: ${{ secrets.MT5_PASSWORD }}
-        MT5_SERVER: "'MetaQuotes-Demo'"
+        MT5_SERVER: "MetaQuotes-Demo"
         MT5_PATH: "C:\\Program Files\\MetaTrader 5\\terminal64.exe"
       run: |
         python tests/integration/test_mt5_connection.py
