@@ -26,57 +26,35 @@ jobs:
 
     - name: Install MetaTrader5
       shell: pwsh
+      timeout-minutes: 5
       run: |
+        # Set installation parameters
         $installDir = "$env:GITHUB_WORKSPACE\MT5Portable"
+        $installerPath = "$env:GITHUB_WORKSPACE\mt5setup.exe"
         
-        # Clean previous installations
-        if (Test-Path $installDir) {
-            Remove-Item -Recurse -Force $installDir
+        # Run installer with extended timeout
+        $process = Start-Process $installerPath -ArgumentList @(
+          "/S",
+          "/portable=`"$installDir`"",
+          "/skipupdate"
+        ) -PassThru -NoNewWindow
+
+        # Wait up to 4 minutes for installation
+        if (-not $process.WaitForExit(240000)) {
+          Write-Error "Installation timed out after 4 minutes"
+          exit 1
         }
 
-        # Verify installer exists
-        if (-not (Test-Path "$env:GITHUB_WORKSPACE\mt5setup.exe")) {
-            Write-Error "Installer not found!"
-            exit 1
-        }
-
-        # Run installer with timeout
-        $process = Start-Process "$env:GITHUB_WORKSPACE\mt5setup.exe" `
-            -ArgumentList @(
-                "/S",
-                "/portable=$installDir",
-                "/skipupdate"
-            ) `
-            -PassThru `
-            -NoNewWindow
-
-        try {
-            # Wait with timeout (120 seconds)
-            if (-not $process.WaitForExit(120000)) {
-                Write-Error "Installer timed out after 2 minutes"
-                Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
-                exit 1
-            }
-            
-            # Verify exit code
-            if ($process.ExitCode -ne 0) {
-                Write-Error "Installer failed with exit code $($process.ExitCode)"
-                exit 1
-            }
-        }
-        catch {
-            Write-Error "Installation error: $_"
-            exit 1
-        }
-
-        # Verify installation
+        # Verify successful installation
         if (-not (Test-Path "$installDir\terminal64.exe")) {
-            Get-ChildItem $installDir -Recurse | Out-Host
-            Write-Error "Installation verification failed"
-            exit 1
+          Write-Error "Installation failed - terminal.exe missing"
+          # Add diagnostic info
+          Write-Host "Installation directory contents:"
+          Get-ChildItem $installDir -Recurse | Format-List
+          exit 1
         }
 
-        Write-Host "MT5 installed successfully in $installDir"
+        Write-Host "MT5 installed successfully to $installDir"
 
     - name: Launch MetaTrader5
       run: |
