@@ -73,9 +73,9 @@ jobs:
         print('MetaTrader5 version:', mt5.__version__)
         for i in range(10):
             try:
-                if mt5.initialize(login=int(os.getenv('MT5_AT_ACC')),
-                          password=os.getenv('MT5_PW'),
-                          server=os.getenv('MT5_AT_SRV'),
+                if mt5.initialize(login=int({{ secrets.MT5_LOGIN }}),
+                          password={{ secrets.MT5_PASSWORD }},
+                          server='MetaQuotes-Demo',
                           path='C:\\Program Files\\MetaTrader 5\\terminal64.exe'):
                     print('MT5 initialized successfully')
                     print(mt5.terminal_info())
