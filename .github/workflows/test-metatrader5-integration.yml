@@ -64,7 +64,7 @@ jobs:
 
     - name: Test MT5 initialization
       run: |
-        python -c "
+        python "
         import sys, os, time
         import MetaTrader5 as mt5
         
