@@ -1,4 +1,4 @@
-name: Test | MetaTrader5 Integration Test
+name: Test | Integration Test
 
 on: [push]
 
@@ -70,23 +70,7 @@ jobs:
       env:
         MT5_LOGIN: ${{ secrets.MT5_LOGIN }}
         MT5_PASSWORD: ${{ secrets.MT5_PASSWORD }}
+        MT5_SERVER: "'MetaQuotes-Demo'"
+        MT5_PATH: "C:\\Program Files\\MetaTrader 5\\terminal64.exe"
       run: |
-        python -c "import os, MetaTrader5 as mt5
-        print('Python version:', os.sys.version)
-        print('MetaTrader5 version:', mt5.__version__)
-        for i in range(10):
-            try:
-                if mt5.initialize(login=int(os.getenv('MT5_LOGIN')),
-                          password=os.getenv('MT5_PASSWORD'),
-                          server='MetaQuotes-Demo',
-                          path='C:\\Program Files\\MetaTrader 5\\terminal64.exe'):
-                    print('MT5 initialized successfully')
-                    print(mt5.terminal_info())
-                    mt5.shutdown()
-                    exit(0)
-                print(f'Attempt {i+1} failed')
-            except Exception as e:
-                print(f'Error: {str(e)}')
-            import time; time.sleep(10)
-        print('All attempts failed')
-        exit(1)"
+        python -c tests/integration/test_mt5_connection.py
