@@ -22,7 +22,7 @@ def test_mt5_initialization():
         
         # Attempt 2: initialize with standard path
         result = mt5.initialize(
-            path="C:\\Program Files\\MetaTrader 5\\terminal64.exe",
+            path="C:\Program Files\MetaTrader 5\terminal64.exe",
             login=0,
             password="",
             server="",
