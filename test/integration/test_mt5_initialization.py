@@ -6,12 +6,16 @@ import MetaTrader5 as mt5
 def test_mt5_initialization():
     """Test MetaTrader5 initialization in various ways until one succeeds."""
     print(f'MT5 version: {mt5.__version__}')
+    
+    # Start MetaTrader 5 process first before initialization
+    import subprocess
+    import time
+    
+    # Set environment variables
+    os.environ['MT5_HEADLESS'] = '1'
     print('MT5_HEADLESS:', os.environ.get('MT5_HEADLESS'))
     print('MT5_PORTABLE_PATH:', os.environ.get('MT5_PORTABLE_PATH'))
     print('Initializing...')
-
-    # Set environment variable directly in Python to ensure it's available
-    os.environ['MT5_HEADLESS'] = '1'
     
     # Find MetaTrader 5 installation paths
     possible_paths = [
@@ -36,69 +40,91 @@ def test_mt5_initialization():
     
     if not existing_paths:
         print("WARNING: No MetaTrader 5 installation found in common locations!")
+        return False
+    
+    # First start the MetaTrader terminal process with specific parameters
+    mt5_path = existing_paths[0]  # Use the first found path
+    print(f"Starting MetaTrader 5 process from: {mt5_path}")
+    
+    try:
+        # Kill any running MT5 processes first
+        if sys.platform == 'win32':
+            subprocess.call('taskkill /F /IM terminal64.exe', shell=True, stderr=subprocess.DEVNULL)
+            time.sleep(3)
         
-    # Attempt 1: Initialize with minimal parameters
-    result = mt5.initialize()
-    print(f'Initial result: {result}, Error code: {mt5.last_error()}')
-
-    # Try each found path if initial attempt fails
-    if not result and existing_paths:
-        for idx, path in enumerate(existing_paths, 1):
-            print(f'Attempt {idx+1}: Trying with path: {path}')
+        # Start MT5 with the /portable parameter which helps in CI environments
+        mt5_process = subprocess.Popen([mt5_path, '/portable'], 
+                                      stdout=subprocess.PIPE, 
+                                      stderr=subprocess.PIPE,
+                                      creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if sys.platform == 'win32' else 0)
+        
+        print(f"Started MetaTrader 5 process with PID: {mt5_process.pid}")
+        # Wait for MT5 to start up
+        time.sleep(15)
+        
+        # Now try connecting multiple times with different parameters
+        max_attempts = 3
+        for attempt in range(1, max_attempts + 1):
+            print(f"\nAttempt {attempt}/{max_attempts} to initialize MT5...")
             
-            # Ensure previous attempt is cleaned up
-            if idx > 1:
-                mt5.shutdown()
-                time.sleep(2)
-                
-            # Try with this path
+            # Cleanup any previous connection
+            if attempt > 1:
+                try:
+                    mt5.shutdown()
+                except:
+                    pass
+                time.sleep(3)
+            
+            # Using longer timeouts and specifying path directly
             result = mt5.initialize(
-                path=path,
+                path=mt5_path,
                 login=0,
                 password="",
                 server="",
-                timeout=60000
+                timeout=120000  # 2 minutes timeout
             )
             
-            print(f'Result with path {path}: {result}, Error code: {mt5.last_error()}')
+            error_code = mt5.last_error()
+            print(f'Initialization result: {result}, Error: {error_code}')
             
             if result:
-                print(f'Successfully initialized with path: {path}')
+                print('MT5 initialized successfully!')
                 break
+                
+            # If we're getting timeout errors, wait longer between attempts
+            if error_code[0] == -10005:  # IPC timeout
+                print("IPC timeout encountered, waiting longer before next attempt...")
+                time.sleep(10)
         
-        # If all path attempts fail, try with increased timeout
         if not result:
-            print('All path attempts failed. Trying with increased timeout...')
-            mt5.shutdown()
-            time.sleep(2)
+            print("All initialization attempts failed")
+            return False
             
-            # Final attempt: default init with longer timeout
-            result = mt5.initialize(timeout=120000)
-            print(f'Result with increased timeout: {result}, Error code: {mt5.last_error()}')
-
-    # Check if initialization was successful
-    if result:
+        # Successfully connected, try accessing some basic data
         print('MT5 initialized successfully')
         
-        # Try to get account info as test
-        account_info = mt5.account_info()
-        if account_info is not None:
-            print(f'Account info: {account_info}')
+        # Try to get terminal information as test
+        terminal_info = mt5.terminal_info()
+        if terminal_info is not None:
+            print(f'Terminal info: {terminal_info._asdict()}')
         else:
-            print('No account info available (demo mode)')
-        
-        # Try to get symbol info as test
-        symbol_info = mt5.symbol_info('EURUSD')
-        if symbol_info is not None:
-            print(f'Symbol info available: {symbol_info.name}')
-        else:
-            print('Symbol info not available')
+            print('Terminal info not available')
         
         # Clean shutdown
         mt5.shutdown()
         return True
-    
-    return False
+        
+    except Exception as e:
+        print(f"Error during MetaTrader 5 initialization: {e}")
+        return False
+    finally:
+        # Make sure to terminate the MT5 process when done
+        try:
+            if 'mt5_process' in locals() and mt5_process:
+                mt5_process.terminate()
+                print("Terminated MetaTrader 5 process")
+        except:
+            pass
 
 if __name__ == "__main__":
     success = test_mt5_initialization()
