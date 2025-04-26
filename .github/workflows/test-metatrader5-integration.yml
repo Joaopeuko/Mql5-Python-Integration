@@ -25,7 +25,7 @@ jobs:
       run: |
         # Start installer with /auto and /portable, with timeout protection
         $process = Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto", "/portable" -PassThru
-        $process.WaitForExit(300)  # 300 seconds = 5 minutes
+        $process.WaitForExit(300000)  # 300 seconds = 5 minutes
         if (-not $process.HasExited) {
           Write-Host "MT5 installer stuck, killing..."
           Stop-Process -Id $process.Id -Force
