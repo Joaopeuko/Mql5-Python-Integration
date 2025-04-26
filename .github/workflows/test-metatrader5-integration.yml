@@ -1,80 +1,132 @@
-name: Test | MetaTrader5 Integration Test
+name: MetaTrader5 Integration Test
 
 on: [push]
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        os: [windows-latest]
-    runs-on: ${{ matrix.os }}
+  test:
+    runs-on: windows-latest
+    timeout-minutes: 15  # Increased timeout
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-
-    - name: Download MetaTrader5 Installer
-      run: |
-        $url = "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe"
-        $output = "$env:GITHUB_WORKSPACE\mt5setup.exe"
-        Invoke-WebRequest -Uri $url -OutFile $output
+    - name: Install MT5 (Portable)
       shell: pwsh
-
-    - name: Install MetaTrader5
       run: |
-        $process = Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto", "/portable" -PassThru
-        $process.WaitForExit(300000)
-        if (-not $process.HasExited) {
-          Write-Host "MT5 installer stuck, killing..."
-          Stop-Process -Id $process.Id -Force
-          exit 1
+        # Clean previous installation
+        if (Test-Path ".\MetaTrader 5") {
+            Remove-Item -Recurse -Force ".\MetaTrader 5"
         }
-      shell: pwsh
 
-    - name: Launch MetaTrader5
-      run: |
-        $mt5Path = "$env:GITHUB_WORKSPACE\MT5Portable\terminal64.exe"
-        $configPath = "$env:GITHUB_WORKSPACE\MT5Portable\config"
+        # Download with retries
+        $retries = 3
+        do {
+            try {
+                Invoke-WebRequest https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe `
+                    -OutFile mt5setup.exe -TimeoutSec 60
+                break
+            } catch {
+                $retries--
+                if ($retries -eq 0) { throw }
+                Write-Host "Download failed, retries left: $retries"
+                Start-Sleep 5
+            }
+        } while ($retries -gt 0)
+
+        # Install with explicit paths
+        $installProcess = Start-Process .\mt5setup.exe `
+            -ArgumentList @("/portable", "/skipupdate", "/auto") `
+            -PassThru -NoNewWindow
         
-        # Create basic configuration
+        # Wait with timeout
+        if (-not $installProcess.WaitForExit(180000)) {
+            Write-Error "Installation timed out after 3 minutes"
+            exit 1
+        }
+
+        # Verify installation
+        if (-not (Test-Path ".\MetaTrader 5\terminal64.exe")) {
+            Write-Host "Installed directory contents:"
+            Get-ChildItem ".\MetaTrader 5" -Recurse
+            throw "Installation failed - terminal64.exe missing"
+        }
+
+    - name: Configure Server
+      shell: pwsh
+      run: |
+        $configPath = ".\MetaTrader 5\config"
         New-Item -Path $configPath -ItemType Directory -Force
-        Set-Content -Path "$configPath\servers.dat" -Value "YourServerHere,Demo,ServerAddressHere,443"
-
-        # Launch with headless options
-        $process = Start-Process $mt5Path -ArgumentList @(
-          "/portable", 
-          "/headless",
-          "/config:$configPath",
-          "/login:12345 /password:demo /server:ServerAddressHere"
-        ) -PassThru
         
-        # Wait and verify process
-        Start-Sleep -Seconds 60
-        if ($process.HasExited -or -not (Get-Process terminal64 -ErrorAction SilentlyContinue)) {
-          Write-Error "Failed to launch MT5"
-          Get-Content "$env:GITHUB_WORKSPACE\MT5Portable\logs\*.log" | Write-Host
-          exit 1
-        }
-      shell: pwsh
+        # Create server configuration
+        @"
+DemoServer,Demo,demo.example.com,443
+"@ | Set-Content "$configPath\servers.dat"
 
-    - name: Run MT5 Test
+        # Create basic terminal configuration
+        @"
+[Common]
+Language=English
+AutoUpdate=0
+EnableNews=0
+[Connection]
+EnableWebRequest=0
+"@ | Set-Content "$configPath\terminal.ini"
+
+    - name: Launch MT5
+      shell: pwsh
       run: |
-        python -c "import os, MetaTrader5 as mt5
-        print('Python version:', os.sys.version)
-        for i in range(10):
-            try:
-                if mt5.initialize():
-                    print('MT5 initialized successfully')
-                    print(mt5.terminal_info())
-                    mt5.shutdown()
-                    exit(0)
-                print(f'Attempt {i+1} failed')
-            except Exception as e:
-                print(f'Error: {str(e)}')
-            import time; time.sleep(10)
-        print('All attempts failed')
-        exit(1)"
+        $mt5Path = Resolve-Path ".\MetaTrader 5\terminal64.exe"
+        
+        # Kill existing instances
+        taskkill /IM terminal64.exe /F 2>&1 | Out-Null
+
+        # Launch with diagnostics
+        Start-Process $mt5Path -ArgumentList @(
+            "/portable",
+            "/headless",
+            "/config:config",
+            "/noreport"
+        ) -NoNewWindow
+
+        # Verify process start
+        $attempts = 0
+        while ($attempts -lt 10) {
+            if (Get-Process terminal64 -ErrorAction SilentlyContinue) {
+                Write-Host "MT5 process detected"
+                break
+            }
+            $attempts++
+            Start-Sleep 5
+        }
+
+        if (-not (Get-Process terminal64 -ErrorAction SilentlyContinue)) {
+            Get-Content ".\MetaTrader 5\logs\*.log" | Write-Host
+            throw "MT5 failed to start"
+        }
+
+    - name: Test Connection
+      shell: pwsh
+      run: |
+        # Allow more time for terminal initialization
+        Start-Sleep -Seconds 45
+
+        python -c "
+import MetaTrader5 as mt5
+from time import sleep
+import sys
+
+max_attempts = 8
+for attempt in range(max_attempts):
+    try:
+        if mt5.initialize():
+            print(f'Successfully connected to MT5 {mt5.version()}')
+            print('Terminal info:', mt5.terminal_info()._asdict())
+            mt5.shutdown()
+            sys.exit(0)
+        print(f'Attempt {attempt+1}/{max_attempts}: Initialize failed')
+    except Exception as e:
+        print(f'Attempt {attempt+1}/{max_attempts}: Error - {str(e)}')
+    sleep(10)
+print('All connection attempts failed')
+sys.exit(1)
+        "
