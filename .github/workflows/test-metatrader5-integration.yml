@@ -25,24 +25,34 @@ jobs:
       run: |
         # Start installer with /auto and /portable, with timeout protection
         $process = Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto", "/portable" -PassThru
-        $process.WaitForExit(300000)  # Wait max 5 minutes
+        $process.WaitForExit(300)  # 300 seconds = 5 minutes
         if (-not $process.HasExited) {
           Write-Host "MT5 installer stuck, killing..."
           Stop-Process -Id $process.Id -Force
           exit 1
         }
-      shell: powershell
+      shell: pwsh
 
     - name: Kill any existing MT5 processes
       run: |
         Get-Process terminal64 -ErrorAction SilentlyContinue | Stop-Process -Force
-      shell: powershell
+      shell: pwsh
 
     - name: Launch MetaTrader5 Terminal in portable mode
       run: |
-        Start-Process "C:\Program Files\MetaTrader 5\terminal64.exe" -ArgumentList "/portable"
+        $mt5Paths = @(
+          "C:\Program Files\MetaTrader 5\terminal64.exe",
+          ".\MetaTrader 5\terminal64.exe"
+        )
+        foreach ($path in $mt5Paths) {
+          if (Test-Path $path) {
+            Start-Process -FilePath $path -ArgumentList "/portable"
+            Write-Host "Launched MT5 from $path"
+            break
+          }
+        }
         Start-Sleep -Seconds 15
-      shell: powershell
+      shell: pwsh
 
     - name: Install MetaTrader5 Python package
       run: pip install MetaTrader5
@@ -51,13 +61,16 @@ jobs:
       run: |
         python -c "
         import MetaTrader5 as mt5
+        import time
+
         print('Testing MT5 initialization...')
+        time.sleep(5)  # Extra sleep to ensure MT5 ready
+
         if not mt5.initialize():
             print('Failed to initialize:', mt5.last_error())
             exit(1)
         else:
             print('MT5 initialized successfully')
             mt5.shutdown()
-       "
+        "
       shell: pwsh
-
