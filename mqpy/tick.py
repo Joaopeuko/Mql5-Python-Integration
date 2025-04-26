@@ -1,4 +1,9 @@
-from typing import Optional
+"""Module for retrieving and managing real-time tick data from MetaTrader 5.
+
+Provides the Tick class for accessing current market price information.
+"""
+
+from __future__ import annotations
 
 import MetaTrader5 as Mt5
 
@@ -7,8 +12,7 @@ class Tick:
     """Represents real-time tick data for a financial instrument."""
 
     def __init__(self, symbol: str) -> None:
-        """
-        Initializes a Tick object.
+        """Initializes a Tick object.
 
         Args:
             symbol (str): The financial instrument symbol.
@@ -69,6 +73,10 @@ class Tick:
         return self._flags
 
     @property
-    def volume_real(self) -> Optional[float]:
+    def volume_real(self) -> float | None:
         """Real volume (if available)."""
         return self._volume_real
+
+    def real_volume(self) -> list[int]:
+        """List of real volumes."""
+        return self._real_volume

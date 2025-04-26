@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background square with rounded corners -->
+  <rect width="192" height="192" rx="32" ry="32" fill="#665500"/>
+
+  <!-- Inner rounded square gradient -->
+  <rect x="12" y="12" width="168" height="168" rx="24" ry="24" fill="url(#goldGradient)"/>
+
+  <!-- Highlight effect -->
+  <circle cx="86" cy="76" r="60" fill="url(#highlightGradient)" opacity="0.3"/>
+
+  <!-- MQ letters (simplified) -->
+  <g transform="translate(40, 100) scale(0.4, 0.4)">
+    <!-- M (corrected) -->
+    <path d="M10 -120 L10 0 L30 0 L30 -80 L50 -20 L70 -80 L70 0 L90 0 L90 -120 L70 -120 L50 -60 L30 -120 L10 -120Z" fill="#332200"/>
+
+    <!-- Q -->
+    <path d="M115 -120 Q85 -120 85 -85 L85 -30 Q85 5 115 5 Q145 5 145 -30 L145 -85 Q145 -120 115 -120Z
+             M115 -100 Q125 -100 125 -85 L125 -30 Q125 -15 115 -15 Q105 -15 105 -30 L105 -85 Q105 -100 115 -100Z
+             M130 -5 L145 15 L130 25 L115 5 L130 -5Z" fill="#332200"/>
+  </g>
+
+  <!-- Definitions -->
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFDF00"/>
+      <stop offset="100%" stop-color="#FFC400"/>
+    </linearGradient>
+    <radialGradient id="highlightGradient" cx="50%" cy="50%" r="50%" fx="25%" fy="25%">
+      <stop offset="0%" stop-color="#FFEA00"/>
+      <stop offset="100%" stop-color="#FFCC00" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>

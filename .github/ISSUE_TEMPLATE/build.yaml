@@ -10,7 +10,7 @@ body:
       label: "Where?"
       description: "Provide path from the root of the repository."
       placeholder: "mqpy/"
- 
+
   - type: textarea
     id: requested_change
     attributes:

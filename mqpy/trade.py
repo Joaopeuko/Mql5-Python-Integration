@@ -1,11 +1,27 @@
-from datetime import datetime, timedelta
+"""Module for trading operations with MetaTrader 5.
+
+Provides a Trade class for managing trading operations.
+"""
+
+import logging
+import sys
+from datetime import datetime, timedelta, timezone
 
 import MetaTrader5 as Mt5
 
+# Configure logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# Create console handler with formatting
+console_handler = logging.StreamHandler()
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+
 
 class Trade:
-    """
-    Represents a trading strategy for a financial instrument.
+    """Represents a trading strategy for a financial instrument.
 
     Args:
         expert_name (str): The name of the expert advisor.
@@ -39,8 +55,7 @@ class Trade:
         ending_time: str = "17:50",
         fee: float = 0.0,
     ) -> None:
-        """
-        Initialize the Trade object.
+        """Initialize the Trade object.
 
         Returns:
             None
@@ -66,73 +81,70 @@ class Trade:
 
         self.ticket: int = 0
 
-        print("\nInitializing the basics.")
+        logger.info("Initializing the basics.")
         self.initialize()
         self.select_symbol()
         self.prepare_symbol()
         self.sl_tp_steps: float = Mt5.symbol_info(self.symbol).trade_tick_size / Mt5.symbol_info(self.symbol).point
-        print("Initialization successfully completed.")
-
-        print()
+        logger.info("Initialization successfully completed.")
+        logger.info("")
         self.summary()
-        print("Running")
-        print()
+        logger.info("Running")
+        logger.info("")
 
     def initialize(self) -> None:
-        """
-        Initialize the MetaTrader 5 instance.
+        """Initialize the MetaTrader 5 instance.
 
         Returns:
             None
         """
         if not Mt5.initialize():
-            print("Initialization failed, check internet connection. You must have Meta Trader 5 installed.")
+            logger.error("Initialization failed, check internet connection. You must have Meta Trader 5 installed.")
             Mt5.shutdown()
         else:
-            print(
+            logger.info(
                 f"You are running the {self.expert_name} expert advisor,"
                 f" version {self.version}, on symbol {self.symbol}."
             )
 
     def select_symbol(self) -> None:
-        """
-        Select the trading symbol.
+        """Select the trading symbol.
 
         Returns:
             None
         """
-        Mt5.symbol_select(self.symbol, True)
+        Mt5.symbol_select(self.symbol, enable=True)
 
     def prepare_symbol(self) -> None:
-        """
-        Prepare the trading symbol for opening positions.
+        """Prepare the trading symbol for opening positions.
 
         Returns:
             None
         """
         symbol_info = Mt5.symbol_info(self.symbol)
         if symbol_info is None:
-            print(f"It was not possible to find {self.symbol}")
+            logger.error(f"It was not possible to find {self.symbol}")
             Mt5.shutdown()
-            print("Turned off")
-            quit()
+            logger.error("Turned off")
+            sys.exit(1)
 
         if not symbol_info.visible:
-            print(f"The {self.symbol} is not visible, needed to be switched on.")
-            if not Mt5.symbol_select(self.symbol, True):
-                print(f"The expert advisor {self.expert_name} failed in select the symbol {self.symbol}, turning off.")
+            logger.warning(f"The {self.symbol} is not visible, needed to be switched on.")
+            if not Mt5.symbol_select(self.symbol, enable=True):
+                logger.error(
+                    f"The expert advisor {self.expert_name} failed in select the symbol {self.symbol}, turning off."
+                )
                 Mt5.shutdown()
-                print("Turned off")
-                quit()
+                logger.error("Turned off")
+                sys.exit(1)
 
     def summary(self) -> None:
-        """
-        Print a summary of the expert advisor parameters.
+        """Print a summary of the expert advisor parameters.
 
         Returns:
             None
         """
-        print(
+        logger.info(
             f"Summary:\n"
             f"ExpertAdvisor name:              {self.expert_name}\n"
             f"ExpertAdvisor version:           {self.version}\n"
@@ -151,23 +163,21 @@ class Trade:
         )
 
     def statistics(self) -> None:
-        """
-        Print statistics of the expert advisor.
+        """Print statistics of the expert advisor.
 
         Returns:
             None
         """
-        print(f"Total of deals: {self.total_deals}, {self.profit_deals} gain, {self.loss_deals} loss.")
-        print(
+        logger.info(f"Total of deals: {self.total_deals}, {self.profit_deals} gain, {self.loss_deals} loss.")
+        logger.info(
             f"Balance: {self.balance}, fee: {self.total_deals * self.fee}, final balance:"
             f" {self.balance - (self.total_deals * self.fee)}."
         )
         if self.total_deals != 0:
-            print(f"Accuracy: {round((self.profit_deals / self.total_deals) * 100, 2)}%.\n")
+            logger.info(f"Accuracy: {round((self.profit_deals / self.total_deals) * 100, 2)}%.\n")
 
     def open_buy_position(self, comment: str = "") -> None:
-        """
-        Open a Buy position.
+        """Open a Buy position.
 
         Args:
             comment (str): A comment for the trade.
@@ -199,8 +209,7 @@ class Trade:
         self.request_result(price, result)
 
     def open_sell_position(self, comment: str = "") -> None:
-        """
-        Open a Sell position.
+        """Open a Sell position.
 
         Args:
             comment (str): A comment for the trade.
@@ -231,61 +240,56 @@ class Trade:
         result = Mt5.order_send(request)
         self.request_result(price, result)
 
-    def request_result(self, price: float, result) -> None:
-        """
-        Process the result of a trading request.
+    def request_result(self, price: float, result: Mt5.TradeResult) -> None:
+        """Process the result of a trading request.
 
         Args:
             price (float): The price of the trade.
             result (Mt5.TradeResult): The result of the trading request.
-                    Returns:
+
+        Returns:
             None
         """
-        # Send a trading request
-        # Check the execution result
-        print(f"Order sent: {self.symbol}, {self.lot} lot(s), at {price}.")
+        logger.info(f"Order sent: {self.symbol}, {self.lot} lot(s), at {price}.")
         if result.retcode != Mt5.TRADE_RETCODE_DONE:
-            print(f"Something went wrong while retrieving ret_code, error: {result.retcode}")
+            logger.error(f"Something went wrong while retrieving ret_code, error: {result.retcode}")
 
-        # Print the result
         if result.retcode == Mt5.TRADE_RETCODE_DONE:
             if len(Mt5.positions_get(symbol=self.symbol)) == 1:
                 order_type = "Buy" if Mt5.positions_get(symbol=self.symbol)[0].type == 0 else "Sell"
-                print(order_type, "Position Opened:", result.price)
+                logger.info(f"{order_type} Position Opened: {result.price}")
             else:
-                print(f"Position Closed: {result.price}")
+                logger.info(f"Position Closed: {result.price}")
 
-    def open_position(self, buy: bool, sell: bool, comment: str = "") -> None:
-        """
-        Open a position based on buy and sell conditions.
+    def open_position(self, *, should_buy: bool, should_sell: bool, comment: str = "") -> None:
+        """Open a position based on buy and sell conditions.
 
         Args:
-            buy (bool): True if a Buy position should be opened, False otherwise.
-            sell (bool): True if a Sell position should be opened, False otherwise.
+            should_buy (bool): True if a Buy position should be opened, False otherwise.
+            should_sell (bool): True if a Sell position should be opened, False otherwise.
             comment (str): A comment for the trade.
 
         Returns:
             None
         """
         if (len(Mt5.positions_get(symbol=self.symbol)) == 0) and self.trading_time():
-            if buy and not sell:
+            if should_buy and not should_sell:
                 self.open_buy_position(comment)
                 self.total_deals += 1
-            if sell and not buy:
+            if should_sell and not should_buy:
                 self.open_sell_position(comment)
                 self.total_deals += 1
 
         self.stop_and_gain(comment)
 
         if self.days_end():
-            print("It is the end of trading the day.")
-            print("Closing all positions.")
+            logger.info("It is the end of trading the day.")
+            logger.info("Closing all positions.")
             self.close_position(comment)
             self.summary()
 
     def close_position(self, comment: str = "") -> None:
-        """
-        Close an open position.
+        """Close an open position.
 
         Args:
             comment (str): A comment for the trade.
@@ -293,17 +297,14 @@ class Trade:
         Returns:
             None
         """
-        # buy (0) and sell(1)
         if len(Mt5.positions_get(symbol=self.symbol)) == 1:
-            if Mt5.positions_get(symbol=self.symbol)[0].type == 0:  # if Buy
+            if Mt5.positions_get(symbol=self.symbol)[0].type == 0:  # Buy position
                 self.open_sell_position(comment)
-
-            elif Mt5.positions_get(symbol=self.symbol)[0].type == 1:  # if Sell
+            elif Mt5.positions_get(symbol=self.symbol)[0].type == 1:  # Sell position
                 self.open_buy_position(comment)
 
     def stop_and_gain(self, comment: str = "") -> None:
-        """
-        Check for stop loss and take profit conditions and close positions accordingly.
+        """Check for stop loss and take profit conditions and close positions accordingly.
 
         Args:
             comment (str): A comment for the trade.
@@ -321,61 +322,45 @@ class Trade:
             if points / Mt5.symbol_info(self.symbol).point >= self.take_profit:
                 self.profit_deals += 1
                 self.close_position(comment)
-                print(
-                    f"Take profit reached. ("
-                    f"{Mt5.history_deals_get((datetime.today() - timedelta(days=1)), datetime.now())[-1].profit}"
-                    f")\n"
-                )
-                if (
-                    Mt5.history_deals_get((datetime.today() - timedelta(days=1)), datetime.now())[-1].symbol
-                    == self.symbol
-                ):
-                    self.balance += Mt5.history_deals_get((datetime.today() - timedelta(days=1)), datetime.now())[
-                        -1
-                    ].profit
+                start_time = datetime.now(timezone.utc) - timedelta(days=1)
+                end_time = datetime.now(timezone.utc)
+                profit = Mt5.history_deals_get(start_time, end_time)[-1].profit
+                logger.info(f"Take profit reached. ({profit})\n")
+                if Mt5.history_deals_get(start_time, end_time)[-1].symbol == self.symbol:
+                    self.balance += profit
                 self.statistics()
 
             elif ((points / Mt5.symbol_info(self.symbol).point) * -1) >= self.stop_loss:
                 self.loss_deals += 1
                 self.close_position(comment)
-                print(
-                    f"Stop loss reached. ("
-                    f"{Mt5.history_deals_get((datetime.today() - timedelta(days=1)), datetime.now())[-1].profit}"
-                    f")\n"
-                )
-                if (
-                    Mt5.history_deals_get((datetime.today() - timedelta(days=1)), datetime.now())[-1].symbol
-                    == self.symbol
-                ):
-                    self.balance += Mt5.history_deals_get((datetime.today() - timedelta(days=1)), datetime.now())[
-                        -1
-                    ].profit
+                start_time = datetime.now(timezone.utc) - timedelta(days=1)
+                end_time = datetime.now(timezone.utc)
+                profit = Mt5.history_deals_get(start_time, end_time)[-1].profit
+                logger.info(f"Stop loss reached. ({profit})\n")
+                if Mt5.history_deals_get(start_time, end_time)[-1].symbol == self.symbol:
+                    self.balance += profit
                 self.statistics()
 
     def days_end(self) -> bool:
-        """
-        Check if it is the end of trading for the day.
+        """Check if it is the end of trading for the day.
 
         Returns:
             bool: True if it is the end of trading for the day, False otherwise.
         """
-        if datetime.now().hour >= int(self.ending_time_hour) and datetime.now().minute >= int(self.ending_time_minutes):
-            return True
-        return False
+        now = datetime.now(timezone.utc)
+        return now.hour >= int(self.ending_time_hour) and now.minute >= int(self.ending_time_minutes)
 
     def trading_time(self) -> bool:
-        """
-        Check if it is within the allowed trading time.
+        """Check if it is within the allowed trading time.
 
         Returns:
             bool: True if it is within the allowed trading time, False otherwise.
         """
-        if int(self.start_time_hour) < datetime.now().hour < int(self.finishing_time_hour):
+        now = datetime.now(timezone.utc)
+        if int(self.start_time_hour) < now.hour < int(self.finishing_time_hour):
             return True
-        elif datetime.now().hour == int(self.start_time_hour):
-            if datetime.now().minute >= int(self.start_time_minutes):
-                return True
-        elif datetime.now().hour == int(self.finishing_time_hour):
-            if datetime.now().minute < int(self.finishing_time_minutes):
-                return True
+        if now.hour == int(self.start_time_hour):
+            return now.minute >= int(self.start_time_minutes)
+        if now.hour == int(self.finishing_time_hour):
+            return now.minute < int(self.finishing_time_minutes)
         return False

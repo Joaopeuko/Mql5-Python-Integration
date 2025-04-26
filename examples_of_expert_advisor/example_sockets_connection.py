@@ -1,31 +1,42 @@
-from include.trade import Trade
-from include.tick import Tick
-from include.rates import Rates
-from include.indicator_connector import Indicator
+"""Example Expert Advisor demonstrating socket connections with MetaTrader 5.
+
+This example uses stochastic oscillator and moving average indicators to generate trading signals.
+"""
+
+import logging
+
 import MetaTrader5 as Mt5
+from include.indicator_connector import Indicator
+from include.rates import Rates
+from include.tick import Tick
+from include.trade import Trade
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # You need this MQL5 service to use indicator:
 # https://www.mql5.com/en/market/product/57574
 indicator = Indicator()
 
-trade = Trade('Example',  # Expert name
-              0.1,  # Expert Version
-              'PETR4',  # symbol
-              567,  # Magic number
-              100.0,  # lot
-              10,  # stop loss - 10 cents
-              30,  # emergency stop loss - 30 cents
-              10,  # take profit - 10 cents
-              30,  # emergency take profit - 30 cents
-              '9:15',  # It is allowed to trade after that hour. Do not use zeros, like: 09
-              '17:30',  # It is not allowed to trade after that hour but let open all the position already opened.
-              '17:50',  # It closes all the position opened. Do not use zeros, like: 09
-              0.5,  # average fee
-              )
+trade = Trade(
+    "Example",  # Expert name
+    0.1,  # Expert Version
+    "PETR4",  # symbol
+    567,  # Magic number
+    100.0,  # lot
+    10,  # stop loss - 10 cents
+    30,  # emergency stop loss - 30 cents
+    10,  # take profit - 10 cents
+    30,  # emergency take profit - 30 cents
+    "9:15",  # It is allowed to trade after that hour. Do not use zeros, like: 09
+    "17:30",  # It is not allowed to trade after that hour but let open all the position already opened.
+    "17:50",  # It closes all the position opened. Do not use zeros, like: 09
+    0.5,  # average fee
+)
 
 time = 0
 while True:
-
     # You need this MQL5 service to use indicator:
     # https://www.mql5.com/en/market/product/57574
 
@@ -40,18 +51,12 @@ while True:
 
     # It uses "try" and catch because sometimes it returns None.
     try:
+        # When in doubt how to handle the indicator, it returns a Dictionary.
+        k_now = stochastic_now["k_result"]
+        d_now = stochastic_now["d_result"]
 
-        # When in doubt how to handle the indicator, print it, it returns a Dictionary.
-        # print(moving_average)
-        # It prints:
-        # {'symbol': 'PETR4', 'time_frame': 1, 'period': 50, 'start_position': 0, 'method': 0,
-        # 'applied_price': 0, 'moving_average_result': 23.103}
-
-        k_now = stochastic_now['k_result']
-        d_now = stochastic_now['d_result']
-
-        k_past3 = stochastic_now['k_result']
-        d_past3 = stochastic_now['d_result']
+        k_past3 = stochastic_now["k_result"]
+        d_past3 = stochastic_now["d_result"]
 
         if tick.time_msc != time:
             # It is trading of the time frame of one minute.
@@ -70,21 +75,11 @@ while True:
 
             # It is the buy logic.
             buy = (
-
                 # Stochastic
-                (
-                        k_now > d_now
-                        and
-                        k_past3 < d_past3
-                )
-
+                (k_now > d_now and k_past3 < d_past3)
                 and
-
                 # Moving Average
-                (
-                        tick.last > moving_average['moving_average_result']
-                )
-
+                (tick.last > moving_average["moving_average_result"])
             )  # End of buy logic.
 
             # -------------------------------------------------------------------- #
@@ -92,24 +87,16 @@ while True:
             # It is the sell logic.
             sell = (
                 # Stochastic
-                (
-                        k_now < d_now
-                        and
-                        k_past3 > d_past3
-                )
-
+                (k_now < d_now and k_past3 > d_past3)
                 and
-
                 # Moving Average
-                (
-                        tick.last < moving_average['moving_average_result']
-                )
+                (tick.last < moving_average["moving_average_result"])
             )  # End of sell logic.
 
             # -------------------------------------------------------------------- #
 
             # When buy or sell are true, it open a position.
-            trade.open_position(buy, sell, 'Example Advisor Comment, the comment here can be seen in MetaTrader5')
+            trade.open_position(buy, sell, "Example Advisor Comment, the comment here can be seen in MetaTrader5")
 
     except TypeError:
         pass
@@ -117,8 +104,8 @@ while True:
     time = tick.time_msc
 
     if trade.days_end():
-        trade.close_position('End of the trading day reached.')
+        trade.close_position("End of the trading day reached.")
         break
 
-print('Finishing the program.')
-print('Program finished.')
+logger.info("Finishing the program.")
+logger.info("Program finished.")

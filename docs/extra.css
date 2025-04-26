@@ -1,0 +1,588 @@
+    /* Hide the In [ ]: labels */
+    div.prompt,
+    .jp-InputPrompt,
+    .input_prompt,
+    .out_prompt_overlay,
+    .prompt_overlay {
+      display: none !important;
+    }
+
+    .jp-OutputPrompt.jp-OutputArea-prompt {
+      all: unset !important;
+    }
+
+    /* For Dark Mode */
+    [data-md-color-scheme="astral-dark"] .jp-Cell {
+      background-color: var(--space);
+      color: var(--white);
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    [data-md-color-scheme="astral-dark"] .jp-CodeMirrorEditor {
+      background-color: var(--galaxy);
+      color: var(--white);
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    [data-md-color-scheme="astral-dark"] .jp-InputPrompt {
+      color: var(--white);
+    }
+
+    [data-md-color-scheme="astral-dark"] .jp-InputArea {
+      border: none !important;
+    }
+
+    [data-md-color-scheme="astral-dark"] .highlight-ipynb {
+      background-color: var(--space);
+      color: var(--white);
+    }
+    [data-md-color-scheme="astral-dark"] .clipboard-copy {
+      color: var(--white);
+    }
+
+    [data-md-color-scheme="astral-dark"] .clipboard-copy-txt {
+      background-color: var(--comet);
+      color: var(--white);
+    }
+
+    [data-md-color-scheme="astral-dark"] .jp-OutputArea pre {
+      color: var(--white) !important;
+    }
+
+    [data-md-color-scheme="astral-dark"] .highlight-ipynb .s2 {
+      color: var(--radiate) !important;
+    }
+
+    :root {
+      --black: #0b1a34;
+      --white: #ffffff;
+      --radiate: #ffd700; /* Pure gold */
+      --flare: #ffcc00; /* Yellow gold */
+      --rock: #ffdf00; /* Bright yellow */
+      --galaxy: #665500; /* Dark yellow background */
+      --space: #806600; /* Medium yellow-brown */
+      --comet: #ccaa00; /* Dark yellow */
+      --cosmic: #ffdd00; /* Vibrant yellow */
+      --sun: #ffea00; /* Bright yellow */
+      --electron: #ffbb00; /* Golden yellow */
+      --aurora: #ffe600; /* Electric yellow */
+      --constellation: #ffd100; /* Deep yellow */
+      --neutron: #fff6c3; /* Pale yellow */
+      --proton: #ffe066; /* Light yellow */
+      --nebula: #ffde59; /* Yellow */
+      --supernova: #ffc400; /* Amber yellow */
+      --starlight: #fffacd; /* Light yellow */
+      --lunar: #fffce3; /* Cream */
+      --asteroid: #d4b300; /* Dark gold */
+      --crater: #fff0a0; /* Pale gold */
+    }
+
+    [data-md-color-scheme="astral-light"] {
+      --md-default-bg-color--dark: var(--black);
+      --md-primary-fg-color: var(--galaxy);
+      --md-typeset-a-color: var(--flare);
+      --md-accent-fg-color: var(--cosmic);
+    }
+
+    [data-md-color-scheme="astral-dark"] {
+      --md-default-bg-color: var(--galaxy);
+      --md-default-fg-color: var(--white);
+      --md-default-fg-color--light: var(--white);
+      --md-default-fg-color--lighter: var(--white);
+      --md-primary-fg-color: var(--space);
+      --md-primary-bg-color: var(--white);
+      --md-accent-fg-color: var(--cosmic);
+
+      --md-typeset-color: var(--white);
+      --md-typeset-a-color: var(--radiate);
+      --md-typeset-mark-color: var(--sun);
+
+      --md-code-fg-color: var(--white);
+      --md-code-bg-color: var(--space);
+
+      --md-code-hl-comment-color: var(--crater);
+      --md-code-hl-punctuation-color: var(--crater);
+      --md-code-hl-generic-color: var(--supernova);
+      --md-code-hl-variable-color: var(--starlight);
+      --md-code-hl-string-color: var(--radiate);
+      --md-code-hl-keyword-color: var(--supernova);
+      --md-code-hl-operator-color: var(--supernova);
+      --md-code-hl-number-color: var(--electron);
+      --md-code-hl-special-color: var(--electron);
+      --md-code-hl-function-color: var(--neutron);
+      --md-code-hl-constant-color: var(--radiate);
+      --md-code-hl-name-color: var(--md-code-fg-color);
+
+      --md-typeset-del-color: hsla(6, 90%, 60%, 0.15);
+      --md-typeset-ins-color: hsla(50, 90%, 44%, 0.15);
+
+      --md-typeset-table-color: hsla(0, 0%, 100%, 0.12);
+      --md-typeset-table-color--light: hsla(0, 0%, 100%, 0.035);
+    }
+
+    [data-md-color-scheme="astral-light"] img[src$="#only-dark"],
+    [data-md-color-scheme="astral-light"] img[src$="#gh-dark-mode-only"] {
+      display: none; /* Hide dark images in light mode */
+    }
+
+    [data-md-color-scheme="astral-light"] img[src$="#only-light"],
+    [data-md-color-scheme="astral-light"] img[src$="#gh-light-mode-only"] {
+      display: inline; /* Show light images in light mode */
+    }
+
+    [data-md-color-scheme="astral-dark"] img[src$="#only-light"],
+    [data-md-color-scheme="astral-dark"] img[src$="#gh-light-mode-only"] {
+      display: none; /* Hide light images in dark mode */
+    }
+
+    [data-md-color-scheme="astral-dark"] img[src$="#only-dark"],
+    [data-md-color-scheme="astral-dark"] img[src$="#gh-dark-mode-only"] {
+      display: inline; /* Show dark images in dark mode */
+    }
+
+    /* See: https://github.com/squidfunk/mkdocs-material/issues/175#issuecomment-616694465 */
+    .md-typeset__table {
+      min-width: 100%;
+    }
+    .md-typeset table:not([class]) {
+      display: table;
+    }
+
+    /* See: https://github.com/astral-sh/ruff/issues/8519 */
+    [data-md-color-scheme="astral-dark"] details summary a {
+      color: var(--flare);
+    }
+
+    /* See: https://github.com/astral-sh/ruff/issues/9046 */
+    [data-md-color-scheme="astral-dark"] div.admonition {
+      color: var(--md-code-fg-color);
+      background-color: var(--md-code-bg-color);
+    }
+
+    /* Prevent the shadow from the nav title from blurring the top link.
+    The box shadow isn't really doing anything anyway.
+
+    This is a consequence of the reduced nav spacing below. */
+    .md-nav--primary .md-nav__title {
+      box-shadow: none;
+    }
+
+    /* Omits the nav title "uv" entirely unless on a small screen, in which case
+    the nav title is needed for backwards navigation in the collapsible
+    nav variant.
+
+    See https://github.com/astral-sh/uv/issues/5130 */
+    .md-nav__title {
+      display: none;
+    }
+    @media screen and (max-width: 1219px) {
+      .md-nav__title {
+        display: flex;
+      }
+    }
+
+    /* Reducing spacing between nav items to fit more content */
+    .md-nav__link {
+      margin-top: 0.25em;
+    }
+    .md-nav__item--section {
+      margin: 0.75em 0;
+    }
+    /* Retain larger spacing for each top-level section in the nav */
+    .md-nav__item--nested {
+      margin-top: 1em;
+    }
+    /* Retain larger spacing for the right-side table-of-contents nav */
+    .md-nav--secondary .md-nav__link {
+      margin-top: 0.5em;
+    }
+    /* See: https://mkdocstrings.github.io/recipes/#prevent-selection-of-prompts-and-output-in-python-code-blocks */
+    .highlight .gp,
+    .highlight .go {
+      /* Generic.Prompt, Generic.Output */
+      user-select: none;
+    }
+
+    /* Increase the size of the sections headings, remove the bold */
+    .md-nav__container > .md-nav__link:first-child {
+      font-size: 17.5px;
+      font-weight: normal;
+      margin-bottom: 0.1em;
+    }
+
+    /* Increase the size of the index nav item to match the sections */
+    .md-nav__item:first-child {
+      font-size: 17.5px;
+      font-weight: normal;
+    }
+    /* But do not increase the size of other nav items */
+    .md-nav__item--section > .md-nav > .md-nav__list > .md-nav__item {
+      font-size: 15px;
+      font-weight: normal;
+    }
+
+    /* Bold the active nav link for accessibility */
+    .md-nav__link--active {
+      font-weight: bold;
+    }
+
+    /* Styling for the generated CLI reference page */
+    .cli-reference dd {
+      margin-top: 0.1em;
+      margin-bottom: 0.5em;
+    }
+    .cli-reference dd p {
+      margin-block-start: 0.2em;
+      margin-block-end: 0.3em;
+    }
+    .cli-reference ul {
+      margin-bottom: 0.1em;
+    }
+    h3.cli-reference {
+      font-size: 1.1em;
+      margin: 0 0 0 0;
+    }
+
+    /* Adjust font size and weight for better readability */
+    .md-nav__title,
+    .md-nav__link {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    /* Improve indentation and spacing */
+    .md-nav__list {
+      padding-left: 10px;
+    }
+
+    .md-nav__item {
+      margin-bottom: 2px;
+    }
+
+    /* Adjust the styling for nested elements */
+    .md-nav__item .md-nav__list {
+      padding-left: 15px;
+      font-size: 13px;
+    }
+
+    /* Improve hover effect */
+    .md-nav__link:hover {
+      color: #007bff; /* Adjust the color as needed */
+      font-weight: 600;
+    }
+
+    /* Fix inconsistent line height */
+    .md-nav__list,
+    .md-nav__item {
+      line-height: 1.5;
+    }
+
+    /* Adjust spacing between menu items */
+    .md-nav__list {
+      margin-bottom: 5px;
+    }
+
+    /* Improve property display */
+    .doc-property {
+      margin-bottom: 1.5rem;
+      border-left: 3px solid var(--md-primary-fg-color);
+      padding-left: 1rem;
+      background-color: rgba(0, 0, 0, 0.03);
+      padding: 0.5rem 1rem;
+      border-radius: 0.2rem;
+    }
+
+    .doc-property .doc-label {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--md-primary-fg-color);
+      margin-bottom: 0.5rem;
+      font-family: var(--md-code-font-family);
+    }
+
+    .doc-property .doc-object-name {
+      font-weight: normal;
+      font-size: 1rem;
+      margin-left: 0.5rem;
+    }
+
+    /* Improve hierarchy with indentation */
+    .doc-class {
+      margin-left: 0;
+    }
+
+    .doc-class .doc-contents {
+      margin-left: 1rem;
+      border-left: 1px solid rgba(0, 0, 0, 0.1);
+      padding-left: 1rem;
+    }
+
+    .doc-method, .doc-function, .doc-attribute, .doc-property {
+      margin-left: 1rem;
+    }
+
+    /* Improve headings */
+    .doc h1.doc-heading {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .doc h2.doc-heading {
+      font-size: 1.5rem;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.2rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .doc h3.doc-heading, .doc h4.doc-heading {
+      font-size: 1.2rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Property value styling */
+    .doc-property .doc p {
+      margin: 0.5rem 0;
+    }
+
+    /* Hide repetitive property text */
+    .doc-property .doc-label .doc-annotation {
+      font-size: 0.8rem;
+      opacity: 0.6;
+      font-weight: normal;
+    }
+
+    /* Better display for copy buttons */
+    .doc-contents .doc-function .md-clipboard,
+    .doc-contents .doc-method .md-clipboard,
+    .doc-contents .doc-class .md-clipboard,
+    .doc-contents .doc-property .md-clipboard {
+      color: rgba(0, 0, 0, 0.3);
+    }
+
+    .doc-contents .doc-function .md-clipboard:hover,
+    .doc-contents .doc-method .md-clipboard:hover,
+    .doc-contents .doc-class .md-clipboard:hover,
+    .doc-contents .doc-property .md-clipboard:hover {
+      color: var(--md-primary-fg-color);
+    }
+
+    /* Hide module h1 headers */
+    .doc-module > h1.doc-heading {
+      display: none !important;
+    }
+
+    /* Hide all first h1 headers - typically module names */
+    h1:first-of-type {
+      display: none !important;
+    }
+    body > div.md-container > main > div > div.md-sidebar.md-sidebar--secondary > div > div > nav > ul > li:nth-child(1) > a > span {
+      display: none !important;
+    }
+
+    /* Custom styles for header and footer */
+    .md-header {
+      background-color: var(--rock);
+      color: var(--black);
+    }
+
+    .md-footer {
+      background-color: var(--cosmic);
+      color: var(--black);
+    }
+
+    .md-footer-meta {
+      background-color: var(--flare);
+      color: var(--black);
+    }
+
+    /* Adjust the nav tabs in header to be more visible */
+    .md-tabs {
+      background-color: var(--electron);
+    }
+
+    .md-tabs__link {
+      color: var(--black);
+      opacity: 0.9;
+    }
+
+    .md-tabs__link--active,
+    .md-tabs__link:hover {
+      color: var(--space);
+      font-weight: bold;
+    }
+
+    /* Adjust nav text for better visibility on yellow */
+    .md-header-nav__title,
+    .md-header-nav__button,
+    .md-footer-nav__link,
+    .md-footer-meta__inner {
+      color: var(--black);
+    }
+
+    /* Set favicon link */
+    [data-md-color-scheme="astral-light"] {
+      --md-favicon: url('assets/favicon.svg');
+    }
+
+    [data-md-color-scheme="astral-dark"] {
+      --md-favicon: url('assets/favicon.svg');
+    }
+
+    /* Logo in header */
+    .md-header-nav__button.md-logo img,
+    .md-header-nav__button.md-logo svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    @media screen and (max-width: 76.1875em) {
+      .repo-stats {
+        display: none !important;
+      }
+    }
+
+    /* Sponsor popup styling */
+    .sponsor-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .sponsor-popup.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .sponsor-popup-content {
+      background-color: #fff;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+    }
+
+    [data-md-color-scheme="astral-dark"] .sponsor-popup-content {
+      background-color: var(--galaxy);
+      color: var(--white);
+    }
+
+    .sponsor-popup-header {
+      padding: 16px 20px;
+      background-color: var(--rock);
+      color: var(--black);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sponsor-popup-header h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .sponsor-popup-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--black);
+      width: 30px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+    }
+
+    .sponsor-popup-close:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .sponsor-popup-body {
+      padding: 20px;
+    }
+
+    .sponsor-popup-buttons {
+      display: flex;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .sponsor-popup-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 600;
+      background-color: #f0f0f0;
+      color: #333;
+      transition: background-color 0.2s;
+    }
+
+    .sponsor-popup-button.primary {
+      background-color: var(--rock);
+      color: var(--black);
+    }
+
+    .sponsor-popup-button:hover {
+      opacity: 0.9;
+    }
+
+    .sponsor-popup-footer {
+      margin-top: 16px;
+      display: flex;
+      justify-content: flex-end;
+      font-size: 0.9rem;
+    }
+
+    .sponsor-popup-footer label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    /* Sponsor admonition styling */
+    .md-typeset .admonition.sponsor,
+    .md-typeset details.sponsor {
+      border-left-color: var(--rock);
+    }
+
+    .md-typeset .sponsor > .admonition-title,
+    .md-typeset .sponsor > summary {
+      background-color: rgba(255, 215, 0, 0.1);
+    }
+
+    .md-typeset .sponsor > .admonition-title::before,
+    .md-typeset .sponsor > summary::before {
+      background-color: var(--rock);
+      -webkit-mask-image: var(--md-admonition-icon--note);
+              mask-image: var(--md-admonition-icon--note);
+    }
+
+    /* Sponsor button styling */
+    .md-typeset .md-button {
+      margin-top: 0.5em;
+      margin-right: 0.5em;
+    }

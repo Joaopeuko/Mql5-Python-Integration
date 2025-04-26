@@ -4,7 +4,7 @@
 This is a simple version that I made for Fimathe strategy to be used as a base for your strategy
 and your improvements.
 
-This strategy does not cover price reversion.  
+This strategy does not cover price reversion.
 It covers only continuity.
 
 # Table of contents:
@@ -16,9 +16,9 @@ It covers only continuity.
     - [EURUSD](#eurusd)
   - [B3 - Brazilian Stock Exchange:](#b3---brazilian-stock-exchange)
     - [WIN](#win)
-    
 
-  
+
+
 
 ## Strategy:
 
@@ -36,7 +36,7 @@ The period starts after the space_to_trade. (5 + 15)
 
 
 The trading zones are calculated with the difference from high and low price inside of period, in this example
-the period is 15 after the freedom movement. 
+the period is 15 after the freedom movement.
 
 The difference is multiplied by their percentage amount desired to find the zone.
 ```python
@@ -66,16 +66,16 @@ The strategy looks for the minimum and maximum values and identifies their array
 
 With the array position, it is possible to identify the slop direction.
 
-Example 1:  
-Low position = 8  
-High position = 10  
-8 - 10 = -2,  
+Example 1:
+Low position = 8
+High position = 10
+8 - 10 = -2,
 which means bull trend, because the high price are farther than the low price.
 
-Example 2:  
-Low position = 12  
-High position = 7  
-12 - 7 = 5,   
+Example 2:
+Low position = 12
+High position = 7
+12 - 7 = 5,
 which meas bear trend, because the low price are farther than the high price.
 
 For open a BUY position the strategy waits the price goes 38.2% above the highest price in 15 period.
@@ -90,7 +90,7 @@ lowest price in 15 periods.
 sell = tick.last < np.amin(rates.low) - zone_382 and \
                    util.minutes_counter_after_trade(trade.symbol, delay_after_trade)
 ```
-Also, for buy and sell, it checks if some operation recently happened. 
+Also, for buy and sell, it checks if some operation recently happened.
 When a recent operation has happened, it will wait for the number of minutes to return True to trade again.
 ```python
 util.minutes_counter_after_trade(trade.symbol, delay_after_trade)
@@ -109,7 +109,7 @@ trade.take_profit = zone_618
 ```
 
 Also, the stop is moved when the price goes to right direction, when the price moved more than 23.6% for the right
-direction, the stop is moved to the nearest price to zero. 
+direction, the stop is moved to the nearest price to zero.
 ```python
 if len(Mt5.positions_get(symbol=trade.symbol)) == 1:
 

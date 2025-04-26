@@ -1,18 +1,33 @@
+"""Module for generating MT5 expert advisor template files.
+
+Provides functionality to create template files for trading strategies.
+"""
+
+from __future__ import annotations
+
 import argparse
+from pathlib import Path
+from typing import Any
 
 
-def get_arguments():
+def get_arguments() -> dict[str, Any]:
+    """Parse command line arguments.
+
+    Returns:
+        dict[str, Any]: Dictionary containing the parsed arguments.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--file_name", type=str, action="store", default="demo")
     parser.add_argument("--symbol", type=str, action="store", default="EURUSD")
     return vars(parser.parse_args())
 
 
-def main():
+def main() -> None:
+    """Generate a template file for a trading strategy."""
     file_name = get_arguments()["file_name"]
     symbol = get_arguments()["symbol"]
 
-    with open(f"{file_name}.py", "w") as file:
+    with Path(f"{file_name}.py").open("w") as file:
         file.write(
             f"""from mqpy.rates import Rates
 from mqpy.tick import Tick
@@ -21,7 +36,7 @@ from mqpy.trade import Trade
 # Initialize the trading strategy
 trade = Trade(
     expert_name="Moving Average Crossover",
-    version=1.0,
+    version="1.0",
     symbol="{symbol}",
     magic_number=567,
     lot=1.0,
@@ -69,3 +84,7 @@ print("Finishing the program.")
 print("Program finished.")
 """
         )
+
+
+if __name__ == "__main__":
+    main()

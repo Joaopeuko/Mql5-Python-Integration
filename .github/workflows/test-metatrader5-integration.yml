@@ -1,0 +1,76 @@
+name: Test | Integration Test
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Download MetaTrader5 Installer
+      shell: pwsh
+      run: |
+        $url = "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe"
+        $output = "$env:GITHUB_WORKSPACE\mt5setup.exe"
+        Invoke-WebRequest -Uri $url -OutFile $output
+        Write-Host "Download completed. File size: $((Get-Item $output).Length) bytes"
+
+    - name: Install MetaTrader5
+      run: |
+        $process = Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto", "/portable" -PassThru
+        $process.WaitForExit(300000)
+        if (-not $process.HasExited) {
+          Write-Host "MT5 installer stuck, killing..."
+          Stop-Process -Id $process.Id -Force
+          exit 1
+        }
+      shell: pwsh
+
+    - name: Launch MT5
+      shell: pwsh
+      run: |
+        $mt5Path = Resolve-Path "C:\Program Files\MetaTrader 5\terminal64.exe"
+
+        # Launch with diagnostics
+        Start-Process $mt5Path -ArgumentList @(
+            "/portable",
+            "/headless",
+            "/config:config",
+            "/noreport"
+        ) -NoNewWindow
+
+        # Verify process start
+        $attempts = 0
+        while ($attempts -lt 10) {
+            if (Get-Process terminal64 -ErrorAction SilentlyContinue) {
+                Write-Host "MT5 process detected"
+                break
+            }
+            $attempts++
+            Start-Sleep 5
+        }
+
+        if (-not (Get-Process terminal64 -ErrorAction SilentlyContinue)) {
+            Get-Content ".\MetaTrader 5\logs\*.log" | Write-Host
+            throw "MT5 failed to start"
+        }
+
+    - name: Install MetaTrader5 Python package
+      run: pip install MetaTrader5
+
+    - name: Run MT5 Test
+      env:
+        MT5_LOGIN: ${{ secrets.MT5_LOGIN }}
+        MT5_PASSWORD: ${{ secrets.MT5_PASSWORD }}
+        MT5_SERVER: "MetaQuotes-Demo"
+        MT5_PATH: "C:\\Program Files\\MetaTrader 5\\terminal64.exe"
+      run: |
+        python tests/integration/test_mt5_connection.py
