@@ -40,27 +40,27 @@ jobs:
         python -m pip install --upgrade pip
         pip install MetaTrader5
 
-    - name: Create MT5 portable configuration
-      run: |
-        # Create a portable MT5 directory
-        mkdir -p "$env:APPDATA\MetaTrader5Portable"
+    # - name: Create MT5 portable configuration
+    #   run: |
+    #     # Create a portable MT5 directory
+    #     mkdir -p "$env:APPDATA\MetaTrader5Portable"
         
-        # Set environment variables to make MT5 run in headless mode
-        echo "MT5_HEADLESS=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        echo "MT5_PORTABLE_PATH=$env:APPDATA\MetaTrader5Portable" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+    #     # Set environment variables to make MT5 run in headless mode
+    #     echo "MT5_HEADLESS=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+    #     echo "MT5_PORTABLE_PATH=$env:APPDATA\MetaTrader5Portable" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         
-        # Copy MT5 files to portable location if needed
-        if (-not (Test-Path "$env:APPDATA\MetaTrader5Portable\terminal64.exe")) {
-          Copy-Item -Path "C:\Program Files\MetaTrader 5\*" -Destination "$env:APPDATA\MetaTrader5Portable\" -Recurse
-        }
+    #     # Copy MT5 files to portable location if needed
+    #     if (-not (Test-Path "$env:APPDATA\MetaTrader5Portable\terminal64.exe")) {
+    #       Copy-Item -Path "C:\Program Files\MetaTrader 5\*" -Destination "$env:APPDATA\MetaTrader5Portable\" -Recurse
+    #     }
         
-        # Verify portable setup
-        if (Test-Path "$env:APPDATA\MetaTrader5Portable\terminal64.exe") {
-          Write-Host "MetaTrader 5 portable setup created successfully"
-        } else {
-          Write-Error "MetaTrader 5 portable setup failed"
-          exit 1
-        }
+    #     # Verify portable setup
+    #     if (Test-Path "$env:APPDATA\MetaTrader5Portable\terminal64.exe") {
+    #       Write-Host "MetaTrader 5 portable setup created successfully"
+    #     } else {
+    #       Write-Error "MetaTrader 5 portable setup failed"
+    #       exit 1
+    #     }
 
     - name: Test MT5 initialization
       run: |

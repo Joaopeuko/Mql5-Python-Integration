@@ -29,7 +29,7 @@ def test_mt5_initialization():
     if not result and mt5_path:
         print('Initial attempt failed. Trying with portable path...')
         result = mt5.initialize(
-            path=mt5_path,
+            path="C:\\Program Files\\MetaTrader 5\\terminal64.exe,
             login=0,
             password='',
             server='',
