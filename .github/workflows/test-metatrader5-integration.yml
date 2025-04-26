@@ -67,14 +67,17 @@ jobs:
       run: pip install MetaTrader5
 
     - name: Run MT5 Test
+      env:
+        MT5_LOGIN: ${{ secrets.MT5_LOGIN }}
+        MT5_PASSWORD: ${{ secrets.MT5_PASSWORD }}
       run: |
         python -c "import os, MetaTrader5 as mt5
         print('Python version:', os.sys.version)
         print('MetaTrader5 version:', mt5.__version__)
         for i in range(10):
             try:
-                if mt5.initialize(login=int({{ secrets.MT5_LOGIN }}),
-                          password={{ secrets.MT5_PASSWORD }},
+                if mt5.initialize(login=int(os.getenv('MT5_LOGIN')),
+                          password=os.getenv('MT5_PASSWORD'),
                           server='MetaQuotes-Demo',
                           path='C:\\Program Files\\MetaTrader 5\\terminal64.exe'):
                     print('MT5 initialized successfully')
