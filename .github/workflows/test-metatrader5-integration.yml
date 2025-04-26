@@ -65,8 +65,6 @@ jobs:
     - name: Install MetaTrader5 Python package
       run: pip install MetaTrader5
 
-    - name: Run Python inline script
-      shell: pwsh
-      run: |
-        python -c "import MetaTrader5 as mt5; import time; import sys; print('Testing MT5 initialization...'); success = False;"
 
+    - name: Run MT5 test script
+      run: python tests/integration/test_mt5_connection.py
