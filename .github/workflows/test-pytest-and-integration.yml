@@ -1,4 +1,4 @@
-name: Test | Integration Test
+name: Test | Pytest and Integration Test
 
 on:
   workflow_dispatch:
@@ -69,18 +69,6 @@ jobs:
             throw "MT5 failed to start"
         }
 
-    # - name: Install MetaTrader5 Python package
-    #   run: pip install MetaTrader5
-
-    # - name: Run MT5 Test
-    #   env:
-    #     MT5_LOGIN: ${{ secrets.MT5_LOGIN }}
-    #     MT5_PASSWORD: ${{ secrets.MT5_PASSWORD }}
-    #     MT5_SERVER: "MetaQuotes-Demo"
-    #     MT5_PATH: "C:\\Program Files\\MetaTrader 5\\terminal64.exe"
-    #   run: |
-    #     python tests/integration/test_mt5_connection.py
-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -94,7 +82,7 @@ jobs:
         MT5_SERVER: "MetaQuotes-Demo"
         MT5_PATH: "C:\\Program Files\\MetaTrader 5\\terminal64.exe"
       run: |
-        pytest -k . --cov=mqpy --cov-append --cov-report=term-missing:skip-covered --junitxml=pytest.xml -x | tee pytest-coverage.txt
+        pytest -k . --cov=mqpy --cov-append --junitxml=pytest.xml -x | tee pytest-coverage.txt
 
     - name: Generate coverage summary
       shell: pwsh
