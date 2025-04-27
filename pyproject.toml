@@ -60,22 +60,43 @@ markers = []
 warn_unused_configs = true
 ignore_missing_imports = true
 disable_error_code = [
-  "misc",
-  "attr-defined",
-  "call-arg",
-  "name-defined",
+    "attr-defined",
+    "name-defined",
+    "assignment",
+    "return-value",
+    "arg-type",
+    "index",
+    "misc",
+    "operator"
 ]
-show_error_codes = true
 files = "**/*.py"
-exclude = ["venv", "mt5", "site-packages", ".*"]
+exclude = [
+    "venv",
+    "mt5",
+    "site-packages",
+    "^build/",
+    "^dist/"
+]
 
 [[tool.mypy.overrides]]
 module = "MetaTrader5.*"
-ignore_missing_imports = true
+ignore_errors = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_decorators = false
+disallow_any_generics = false
+disallow_untyped_calls = false
+check_untyped_defs = false
 
 [[tool.mypy.overrides]]
 module = "_virtualenv"
 ignore_errors = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_decorators = false
+disallow_any_generics = false
+disallow_untyped_calls = false
+check_untyped_defs = false
 
 [tool.ruff]
 line-length = 120

@@ -1,6 +1,15 @@
 """Module for trading operations with MetaTrader 5.
 
 Provides a Trade class for managing trading operations.
+
+Trade Modes:
+    - 0: Disabled - Trading is completely disabled for the symbol
+    - 1: Long only - Only buy positions allowed
+    - 2: Short only - Only sell positions allowed
+    - 3: Long and Short - Both buy and sell positions allowed (regular trading)
+    - 4: Close only - Only position closing is allowed, no new positions can be opened
+
+The Trade class automatically respects these limitations when attempting to open or close positions.
 """
 
 import logging
@@ -113,7 +122,8 @@ class Trade:
         Returns:
             None
         """
-        Mt5.symbol_select(self.symbol, select=True)
+        # Using positional arguments as the MetaTrader5 library doesn't support keywords
+        Mt5.symbol_select(self.symbol, True)  # noqa: FBT003
 
     def prepare_symbol(self) -> None:
         """Prepare the trading symbol for opening positions.
@@ -130,7 +140,8 @@ class Trade:
 
         if not symbol_info.visible:
             logger.warning(f"The {self.symbol} is not visible, needed to be switched on.")
-            if not Mt5.symbol_select(self.symbol, select=True):
+            # Using positional arguments as the MetaTrader5 library doesn't support keywords
+            if not Mt5.symbol_select(self.symbol, True):  # noqa: FBT003
                 logger.error(
                     f"The expert advisor {self.expert_name} failed in select the symbol {self.symbol}, turning off."
                 )
@@ -138,17 +149,51 @@ class Trade:
                 logger.error("Turned off")
                 sys.exit(1)
 
+        # Check the trade mode
+        if symbol_info.trade_mode == 0:
+            logger.warning(
+                f"Trading is disabled for {self.symbol} (trade_mode = 0). No positions can be opened or closed."
+            )
+        elif symbol_info.trade_mode == 4:
+            logger.warning(
+                f"{self.symbol} is in 'Close only' mode (trade_mode = 4). Only existing positions can be closed."
+            )
+
+    def get_trade_mode_description(self) -> str:
+        """Get a description of the symbol's trade mode.
+
+        Returns:
+            str: A description of the trade mode.
+        """
+        trade_mode = Mt5.symbol_info(self.symbol).trade_mode
+
+        if trade_mode == 0:
+            return "Disabled (trading disabled for the symbol)"
+        if trade_mode == 1:
+            return "Long only (only buy positions allowed)"
+        if trade_mode == 2:
+            return "Short only (only sell positions allowed)"
+        if trade_mode == 3:
+            return "Long and Short (both buy and sell positions allowed)"
+        if trade_mode == 4:
+            return "Close only (only position closing is allowed)"
+        return f"Unknown trade mode: {trade_mode}"
+
     def summary(self) -> None:
         """Print a summary of the expert advisor parameters.
 
         Returns:
             None
         """
+        trade_mode = Mt5.symbol_info(self.symbol).trade_mode
+        trade_mode_desc = self.get_trade_mode_description()
+
         logger.info(
             f"Summary:\n"
             f"ExpertAdvisor name:              {self.expert_name}\n"
             f"ExpertAdvisor version:           {self.version}\n"
             f"Running on symbol:               {self.symbol}\n"
+            f"Symbol trade mode:               {trade_mode} - {trade_mode_desc}\n"
             f"MagicNumber:                     {self.magic_number}\n"
             f"Number of lot(s):                {self.lot}\n"
             f"StopLoss:                        {self.stop_loss}\n"
@@ -185,6 +230,18 @@ class Trade:
         Returns:
             None
         """
+        # Check trade mode to see if Buy operations are allowed
+        symbol_info = Mt5.symbol_info(self.symbol)
+        if symbol_info.trade_mode == 0:
+            logger.warning(f"Cannot open Buy position for {self.symbol} - trading is disabled.")
+            return
+        if symbol_info.trade_mode == 2:  # Short only
+            logger.warning(f"Cannot open Buy position for {self.symbol} - only Sell positions are allowed.")
+            return
+        if symbol_info.trade_mode == 4 and len(Mt5.positions_get(symbol=self.symbol)) == 0:
+            logger.warning(f"Cannot open Buy position for {self.symbol} - symbol is in 'Close only' mode.")
+            return
+
         point = Mt5.symbol_info(self.symbol).point
         price = Mt5.symbol_info_tick(self.symbol).ask
 
@@ -217,6 +274,18 @@ class Trade:
         Returns:
             None
         """
+        # Check trade mode to see if Sell operations are allowed
+        symbol_info = Mt5.symbol_info(self.symbol)
+        if symbol_info.trade_mode == 0:
+            logger.warning(f"Cannot open Sell position for {self.symbol} - trading is disabled.")
+            return
+        if symbol_info.trade_mode == 1:  # Long only
+            logger.warning(f"Cannot open Sell position for {self.symbol} - only Buy positions are allowed.")
+            return
+        if symbol_info.trade_mode == 4 and len(Mt5.positions_get(symbol=self.symbol)) == 0:
+            logger.warning(f"Cannot open Sell position for {self.symbol} - symbol is in 'Close only' mode.")
+            return
+
         point = Mt5.symbol_info(self.symbol).point
         price = Mt5.symbol_info_tick(self.symbol).bid
 
@@ -261,6 +330,64 @@ class Trade:
             else:
                 logger.info(f"Position Closed: {result.price}")
 
+    def _handle_trade_mode_restrictions(self, symbol_info: Mt5.SymbolInfo) -> bool:
+        """Handle trade mode restrictions for different symbol types.
+
+        Args:
+            symbol_info (Mt5.SymbolInfo): The symbol information.
+
+        Returns:
+            bool: True if a position was opened or a restriction was handled, False otherwise.
+        """
+        # Check if the symbol is in "Disabled" mode (trade_mode = 0)
+        if symbol_info.trade_mode == 0:
+            logger.warning(f"Cannot open new positions for {self.symbol} - trading is disabled.")
+            return True
+
+        # Check if the symbol is in "Close only" mode (trade_mode = 4)
+        if symbol_info.trade_mode == 4 and len(Mt5.positions_get(symbol=self.symbol)) == 0:
+            logger.warning(f"Cannot open new positions for {self.symbol} - symbol is in 'Close only' mode.")
+            return True
+
+        # No restrictions that prevent all trading
+        return False
+
+    def _handle_position_by_trade_mode(
+        self, symbol_info: Mt5.SymbolInfo, *, should_buy: bool, should_sell: bool, comment: str
+    ) -> None:
+        """Open a position based on trade mode and buy/sell conditions.
+
+        Args:
+            symbol_info (Mt5.SymbolInfo): The symbol information.
+            should_buy (bool): Whether a buy position should be opened.
+            should_sell (bool): Whether a sell position should be opened.
+            comment (str): A comment for the trade.
+        """
+        # For "Long only" mode (trade_mode = 1), only allow Buy positions
+        if symbol_info.trade_mode == 1:
+            if should_buy:
+                self.open_buy_position(comment)
+                self.total_deals += 1
+            elif should_sell:
+                logger.warning(f"Cannot open Sell position for {self.symbol} - only Buy positions are allowed.")
+
+        # For "Short only" mode (trade_mode = 2), only allow Sell positions
+        elif symbol_info.trade_mode == 2:
+            if should_sell:
+                self.open_sell_position(comment)
+                self.total_deals += 1
+            elif should_buy:
+                logger.warning(f"Cannot open Buy position for {self.symbol} - only Sell positions are allowed.")
+
+        # For regular trading (trade_mode = 3) or other modes, allow both Buy and Sell
+        else:
+            if should_buy and not should_sell:
+                self.open_buy_position(comment)
+                self.total_deals += 1
+            if should_sell and not should_buy:
+                self.open_sell_position(comment)
+                self.total_deals += 1
+
     def open_position(self, *, should_buy: bool, should_sell: bool, comment: str = "") -> None:
         """Open a position based on buy and sell conditions.
 
@@ -272,16 +399,22 @@ class Trade:
         Returns:
             None
         """
-        if (len(Mt5.positions_get(symbol=self.symbol)) == 0) and self.trading_time():
-            if should_buy and not should_sell:
-                self.open_buy_position(comment)
-                self.total_deals += 1
-            if should_sell and not should_buy:
-                self.open_sell_position(comment)
-                self.total_deals += 1
+        symbol_info = Mt5.symbol_info(self.symbol)
 
+        # Check trade mode restrictions
+        if self._handle_trade_mode_restrictions(symbol_info):
+            return
+
+        # Open a position if no existing positions and within trading time
+        if (len(Mt5.positions_get(symbol=self.symbol)) == 0) and self.trading_time():
+            self._handle_position_by_trade_mode(
+                symbol_info, should_buy=should_buy, should_sell=should_sell, comment=comment
+            )
+
+        # Check for stop loss and take profit conditions
         self.stop_and_gain(comment)
 
+        # Check if it's the end of the trading day
         if self.days_end():
             logger.info("It is the end of trading the day.")
             logger.info("Closing all positions.")
@@ -297,6 +430,13 @@ class Trade:
         Returns:
             None
         """
+        symbol_info = Mt5.symbol_info(self.symbol)
+
+        # If trading is completely disabled for the symbol, log a warning and return
+        if symbol_info.trade_mode == 0:
+            logger.warning(f"Cannot close position for {self.symbol} - trading is disabled for this symbol.")
+            return
+
         if len(Mt5.positions_get(symbol=self.symbol)) == 1:
             if Mt5.positions_get(symbol=self.symbol)[0].type == 0:  # Buy position
                 self.open_sell_position(comment)
