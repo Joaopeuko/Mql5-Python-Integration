@@ -37,12 +37,14 @@ jobs:
         id: version
         run: |
           $VERSION = (Get-Content pyproject.toml | Select-String -Pattern 'version = "(.*)"').Matches.Groups[1].Value
+          $VERSION = $VERSION -replace '^v', ''  # Remove 'v' prefix if present
           echo "VERSION=$VERSION" >> $env:GITHUB_ENV
           echo "version=$VERSION" >> $env:GITHUB_OUTPUT
 
           # For tags, extract the tag version
           if ("${{ github.ref }}".StartsWith("refs/tags/")) {
             $TAG_VERSION = "${{ github.ref }}".Substring(10)  # Remove 'refs/tags/' prefix
+            $TAG_VERSION = $TAG_VERSION -replace '^v', ''  # Remove 'v' prefix if present
             echo "TAG_VERSION=$TAG_VERSION" >> $env:GITHUB_ENV
           }
 
@@ -58,11 +60,11 @@ jobs:
         run: |
           # Rename dist files to include RC and issue number
           Get-ChildItem -Path dist -Filter "*.whl" | ForEach-Object {
-            $newName = $_.Name -replace "(\d+\.\d+\.\d+)", "$1-rc${{ steps.issue.outputs.issue_number }}"
+            $newName = $_.Name -replace "(mqpy-\d+\.\d+\.\d+)-", "`$1.rc${{ steps.issue.outputs.issue_number }}-"
             Rename-Item -Path $_.FullName -NewName $newName
           }
           Get-ChildItem -Path dist -Filter "*.tar.gz" | ForEach-Object {
-            $newName = $_.Name -replace "(\d+\.\d+\.\d+)", "$1-rc${{ steps.issue.outputs.issue_number }}"
+            $newName = $_.Name -replace "(mqpy-\d+\.\d+\.\d+)", "`$1.rc${{ steps.issue.outputs.issue_number }}"
             Rename-Item -Path $_.FullName -NewName $newName
           }
           twine upload --skip-existing --repository-url https://test.pypi.org/legacy/ dist/*
@@ -112,7 +114,7 @@ jobs:
           This is a release candidate version published to Test PyPI.
 
           ```
-          pip install mqpy==${{ env.VERSION }}-rc${{ env.ISSUE_NUMBER }} --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
+          pip install mqpy==${{ env.VERSION }}.rc${{ env.ISSUE_NUMBER }} --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
           ```
           "@
           })
