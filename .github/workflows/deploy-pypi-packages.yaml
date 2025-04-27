@@ -24,27 +24,35 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --upgrade setuptools wheel build twine
 
-      - name: Extract issue number
+      - name: Clean dist directory
+        run: |
+          if (Test-Path -Path dist) { Remove-Item dist -Recurse -Force }
+
+      - name: Extract issue number and suffix
         id: issue
         if: startsWith(github.ref, 'refs/heads/')
         run: |
-          $ISSUE_NUMBER = git log -1 --pretty=%B | Select-String -Pattern '#(\d+)' | ForEach-Object { $_.Matches.Groups[1].Value }
-          if (-not $ISSUE_NUMBER) { $ISSUE_NUMBER = "dev" }
-          echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $env:GITHUB_ENV
-          echo "issue_number=$ISSUE_NUMBER" >> $env:GITHUB_OUTPUT
+          # Look for #<number> in commit message
+          $match = git log -1 --pretty=%B | Select-String -Pattern '#(\d+)'
+          if ($match) {
+            $num = $match.Matches.Groups[1].Value
+            $suffix = "rc$num"
+          } else {
+            # No issue number => development build
+            $suffix = 'dev0'
+          }
+          echo "SUFFIX=$suffix" >> $env:GITHUB_ENV
+          echo "suffix=$suffix" >> $env:GITHUB_OUTPUT
 
       - name: Extract version from pyproject.toml
         id: version
         run: |
-          $VERSION = (Get-Content pyproject.toml | Select-String -Pattern 'version = "(.*)"').Matches.Groups[1].Value
-          $VERSION = $VERSION -replace '^v', ''  # Remove 'v' prefix if present
+          $verLine = Get-Content pyproject.toml | Select-String -Pattern 'version = "(.*)"'
+          $VERSION = $verLine.Matches.Groups[1].Value -replace '^v', ''
           echo "VERSION=$VERSION" >> $env:GITHUB_ENV
           echo "version=$VERSION" >> $env:GITHUB_OUTPUT
-
-          # For tags, extract the tag version
-          if ("${{ github.ref }}".StartsWith("refs/tags/")) {
-            $TAG_VERSION = "${{ github.ref }}".Substring(10)  # Remove 'refs/tags/' prefix
-            $TAG_VERSION = $TAG_VERSION -replace '^v', ''  # Remove 'v' prefix if present
+          if ("${{ github.ref }}".StartsWith('refs/tags/')) {
+            $TAG_VERSION = "${{ github.ref }}".Substring(10) -replace '^v', ''
             echo "TAG_VERSION=$TAG_VERSION" >> $env:GITHUB_ENV
           }
 
@@ -52,22 +60,37 @@ jobs:
         run: |
           python -m build
 
+      - name: Check distributions
+        run: |
+          twine check dist/*
+
       - name: Publish to Test PyPI (branch push)
         if: startsWith(github.ref, 'refs/heads/')
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI }}
+          SUFFIX: ${{ env.SUFFIX }}
         run: |
-          # Rename dist files to include RC and issue number
-          Get-ChildItem -Path dist -Filter "*.whl" | ForEach-Object {
-            $newName = $_.Name -replace "(mqpy-\d+\.\d+\.\d+)-", "`$1.rc${{ steps.issue.outputs.issue_number }}-"
-            Rename-Item -Path $_.FullName -NewName $newName
+          # Rename wheel files to include suffix
+          Get-ChildItem dist/*.whl | ForEach-Object {
+            Write-Host "Original wheel: $_"
+            $newName = $_.Name -replace '^(mqpy-\d+\.\d+\.\d+)-', '$1.' + $env:SUFFIX + '-'
+            Write-Host "Renaming to: $newName"
+            Rename-Item $_.FullName $newName
           }
-          Get-ChildItem -Path dist -Filter "*.tar.gz" | ForEach-Object {
-            $newName = $_.Name -replace "(mqpy-\d+\.\d+\.\d+)", "`$1.rc${{ steps.issue.outputs.issue_number }}"
-            Rename-Item -Path $_.FullName -NewName $newName
+          # Rename source tarballs
+          Get-ChildItem dist/*.tar.gz | ForEach-Object {
+            Write-Host "Original tarball: $_"
+            $newName = $_.Name -replace '^(mqpy-\d+\.\d+\.\d+)', '$1.' + $env:SUFFIX
+            Write-Host "Renaming to: $newName"
+            Rename-Item $_.FullName $newName
           }
-          twine upload --skip-existing --repository-url https://test.pypi.org/legacy/ dist/*
+
+          Write-Host "Files ready for upload:"
+          Get-ChildItem dist/* | ForEach-Object { Write-Host "  $_" }
+
+          # Upload with verbose output for debugging
+          twine upload --skip-existing --verbose --repository-url https://test.pypi.org/legacy/ dist/*
 
       - name: Publish to PyPI (new tag)
         if: startsWith(github.ref, 'refs/tags/')
@@ -75,7 +98,9 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
-          twine upload dist/*
+          Write-Host "Files to upload to PyPI:"
+          Get-ChildItem dist/* | ForEach-Object { Write-Host "  $_" }
+          twine upload --verbose dist/*
 
       - name: Create Step Summary
         run: |
@@ -114,7 +139,7 @@ jobs:
           This is a release candidate version published to Test PyPI.
 
           ```
-          pip install mqpy==${{ env.VERSION }}.rc${{ env.ISSUE_NUMBER }} --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
+          pip install mqpy==${{ env.VERSION }}.${{ env.SUFFIX }} --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
           ```
           "@
           })
