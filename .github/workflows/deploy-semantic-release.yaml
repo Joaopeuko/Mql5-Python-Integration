@@ -52,18 +52,6 @@ jobs:
             changelog: "false"
             root_options: ${{ inputs.debug && '-vv --noop' || '-v --noop' }}
 
-      - name: Check Next Version (Dry Run)
-        id: check_next_version
-        if: steps.set_mode.outputs.is_dry_run == 'true' && steps.release_dryrun.outputs.version == ''
-        uses: python-semantic-release/python-semantic-release@v9.20.0
-        with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            push: "false"
-            commit: "false"
-            tag: "false"
-            changelog: "false"
-            root_options: "${{ inputs.debug && '-vv --noop' || '-v --noop' }}"
-
       - name: Extract Next Version Info
         id: extract_next_version
         if: steps.set_mode.outputs.is_dry_run == 'true' && steps.release_dryrun.outputs.version == ''
@@ -124,17 +112,10 @@ jobs:
           VERSION="${{ steps.release_dryrun.outputs.version || steps.release.outputs.version }}"
           TAG="${{ steps.release_dryrun.outputs.tag || steps.release.outputs.tag }}"
 
-          # If no version from release outputs, try to get from check_next_version step
+          # If no version from release outputs, try to get from extract_next_version step
           if [ "$IS_DRY_RUN" = "true" ] && [ -z "$VERSION" ]; then
-            VERSION="${{ steps.check_next_version.outputs.next_version }}"
-            TAG="${{ steps.check_next_version.outputs.next_tag }}"
-          fi
-
-          # If still no version, use fallback
-          if [ -z "$VERSION" ]; then
-            CURRENT_VERSION=$(grep -m 1 'version = "' pyproject.toml | awk -F'"' '{print $2}' | sed 's/^v//')
-            VERSION="${CURRENT_VERSION}.dev0"
-            TAG="v${VERSION}"
+            VERSION="${{ steps.extract_next_version.outputs.next_version }}"
+            TAG="${{ steps.extract_next_version.outputs.next_tag }}"
           fi
 
           # Display trigger information
