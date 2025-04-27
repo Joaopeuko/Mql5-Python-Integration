@@ -52,6 +52,29 @@ jobs:
             changelog: "false"
             root_options: ${{ inputs.debug && '-vv --noop' || '-v --noop' }}
 
+      - name: Check Next Version (Dry Run)
+        id: check_next_version
+        if: steps.set_mode.outputs.is_dry_run == 'true' && steps.release_dryrun.outputs.version == ''
+        shell: bash
+        run: |
+          # Run semantic-release with --noop to find next version without making changes
+          OUTPUT=$(python -m semantic_release version --noop)
+          echo "Output from semantic-release: $OUTPUT"
+
+          # Extract next version from output
+          NEXT_VERSION=$(echo "$OUTPUT" | grep -oP 'would bump version to \K[0-9]+\.[0-9]+\.[0-9]+' || echo "")
+          if [ -n "$NEXT_VERSION" ]; then
+            echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+            echo "next_tag=v$NEXT_VERSION" >> $GITHUB_OUTPUT
+            echo "Found next version: $NEXT_VERSION"
+          else
+            # Fallback to current version if can't determine next
+            CURRENT_VERSION=$(grep -m 1 'version = "' pyproject.toml | awk -F'"' '{print $2}' | sed 's/^v//')
+            echo "next_version=${CURRENT_VERSION}.dev0" >> $GITHUB_OUTPUT
+            echo "next_tag=v${CURRENT_VERSION}.dev0" >> $GITHUB_OUTPUT
+            echo "Using current version with dev suffix: ${CURRENT_VERSION}.dev0"
+          fi
+
       - name: Python Release
         id: release
         if: ${{ github.event_name == 'workflow_dispatch' && !inputs.dry_run }}
@@ -68,8 +91,23 @@ jobs:
           IS_DRY_RUN="${{ steps.set_mode.outputs.is_dry_run }}"
           RELEASE_ID=$([ "$IS_DRY_RUN" = "true" ] && echo "release_dryrun" || echo "release")
           WAS_RELEASED=$([ "${{ steps.release_dryrun.outputs.released || steps.release.outputs.released }}" = "true" ] && echo "Yes" || echo "No")
+
+          # First try to get version from release outputs
           VERSION="${{ steps.release_dryrun.outputs.version || steps.release.outputs.version }}"
           TAG="${{ steps.release_dryrun.outputs.tag || steps.release.outputs.tag }}"
+
+          # If no version from release outputs, try to get from check_next_version step
+          if [ "$IS_DRY_RUN" = "true" ] && [ -z "$VERSION" ]; then
+            VERSION="${{ steps.check_next_version.outputs.next_version }}"
+            TAG="${{ steps.check_next_version.outputs.next_tag }}"
+          fi
+
+          # If still no version, use fallback
+          if [ -z "$VERSION" ]; then
+            CURRENT_VERSION=$(grep -m 1 'version = "' pyproject.toml | awk -F'"' '{print $2}' | sed 's/^v//')
+            VERSION="${CURRENT_VERSION}.dev0"
+            TAG="v${VERSION}"
+          fi
 
           # Display trigger information
           if [ "${{ github.event_name }}" = "push" ]; then
