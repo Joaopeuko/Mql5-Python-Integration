@@ -3,7 +3,7 @@ name: Deploy | Deploy MkDocs
 on:
   workflow_dispatch:
   push:
-    branches: ['*']
+    branches: ['main']
 
 permissions:
   contents: read
