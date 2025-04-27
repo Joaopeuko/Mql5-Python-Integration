@@ -5,20 +5,14 @@ Provides the Book class for accessing market depth information.
 
 from __future__ import annotations
 
-import logging
 from typing import Any
 
 import MetaTrader5 as Mt5
 
-# Configure logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+from mqpy.logger import get_logger
 
-# Create console handler with formatting
-console_handler = logging.StreamHandler()
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
+# Configure logging
+logger = get_logger(__name__)
 
 
 class Book:
@@ -39,11 +33,11 @@ class Book:
         else:
             logger.error(f"Error adding {self.symbol} to the market book. Error: {Mt5.last_error()}")
 
-    def get(self) -> dict[str, Any] | None:
+    def get(self) -> list[Any] | None:
         """Get the market book for the financial instrument.
 
         Returns:
-            dict[str, Any] | None: The market book data if successful, None otherwise.
+            list[Any] | None: The market book data if successful, None otherwise.
         """
         return Mt5.market_book_get(self.symbol)
 
@@ -53,4 +47,5 @@ class Book:
         Returns:
             bool: True if successful, False otherwise.
         """
-        return Mt5.market_book_release(self.symbol)
+        result = Mt5.market_book_release(self.symbol)
+        return False if result is None else result

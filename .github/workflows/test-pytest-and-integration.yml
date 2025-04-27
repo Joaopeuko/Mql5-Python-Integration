@@ -1,6 +1,12 @@
-name: Test | Integration Test
+name: Test | Pytest and Integration Test
 
-on: [push]
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: ['*']
+  schedule:
+    - cron: '0 12 * * 0' # Run every week monday at 12:00
 
 jobs:
   build:
@@ -63,14 +69,26 @@ jobs:
             throw "MT5 failed to start"
         }
 
-    - name: Install MetaTrader5 Python package
-      run: pip install MetaTrader5
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov MetaTrader5
+        pip install -e .
 
-    - name: Run MT5 Test
+    - name: Run tests with coverage
       env:
         MT5_LOGIN: ${{ secrets.MT5_LOGIN }}
         MT5_PASSWORD: ${{ secrets.MT5_PASSWORD }}
         MT5_SERVER: "MetaQuotes-Demo"
         MT5_PATH: "C:\\Program Files\\MetaTrader 5\\terminal64.exe"
       run: |
-        python tests/integration/test_mt5_connection.py
+        pytest -k . --cov=mqpy --cov-append --junitxml=pytest.xml -x | tee pytest-coverage.txt
+
+    - name: Generate coverage summary
+      shell: pwsh
+      run: |
+        "## Test Coverage Summary" | Out-File -FilePath summary.md -Encoding utf8
+        '```' | Out-File -FilePath summary.md -Append -Encoding utf8
+        Get-Content pytest-coverage.txt | Out-File -FilePath summary.md -Append -Encoding utf8
+        '```' | Out-File -FilePath summary.md -Append -Encoding utf8
+        Get-Content summary.md | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8

@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-  "setuptools",
+  "setuptools>=61.0",
   "wheel",
 ]
 build-backend = "setuptools.build_meta"
@@ -8,31 +8,20 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mqpy"
 authors = [
-  {name = "Joao Euko"}
+  {email = "joao@example.com", name = "Joao Euko"},
 ]
 version = "v0.6.9"
 description = "I developed this library to simplify the process of creating an Expert Advisor in MQL5. While developing in MQL5 can be complex, the same task is more streamlined in Python."
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 dependencies = []
 
 readme = "README.md"
-license = "MIT"
+license = {text = "MIT"}
 
-[tool.setuptools.packages.find]
-where = []
+[project.scripts]
+mqpy = "mqpy.__main__:main"
 
-[tool.semantic_release]
-version_variable = [
-  "mqpy/version.py:__version__",
-]
-version_toml = [
-  "pyproject.toml:project.version",
-]
-
-[tool.semantic_release.changelog]
-retain_old_entries = true
-
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
   "pre-commit>=4.0.1",
   "pylint>=3.3.3",
@@ -49,6 +38,21 @@ docs = [
     "mkdocstrings[python]>=0.29.1",
 ]
 
+[tool.setuptools]
+packages = ["mqpy"]
+
+[tool.semantic_release]
+version_variable = [
+  "mqpy/version.py:__version__",
+]
+version_toml = [
+  "pyproject.toml:project.version",
+]
+commit_message = "chore(release): v{version}"
+
+[tool.semantic_release.changelog]
+retain_old_entries = true
+
 # pre-commit
 [tool.pytest.ini_options]
 markers = []
@@ -57,13 +61,43 @@ markers = []
 warn_unused_configs = true
 ignore_missing_imports = true
 disable_error_code = [
-  "misc",
-  "attr-defined",
-  "call-arg",
-  "name-defined",
+    "attr-defined",
+    "name-defined",
+    "assignment",
+    "return-value",
+    "arg-type",
+    "index",
+    "misc",
+    "operator"
 ]
-show_error_codes = true
 files = "**/*.py"
+exclude = [
+    "venv",
+    "mt5",
+    "site-packages",
+    "^build/",
+    "^dist/"
+]
+
+[[tool.mypy.overrides]]
+module = "MetaTrader5.*"
+ignore_errors = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_decorators = false
+disallow_any_generics = false
+disallow_untyped_calls = false
+check_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "_virtualenv"
+ignore_errors = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_decorators = false
+disallow_any_generics = false
+disallow_untyped_calls = false
+check_untyped_defs = false
 
 [tool.ruff]
 line-length = 120
@@ -122,7 +156,9 @@ max-complexity = 10
 
 [tool.ruff.lint.per-file-ignores]
 "conftest.py" = ["S101", "D100", "D103", "D417", "FBT001", "INP001"]
-"test_*.py" = ["S101", "D100", "D103", "D417", "FBT001", "INP001"]
+"test_*.py" = ["S101", "D100", "D103", "D417", "FBT001", "INP001", "SLF001", "FBT003"]
+"mqpy/utilities.py" = ["FBT001"]
+"docs/examples/*.py" = ["C901"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

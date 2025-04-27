@@ -130,4 +130,11 @@ plugins:
 nav:
 - Home: index.md
 - Contributing: contributing.md
+- Examples: examples.md
+- Strategy Explanations:
+  - Moving Average Crossover: strategies/moving_average.md
+  - RSI Strategy: strategies/rsi_strategy.md
+  - Bollinger Bands Strategy: strategies/bollinger_bands.md
+  - Fibonacci Retracement Strategy: strategies/fibonacci_retracement.md
+  - Market Depth Analysis: strategies/market_depth_analysis.md
 - Code documentation: reference/

@@ -1,0 +1,175 @@
+name: Deploy | Publish Pypi Packages
+
+on:
+  push:
+    branches:
+      - '**'        # All branches for Test PyPI
+    tags:
+      - "*"
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade setuptools wheel build twine
+
+      - name: Clean dist directory
+        run: |
+          if (Test-Path -Path dist) { Remove-Item dist -Recurse -Force }
+
+      - name: Extract issue number and suffix
+        id: issue
+        if: startsWith(github.ref, 'refs/heads/')
+        run: |
+          # Look for #<number> in commit message
+          $match = git log -1 --pretty=%B | Select-String -Pattern '#(\d+)'
+          if ($match) {
+            $num = $match.Matches.Groups[1].Value
+            $suffix = "rc$num"
+          } else {
+            # No issue number => development build
+            $suffix = 'dev0'
+          }
+          echo "SUFFIX=$suffix" >> $env:GITHUB_ENV
+          echo "suffix=$suffix" >> $env:GITHUB_OUTPUT
+
+      - name: Extract version from pyproject.toml
+        id: version
+        run: |
+          $verLine = Get-Content pyproject.toml | Select-String -Pattern 'version = "(.*)"'
+          $VERSION = $verLine.Matches.Groups[1].Value -replace '^v', ''
+          echo "VERSION=$VERSION" >> $env:GITHUB_ENV
+          echo "version=$VERSION" >> $env:GITHUB_OUTPUT
+          if ("${{ github.ref }}".StartsWith('refs/tags/')) {
+            $TAG_VERSION = "${{ github.ref }}".Substring(10) -replace '^v', ''
+            echo "TAG_VERSION=$TAG_VERSION" >> $env:GITHUB_ENV
+          }
+
+      - name: Create temporary pyproject.toml for test build
+        if: startsWith(github.ref, 'refs/heads/')
+        run: |
+          # Read the current pyproject.toml
+          $content = Get-Content pyproject.toml -Raw
+
+          # Get the current version
+          $version = "${{ env.VERSION }}"
+          $suffix = "${{ env.SUFFIX }}"
+
+          # Update the version with the suffix
+          $newVersion = "$version.$suffix"
+
+          # Replace the version in the content
+          $updatedContent = $content -replace 'version = "(.*?)"', "version = `"$newVersion`""
+
+          # Save to a temporary file
+          $updatedContent | Out-File -FilePath pyproject.toml.temp -Encoding utf8
+
+          # Show the changes
+          Write-Host "Original version: $version"
+          Write-Host "Updated version: $newVersion"
+
+          # Backup original and replace with temp version
+          Move-Item -Path pyproject.toml -Destination pyproject.toml.bak -Force
+          Move-Item -Path pyproject.toml.temp -Destination pyproject.toml -Force
+
+      - name: Build package for Test PyPI
+        if: startsWith(github.ref, 'refs/heads/')
+        run: |
+          python -m build
+
+          # After building, restore the original pyproject.toml
+          Move-Item -Path pyproject.toml.bak -Destination pyproject.toml -Force
+
+      - name: Build package for PyPI
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          python -m build
+
+      - name: Check distributions
+        run: |
+          twine check dist/*
+
+      - name: Publish to Test PyPI (branch push)
+        if: startsWith(github.ref, 'refs/heads/')
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI }}
+        run: |
+          Write-Host "Files ready for upload:"
+          Get-ChildItem dist/* | ForEach-Object { Write-Host "  $_" }
+
+          # Upload with verbose output for debugging
+          twine upload --skip-existing --verbose --repository-url https://test.pypi.org/legacy/ dist/*
+
+      - name: Publish to PyPI (new tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          Write-Host "Files to upload to PyPI:"
+          Get-ChildItem dist/* | ForEach-Object { Write-Host "  $_" }
+          twine upload --verbose dist/*
+
+      - name: Create Step Summary
+        run: |
+          # Set the display version based on the ref
+          if ("${{ github.ref }}".StartsWith("refs/tags/")) {
+            $displayVersion = "${{ env.TAG_VERSION }}"
+          } else {
+            $displayVersion = "${{ env.VERSION }}.${{ env.SUFFIX }}"
+          }
+
+          @"
+          # MQPy Package
+
+          ## Installation Instructions
+
+          ### Important Warning ⚠️
+          **IMPORTANT: Trading involves substantial risk of loss and is not suitable for all investors.**
+
+          - Always use a **demo account** with fake money when testing strategies
+          - MQPy is provided for **educational purposes only**
+          - Past performance is not indicative of future results
+          - Never trade with money you cannot afford to lose
+          - The developers are not responsible for any financial losses
+
+          ### Windows-Only Compatibility
+          This package is designed to work exclusively on Windows operating systems.
+
+          ### Installation Steps
+
+          $( if ("${{ github.ref }}".StartsWith("refs/tags/")) {
+          @"
+          #### Production Release
+          This is an official release version (${{ env.TAG_VERSION }}) published to PyPI.
+
+          ```
+          pip install mqpy==${{ env.TAG_VERSION }}
+          ```
+          "@
+          } else {
+          @"
+          #### Test/RC Version
+          This is a release candidate version published to Test PyPI.
+
+          ```
+          pip install mqpy==$displayVersion --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
+          ```
+          "@
+          })
+
+          ### Documentation
+          For complete documentation, visit our [GitHub repository](https://github.com/Joaopeuko/Mql5-Python-Integration).
+          "@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY

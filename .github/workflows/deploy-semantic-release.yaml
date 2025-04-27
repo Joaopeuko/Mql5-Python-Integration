@@ -2,10 +2,26 @@ name: Deploy | Semantic Release
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no changes will be committed)'
+        type: boolean
+        default: false
+      debug:
+        description: 'Enable verbose debugging output'
+        type: boolean
+        default: false
+  push:
+    branches:
+      - '**'
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.github/workflows/deploy-pypi-packages.yaml'
 
 jobs:
   release:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     concurrency: release
     permissions:
       contents: write
@@ -16,9 +32,145 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set run mode
+        id: set_mode
+        shell: bash
+        run: |
+          IS_DRY_RUN=$([ "${{ github.event_name }}" = "push" ] || [ "${{ inputs.dry_run }}" = "true" ] && echo "true" || echo "false")
+          echo "is_dry_run=$IS_DRY_RUN" >> $GITHUB_OUTPUT
+          echo "Mode: $([ "$IS_DRY_RUN" = "true" ] && echo "Dry run" || echo "Full release")"
+
+      - name: Python Release - Dry Run
+        id: release_dryrun
+        if: steps.set_mode.outputs.is_dry_run == 'true'
+        uses: python-semantic-release/python-semantic-release@v9.20.0
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            push: "false"
+            commit: "false"
+            tag: "false"
+            changelog: "false"
+            root_options: ${{ inputs.debug && '-vv --noop' || '-v --noop' }}
+
+      - name: Extract Next Version Info
+        id: extract_next_version
+        if: steps.set_mode.outputs.is_dry_run == 'true' && steps.release_dryrun.outputs.version == ''
+        shell: bash
+        run: |
+          # When no release is needed, semantic-release doesn't output the next version
+          # We need to determine it manually from the commit history
+
+          # Check if we have commits that would trigger a version bump
+          FEAT_COMMITS=$(git log --grep="^feat:" -i --pretty=format:"%h" | wc -l)
+          FIX_COMMITS=$(git log --grep="^fix:" -i --pretty=format:"%h" | wc -l)
+          BREAKING_COMMITS=$(git log --grep="BREAKING CHANGE:" -i --pretty=format:"%h" | wc -l)
+
+          # Get current version from pyproject.toml
+          CURRENT_VERSION=$(grep -m 1 'version = "' pyproject.toml | awk -F'"' '{print $2}' | sed 's/^v//')
+          echo "Current version: $CURRENT_VERSION"
+
+          # Split current version into components
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+          # Determine the next version based on conventional commits
+          if [ "$BREAKING_COMMITS" -gt 0 ]; then
+            # Major version bump
+            NEXT_VERSION="$((MAJOR + 1)).0.0"
+          elif [ "$FEAT_COMMITS" -gt 0 ]; then
+            # Minor version bump
+            NEXT_VERSION="$MAJOR.$((MINOR + 1)).0"
+          elif [ "$FIX_COMMITS" -gt 0 ]; then
+            # Patch version bump
+            NEXT_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+          else
+            # No significant changes, use development version
+            NEXT_VERSION="${CURRENT_VERSION}.dev0"
+          fi
+
+          echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "next_tag=v$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "Determined next version: $NEXT_VERSION"
+
       - name: Python Release
+        id: release
+        if: ${{ github.event_name == 'workflow_dispatch' && !inputs.dry_run }}
         uses: python-semantic-release/python-semantic-release@v9.20.0
         with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
             push: "true"
             changelog: "true"
+            root_options: ${{ inputs.debug && '-vv' || '-v' }}
+
+      - name: Create Step Summary
+        shell: bash
+        run: |
+          IS_DRY_RUN="${{ steps.set_mode.outputs.is_dry_run }}"
+          RELEASE_ID=$([ "$IS_DRY_RUN" = "true" ] && echo "release_dryrun" || echo "release")
+          WAS_RELEASED=$([ "${{ steps.release_dryrun.outputs.released || steps.release.outputs.released }}" = "true" ] && echo "Yes" || echo "No")
+
+          # First try to get version from release outputs
+          VERSION="${{ steps.release_dryrun.outputs.version || steps.release.outputs.version }}"
+          TAG="${{ steps.release_dryrun.outputs.tag || steps.release.outputs.tag }}"
+
+          # If no version from release outputs, try to get from extract_next_version step
+          if [ "$IS_DRY_RUN" = "true" ] && [ -z "$VERSION" ]; then
+            VERSION="${{ steps.extract_next_version.outputs.next_version }}"
+            TAG="${{ steps.extract_next_version.outputs.next_tag }}"
+          fi
+
+          # Display trigger information
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TRIGGER_INFO="Triggered by push to branch: ${{ github.ref_name }}"
+          else
+            TRIGGER_INFO="Triggered manually via workflow dispatch"
+          fi
+
+          # Create warning text for dry run
+          if [ "$IS_DRY_RUN" = "true" ]; then
+            DRY_RUN_TEXT="⚠️ This is a dry run - no changes were committed"
+            TITLE_SUFFIX=" (Dry Run)"
+          else
+            DRY_RUN_TEXT=""
+            TITLE_SUFFIX=""
+          fi
+
+          cat > $GITHUB_STEP_SUMMARY << EOF
+          # MQPy Release$TITLE_SUFFIX
+
+          ## Release Summary
+
+          $TRIGGER_INFO
+          $DRY_RUN_TEXT
+
+          Current/Next Version: $VERSION
+          Current/Next Tag: $TAG
+          Release required: $WAS_RELEASED
+
+          ## Installation Instructions
+
+          ### Important Warning ⚠️
+          **IMPORTANT: Trading involves substantial risk of loss and is not suitable for all investors.**
+
+          - Always use a **demo account** with fake money when testing strategies
+          - MQPy is provided for **educational purposes only**
+          - Past performance is not indicative of future results
+          - Never trade with money you cannot afford to lose
+          - The developers are not responsible for any financial losses
+
+          ### Windows-Only Compatibility
+          This package is designed to work exclusively on Windows operating systems.
+
+          ### Installation Steps
+
+          #### $([ "$IS_DRY_RUN" = "true" ] && echo "Test/RC Version" || echo "Production Version")
+          $([ "$IS_DRY_RUN" = "true" ] && echo "This is a release candidate version published to Test PyPI.
+
+          \`\`\`
+          pip install mqpy==$VERSION --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
+          \`\`\`" || echo "\`\`\`
+          pip install mqpy==$VERSION
+          \`\`\`")
+
+          ### Documentation
+          For complete documentation, visit our [GitHub repository](https://github.com/Joaopeuko/Mql5-Python-Integration).
+          EOF

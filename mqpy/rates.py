@@ -5,6 +5,8 @@ Provides the Rates class for accessing historical price information.
 
 from __future__ import annotations
 
+from typing import Any
+
 import MetaTrader5 as Mt5
 
 
@@ -40,11 +42,11 @@ class Rates:
             self._tick_volume = [rate[5] for rate in rates]
             self._spread = [rate[6] for rate in rates]
             self._real_volume = [rate[7] for rate in rates]
-        except Mt5.Error as e:
+        except Exception as e:
             raise ValueError(f"Failed to create Rates object for symbol {symbol}") from e
 
     @property
-    def time(self) -> list[int | float]:
+    def time(self) -> list[Any]:
         """List of timestamps."""
         return self._time
 
@@ -69,16 +71,16 @@ class Rates:
         return self._close
 
     @property
-    def tick_volume(self) -> list[int]:
+    def tick_volume(self) -> list[int | float]:
         """List of tick volumes."""
         return self._tick_volume
 
     @property
-    def spread(self) -> list[int]:
+    def spread(self) -> list[int | float]:
         """List of spreads."""
         return self._spread
 
     @property
-    def real_volume(self) -> list[int]:
+    def real_volume(self) -> list[int | float]:
         """List of real volumes."""
         return self._real_volume

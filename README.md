@@ -1,30 +1,41 @@
-<div style="display: flex; justify-content: center;">
-    <img src="docs/assets/logo.svg" alt="MQPy Logo" style="width: 200px; height: 200px;">
-</div>
+<p align="center">
+    <img src="docs/assets/logo.svg" alt="MQPy Logo" width="200" height="200">
+</p>
 
+<p align="center">
+    <img src="https://img.shields.io/pypi/dm/mqpy" alt="PyPI - Downloads">
+    <img src="https://img.shields.io/pypi/v/mqpy" alt="PyPI">
+    <img src="https://img.shields.io/pypi/wheel/mqpy" alt="PyPI - Wheel">
+    <img src="https://img.shields.io/pypi/l/mqpy" alt="PyPI - License">
+</p>
 
-![PyPI - Downloads](https://img.shields.io/pypi/dm/mqpy)
-![PyPI](https://img.shields.io/pypi/v/mqpy)
-![PyPI - Wheel](https://img.shields.io/pypi/wheel/mqpy)
-![PyPI - License](https://img.shields.io/pypi/l/mqpy)
+<h1 align="center">Mql5-Python-Integration (MQPy)</h1>
 
-# Mql5-Python-Integration (MQPy)
-
-**Current Version: v0.6.9**
+<p align="center"><strong>Current Version: v0.6.9</strong></p>
 
 Welcome to the Mql5-Python-Integration project! This project facilitates the integration between MetaTrader 5 (Mql5) and Python, allowing for efficient algorithmic trading strategies.
 
+## ⚠️ TRADING RISK WARNING
+
+**IMPORTANT: Trading involves substantial risk of loss and is not suitable for all investors.**
+
+- Always use a **demo account** with fake money when testing strategies
+- MQPy is provided for **educational purposes only**
+- Past performance is not indicative of future results
+- Never trade with money you cannot afford to lose
+- The developers are not responsible for any financial losses incurred from using this software
+
 ## Table of Contents
 
-- [Mql5-Python-Integration (MQPy)](#mql5-python-integration-mqpy)
-  - [Table of Contents](#table-of-contents)
-  - [Project Update: Changes in Progress](#project-update-changes-in-progress)
-  - [Installation](#installation)
-  - [Usage](#usage)
-    - [Generate the File](#generate-the-file)
-  - [Missing Features/Good Practice](#missing-featuresgood-practice)
-    - [Delicate Metatrader5 Environment](#delicate-metatrader5-environment)
-    - [Alternative Libraries](#alternative-libraries)
+- [⚠️ TRADING RISK WARNING](#️-trading-risk-warning)
+- [Table of Contents](#table-of-contents)
+- [Project Update: Changes in Progress](#project-update-changes-in-progress)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Generate the File](#generate-the-file)
+- [Missing Features/Good Practice](#missing-featuresgood-practice)
+  - [Delicate Metatrader5 Environment](#delicate-metatrader5-environment)
+  - [Alternative Libraries](#alternative-libraries)
 
 ## Project Update: Changes in Progress
 

@@ -24,19 +24,24 @@ logger.info("Testing MT5 initialization...")
 
 success = False
 for attempt in range(10):
-    if mt5.initialize(
-        login=int(os.getenv("MT5_LOGIN")),  # type: ignore[arg-type]
-        password=os.getenv("MT5_PASSWORD"),
-        server=os.getenv("MT5_SERVER"),
-        path=os.getenv("MT5_PATH"),
-    ):
-        logger.info("MT5 initialized successfully")
-        mt5.shutdown()
-        success = True
-        break
-    else:
-        logger.info(f"Attempt {attempt+1}: Not ready yet, sleeping...")
-        time.sleep(5)
+    try:
+        if mt5.initialize(
+            login=int(os.getenv("MT5_LOGIN")),  # type: ignore[arg-type]
+            password=os.getenv("MT5_PASSWORD"),
+            server=os.getenv("MT5_SERVER"),
+            path=os.getenv("MT5_PATH"),
+        ):
+            logger.info("MT5 initialized successfully")
+            mt5.shutdown()
+            success = True
+            break
+    except (ConnectionError, ValueError, TypeError) as e:
+        logger.info(f"Connection error: {e}")
+        try:
+            mt5.initialize()
+        except (ConnectionError, ValueError, TypeError) as e:
+            logger.info(f"Attempt {attempt+1}: Not ready yet, sleeping... Error: {e}")
+            time.sleep(5)
 
 if not success:
     logger.info("Failed to initialize MT5 after waiting.")

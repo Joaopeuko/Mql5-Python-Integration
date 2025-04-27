@@ -11,6 +11,28 @@
 
 MQPy is a Python library designed to simplify the process of creating Expert Advisors for MetaTrader 5. While developing directly in MQL5 can be complex, MQPy provides a more streamlined experience using Python.
 
+!!! warning "Trading Risk Warning"
+    **IMPORTANT: Trading involves substantial risk of loss and is not suitable for all investors.**
+
+    - Always use a **demo account** with fake money when testing strategies
+    - MQPy is provided for **educational purposes only**
+    - Past performance is not indicative of future results
+    - Never trade with money you cannot afford to lose
+    - The developers are not responsible for any financial losses
+
+## Examples and Strategies
+
+MQPy comes with a variety of [example strategies](examples.md) to help you get started, including:
+
+- Basic Moving Average Crossover
+- RSI-based trading
+- Bollinger Bands strategies
+- Fibonacci Retracement patterns
+- Multi-timeframe analysis
+- Custom indicator integration
+
+Check out the [Examples](examples.md) page to see all available strategies.
+
 ## Need Help or Found an Issue?
 
 If you need help or have found an issue, you can:
