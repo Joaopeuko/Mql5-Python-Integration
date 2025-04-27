@@ -7,19 +7,13 @@ from __future__ import annotations
 
 import ast
 import json
-import logging
 import socket
 from typing import Any
 
-# Configure logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+from mqpy.logger import get_logger
 
-# Create console handler with formatting
-console_handler = logging.StreamHandler()
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
+# Configure logging
+logger = get_logger(__name__)
 
 # To be able to use it you need the MQL5 Service to send the data, it is possible to found it here:
 # -------------------------------------------------------------------- #

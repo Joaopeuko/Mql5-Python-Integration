@@ -3,20 +3,14 @@
 Provides helper functions and classes for trading operations.
 """
 
-import logging
 from datetime import datetime, timezone
 
 import MetaTrader5 as Mt5
 
-# Configure logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+from mqpy.logger import get_logger
 
-# Create console handler with formatting
-console_handler = logging.StreamHandler()
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
+# Configure logging
+logger = get_logger(__name__)
 
 
 class Utilities:

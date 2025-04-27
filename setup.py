@@ -9,7 +9,7 @@ from pathlib import Path
 from setuptools import find_packages, setup
 
 # Read the README for the long description
-with Path("README.md").open() as f:
+with Path("README.md").open(encoding="utf-8") as f:
     long_description = f.read()
 
 setup(

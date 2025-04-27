@@ -6,12 +6,13 @@ Provides functionality to create template files for trading strategies.
 from __future__ import annotations
 
 import argparse
-import logging
 from pathlib import Path
 from typing import Any, Callable
 
+from mqpy.logger import get_logger
+
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = get_logger(__name__)
 
 
 def get_arguments() -> dict[str, Any]:
@@ -539,9 +540,9 @@ def main() -> None:
     with output_file.open("w", encoding="utf-8") as file:
         file.write(template_content)
 
-    logging.info(f"Strategy template generated: {output_file.absolute()}")
-    logging.info(f"Strategy type: {args['strategy']}")
-    logging.info(f"Trading symbol: {args['symbol']}")
+    logger.info(f"Strategy template generated: {output_file.absolute()}")
+    logger.info(f"Strategy type: {args['strategy']}")
+    logger.info(f"Trading symbol: {args['symbol']}")
 
 
 if __name__ == "__main__":
