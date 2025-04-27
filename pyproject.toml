@@ -134,7 +134,8 @@ max-complexity = 10
 
 [tool.ruff.lint.per-file-ignores]
 "conftest.py" = ["S101", "D100", "D103", "D417", "FBT001", "INP001"]
-"test_*.py" = ["S101", "D100", "D103", "D417", "FBT001", "INP001"]
+"test_*.py" = ["S101", "D100", "D103", "D417", "FBT001", "INP001", "SLF001", "FBT003"]
+"mqpy/utilities.py" = ["FBT001"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
