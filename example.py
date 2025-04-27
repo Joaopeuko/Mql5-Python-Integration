@@ -45,7 +45,9 @@ while True:
         is_cross_below = short_ma < long_ma and current_tick.last < short_ma
 
         # Execute trading positions based on signals
-        trade.open_position(should_buy=is_cross_above, should_sell=is_cross_below, comment="Moving Average Crossover Strategy")
+        trade.open_position(
+            should_buy=is_cross_above, should_sell=is_cross_below, comment="Moving Average Crossover Strategy"
+        )
 
     prev_tick_time = current_tick.time_msc
 
