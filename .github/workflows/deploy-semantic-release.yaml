@@ -62,7 +62,7 @@ jobs:
             commit: "false"
             tag: "false"
             changelog: "false"
-            root_options: "${{ inputs.debug && '-vv --noop --verbosity=INFO' || '-v --noop --verbosity=INFO' }}"
+            root_options: "${{ inputs.debug && '-vv --noop' || '-v --noop' }}"
 
       - name: Extract Next Version Info
         id: extract_next_version
