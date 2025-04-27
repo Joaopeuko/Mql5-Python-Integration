@@ -1,10 +1,16 @@
-# """Setup script for the mqpy package.
+"""Setup script for the mqpy package.
 
-# This module contains the setup configuration for the mqpy package, which provides a Python interface
-# for creating Expert Advisors in MetaTrader 5.
-# """
+This module contains the setup configuration for the mqpy package, which provides a Python interface
+for creating Expert Advisors in MetaTrader 5.
+"""
+
+from pathlib import Path
 
 from setuptools import find_packages, setup
+
+# Read the README for the long description
+with Path("README.md").open() as f:
+    long_description = f.read()
 
 setup(
     name="mqpy",
@@ -14,7 +20,7 @@ setup(
     author="Joao Euko",
     author_email="",
     description="A library to simplify creating Expert Advisors in MQL5",
-    long_description=open("README.md").read(),
+    long_description=long_description,
     long_description_content_type="text/markdown",
     license="MIT",
     entry_points={

@@ -1,14 +1,22 @@
+"""Tests for the Book class that manages market depth information from MetaTrader 5."""
+
+from __future__ import annotations
+
 import logging
 import time
+from typing import TYPE_CHECKING, Generator
 
 import MetaTrader5 as Mt5
 import pytest
+
+if TYPE_CHECKING:
+    from _pytest.logging import LogCaptureFixture
 
 from mqpy.book import Book
 
 
 @pytest.fixture(scope="module", autouse=True)
-def setup_teardown():
+def setup_teardown() -> Generator[None, None, None]:
     """Set up and tear down MetaTrader5 connection for the test module."""
     if not Mt5.initialize():
         pytest.skip("MetaTrader5 could not be initialized")
@@ -21,7 +29,7 @@ def setup_teardown():
 
 
 @pytest.fixture
-def symbol():
+def symbol() -> str:
     """Provides a valid trading symbol for testing."""
     time.sleep(1)
 
@@ -36,15 +44,16 @@ def symbol():
     return symbols[0].name
 
 
-def test_book_initialization(symbol, caplog):
+def test_book_initialization(symbol: str, caplog: LogCaptureFixture) -> None:
     """Test initialization of Book with a real symbol."""
     caplog.set_level(logging.INFO)
-    book = Book(symbol)
+    # Create book instance (used to trigger log message)
+    Book(symbol)
 
     assert f"The symbol {symbol} was successfully added to the market book" in caplog.text
 
 
-def test_book_get(symbol):
+def test_book_get(symbol: str) -> None:
     """Test getting real market book data."""
     book = Book(symbol)
 
@@ -57,16 +66,23 @@ def test_book_get(symbol):
     if market_data:
         assert isinstance(market_data, list)
 
-        has_bids = any(item.type == Mt5.BOOK_TYPE_SELL for item in market_data)
-        has_asks = any(item.type == Mt5.BOOK_TYPE_BUY for item in market_data)
+        # Loop separately to check for bids and asks
+        has_bids = False
+        has_asks = False
+
+        for item in market_data:
+            if item.type == Mt5.BOOK_TYPE_SELL:
+                has_bids = True
+            if item.type == Mt5.BOOK_TYPE_BUY:
+                has_asks = True
 
         if not (has_bids or has_asks):
-            print(f"Warning: No bids or asks found in market book for {symbol}")
+            logging.warning(f"No bids or asks found in market book for {symbol}")
 
     book.release()
 
 
-def test_book_release(symbol):
+def test_book_release(symbol: str) -> None:
     """Test releasing the market book."""
     book = Book(symbol)
 
@@ -75,7 +91,7 @@ def test_book_release(symbol):
     assert result is True
 
 
-def test_full_workflow(symbol):
+def test_full_workflow(symbol: str) -> None:
     """Test a complete workflow with the real market book."""
     book = Book(symbol)
 
@@ -92,10 +108,10 @@ def test_full_workflow(symbol):
     data_after_release = book.get()
 
     if data_after_release is not None and len(data_after_release) > 0:
-        print("Note: Market book data still available after release")
+        logging.info("Market book data still available after release")
 
 
-def test_multiple_symbols():
+def test_multiple_symbols() -> None:
     """Test using Book with multiple symbols simultaneously."""
     symbols = Mt5.symbols_get()
     if len(symbols) < 2:
@@ -119,7 +135,7 @@ def test_multiple_symbols():
     book2.release()
 
 
-def test_unavailable_symbol(caplog):
+def test_unavailable_symbol(caplog: LogCaptureFixture) -> None:
     """Test behavior with an unavailable symbol."""
     caplog.set_level(logging.ERROR)
 

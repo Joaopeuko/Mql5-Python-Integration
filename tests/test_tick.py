@@ -1,5 +1,10 @@
+"""Tests for the Tick class that retrieves real-time tick data from MetaTrader 5."""
+
+from __future__ import annotations
+
 import logging
 import time
+from typing import Generator
 
 import MetaTrader5 as Mt5
 import pytest
@@ -8,7 +13,7 @@ from mqpy.tick import Tick
 
 
 @pytest.fixture(scope="module", autouse=True)
-def setup_teardown():
+def setup_teardown() -> Generator[None, None, None]:
     """Set up and tear down MetaTrader5 connection for the test module."""
     if not Mt5.initialize():
         pytest.skip("MetaTrader5 could not be initialized")
@@ -21,7 +26,7 @@ def setup_teardown():
 
 
 @pytest.fixture
-def symbol():
+def symbol() -> str:
     """Provides a valid trading symbol for testing."""
     time.sleep(1)
 
@@ -36,7 +41,7 @@ def symbol():
     return symbols[0].name
 
 
-def test_tick_initialization(symbol):
+def test_tick_initialization(symbol: str) -> None:
     """Test initialization of Tick with a real symbol."""
     tick = Tick(symbol)
 
@@ -50,7 +55,7 @@ def test_tick_initialization(symbol):
     assert tick.ask >= tick.bid
 
 
-def test_tick_properties(symbol):
+def test_tick_properties(symbol: str) -> None:
     """Test all Tick properties with a real symbol."""
     tick = Tick(symbol)
 
@@ -61,14 +66,19 @@ def test_tick_properties(symbol):
     assert isinstance(tick.time_msc, int)
     assert isinstance(tick.flags, int)
 
-    assert isinstance(tick.last, float) or tick.last is None
-    assert isinstance(tick.volume, int) or tick.volume is None
+    # Check last property
+    if tick.last is not None:
+        assert isinstance(tick.last, float)
+
+    # Check volume property
+    if tick.volume is not None:
+        assert isinstance(tick.volume, int)
 
     if tick.volume_real is not None:
         assert isinstance(tick.volume_real, float)
 
 
-def test_updated_tick_data(symbol):
+def test_updated_tick_data(symbol: str) -> None:
     """Test getting updated tick data after waiting."""
     first_tick = Tick(symbol)
     first_time = first_tick.time
@@ -79,10 +89,11 @@ def test_updated_tick_data(symbol):
     second_time = second_tick.time
 
     if first_time == second_time:
-        print(f"Note: No tick update for {symbol} after 2 seconds")
+        # Log instead of print
+        logging.info(f"No tick update for {symbol} after 2 seconds")
 
 
-def test_multiple_symbols():
+def test_multiple_symbols() -> None:
     """Test Tick with multiple symbols simultaneously."""
     symbols = Mt5.symbols_get()
     if len(symbols) < 2:
@@ -103,15 +114,15 @@ def test_multiple_symbols():
     assert isinstance(tick2.ask, float)
 
 
-def test_invalid_symbol():
+def test_invalid_symbol() -> None:
     """Test behavior with an invalid symbol."""
     invalid_symbol = "INVALID_SYMBOL_THAT_DOESNT_EXIST"
 
-    with pytest.raises(Exception):
+    with pytest.raises(AttributeError, match="'NoneType' object has no attribute 'time'"):
         Tick(invalid_symbol)
 
 
-def test_spread_calculation(symbol):
+def test_spread_calculation(symbol: str) -> None:
     """Test spread calculation from bid/ask values."""
     tick = Tick(symbol)
 

@@ -10,7 +10,7 @@ from mqpy.trade import Trade
 # Initialize the trading strategy
 trade = Trade(
     expert_name="Moving Average Crossover",
-    version=1.0,
+    version="1.0",
     symbol="EURUSD",
     magic_number=567,
     lot=0.1,

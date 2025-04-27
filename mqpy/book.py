@@ -39,11 +39,11 @@ class Book:
         else:
             logger.error(f"Error adding {self.symbol} to the market book. Error: {Mt5.last_error()}")
 
-    def get(self) -> dict[str, Any] | None:
+    def get(self) -> list[Any] | None:
         """Get the market book for the financial instrument.
 
         Returns:
-            dict[str, Any] | None: The market book data if successful, None otherwise.
+            list[Any] | None: The market book data if successful, None otherwise.
         """
         return Mt5.market_book_get(self.symbol)
 

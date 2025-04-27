@@ -67,6 +67,15 @@ disable_error_code = [
 ]
 show_error_codes = true
 files = "**/*.py"
+exclude = ["venv", "mt5", "site-packages", ".*"]
+
+[[tool.mypy.overrides]]
+module = "MetaTrader5.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "_virtualenv"
+ignore_errors = true
 
 [tool.ruff]
 line-length = 120

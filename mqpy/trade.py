@@ -113,7 +113,7 @@ class Trade:
         Returns:
             None
         """
-        Mt5.symbol_select(self.symbol, True)
+        Mt5.symbol_select(self.symbol, select=True)
 
     def prepare_symbol(self) -> None:
         """Prepare the trading symbol for opening positions.
@@ -130,7 +130,7 @@ class Trade:
 
         if not symbol_info.visible:
             logger.warning(f"The {self.symbol} is not visible, needed to be switched on.")
-            if not Mt5.symbol_select(self.symbol, True):
+            if not Mt5.symbol_select(self.symbol, select=True):
                 logger.error(
                     f"The expert advisor {self.expert_name} failed in select the symbol {self.symbol}, turning off."
                 )
