@@ -157,6 +157,7 @@ max-complexity = 10
 "conftest.py" = ["S101", "D100", "D103", "D417", "FBT001", "INP001"]
 "test_*.py" = ["S101", "D100", "D103", "D417", "FBT001", "INP001", "SLF001", "FBT003"]
 "mqpy/utilities.py" = ["FBT001"]
+"docs/examples/*.py" = ["C901"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

@@ -15,17 +15,27 @@
 
 Welcome to the Mql5-Python-Integration project! This project facilitates the integration between MetaTrader 5 (Mql5) and Python, allowing for efficient algorithmic trading strategies.
 
+## ⚠️ TRADING RISK WARNING
+
+**IMPORTANT: Trading involves substantial risk of loss and is not suitable for all investors.**
+
+- Always use a **demo account** with fake money when testing strategies
+- MQPy is provided for **educational purposes only**
+- Past performance is not indicative of future results
+- Never trade with money you cannot afford to lose
+- The developers are not responsible for any financial losses incurred from using this software
+
 ## Table of Contents
 
-- [Mql5-Python-Integration (MQPy)](#mql5-python-integration-mqpy)
-  - [Table of Contents](#table-of-contents)
-  - [Project Update: Changes in Progress](#project-update-changes-in-progress)
-  - [Installation](#installation)
-  - [Usage](#usage)
-    - [Generate the File](#generate-the-file)
-  - [Missing Features/Good Practice](#missing-featuresgood-practice)
-    - [Delicate Metatrader5 Environment](#delicate-metatrader5-environment)
-    - [Alternative Libraries](#alternative-libraries)
+- [⚠️ TRADING RISK WARNING](#️-trading-risk-warning)
+- [Table of Contents](#table-of-contents)
+- [Project Update: Changes in Progress](#project-update-changes-in-progress)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Generate the File](#generate-the-file)
+- [Missing Features/Good Practice](#missing-featuresgood-practice)
+  - [Delicate Metatrader5 Environment](#delicate-metatrader5-environment)
+  - [Alternative Libraries](#alternative-libraries)
 
 ## Project Update: Changes in Progress
 
