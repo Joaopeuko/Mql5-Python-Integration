@@ -74,14 +74,17 @@ jobs:
           # Rename wheel files to include suffix
           Get-ChildItem dist/*.whl | ForEach-Object {
             Write-Host "Original wheel: $_"
-            $newName = $_.Name -replace '^(mqpy-\d+\.\d+\.\d+)-', '$1.' + $env:SUFFIX + '-'
+            $suffix = $env:SUFFIX
+            $newName = $_.Name -replace '^(mqpy-\d+\.\d+\.\d+)-', "`$1.$suffix-"
             Write-Host "Renaming to: $newName"
             Rename-Item $_.FullName $newName
           }
+
           # Rename source tarballs
           Get-ChildItem dist/*.tar.gz | ForEach-Object {
             Write-Host "Original tarball: $_"
-            $newName = $_.Name -replace '^(mqpy-\d+\.\d+\.\d+)', '$1.' + $env:SUFFIX
+            $suffix = $env:SUFFIX
+            $newName = $_.Name -replace '^(mqpy-\d+\.\d+\.\d+)', "`$1.$suffix"
             Write-Host "Renaming to: $newName"
             Rename-Item $_.FullName $newName
           }
