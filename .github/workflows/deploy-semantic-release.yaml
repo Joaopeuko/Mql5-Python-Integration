@@ -21,7 +21,7 @@ on:
 
 jobs:
   release:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     concurrency: release
     permissions:
       contents: write
@@ -34,14 +34,15 @@ jobs:
 
       - name: Set run mode
         id: set_mode
+        shell: bash
         run: |
-          $isDryRun = "${{ github.event_name == 'push' || inputs.dry_run }}" -eq "true"
-          echo "is_dry_run=$isDryRun" >> $env:GITHUB_OUTPUT
-          echo "Mode: $($isDryRun ? 'Dry run' : 'Full release')"
+          IS_DRY_RUN=$([ "${{ github.event_name }}" = "push" ] || [ "${{ inputs.dry_run }}" = "true" ] && echo "true" || echo "false")
+          echo "is_dry_run=$IS_DRY_RUN" >> $GITHUB_OUTPUT
+          echo "Mode: $([ "$IS_DRY_RUN" = "true" ] && echo "Dry run" || echo "Full release")"
 
       - name: Python Release - Dry Run
         id: release_dryrun
-        if: steps.set_mode.outputs.is_dry_run == 'True'
+        if: steps.set_mode.outputs.is_dry_run == 'true'
         uses: python-semantic-release/python-semantic-release@v9.20.0
         with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -62,31 +63,41 @@ jobs:
             root_options: ${{ inputs.debug && '-vv' || '-v' }}
 
       - name: Create Step Summary
+        shell: bash
         run: |
-          $isDryRun = "${{ steps.set_mode.outputs.is_dry_run }}" -eq "True"
-          $releaseId = $isDryRun ? "release_dryrun" : "release"
-          $wasReleased = "${{ steps.release_dryrun.outputs.released || steps.release.outputs.released }}" -eq "true"
-          $version = "${{ steps.release_dryrun.outputs.version || steps.release.outputs.version }}"
-          $tag = "${{ steps.release_dryrun.outputs.tag || steps.release.outputs.tag }}"
+          IS_DRY_RUN="${{ steps.set_mode.outputs.is_dry_run }}"
+          RELEASE_ID=$([ "$IS_DRY_RUN" = "true" ] && echo "release_dryrun" || echo "release")
+          WAS_RELEASED=$([ "${{ steps.release_dryrun.outputs.released || steps.release.outputs.released }}" = "true" ] && echo "Yes" || echo "No")
+          VERSION="${{ steps.release_dryrun.outputs.version || steps.release.outputs.version }}"
+          TAG="${{ steps.release_dryrun.outputs.tag || steps.release.outputs.tag }}"
 
           # Display trigger information
-          $triggerInfo = if ("${{ github.event_name }}" -eq "push") {
-            "Triggered by push to branch: ${{ github.ref_name }}"
-          } else {
-            "Triggered manually via workflow dispatch"
-          }
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TRIGGER_INFO="Triggered by push to branch: ${{ github.ref_name }}"
+          else
+            TRIGGER_INFO="Triggered manually via workflow dispatch"
+          fi
 
-          @"
-          # MQPy Release $($isDryRun ? "(Dry Run)" : "")
+          # Create warning text for dry run
+          if [ "$IS_DRY_RUN" = "true" ]; then
+            DRY_RUN_TEXT="⚠️ This is a dry run - no changes were committed"
+            TITLE_SUFFIX=" (Dry Run)"
+          else
+            DRY_RUN_TEXT=""
+            TITLE_SUFFIX=""
+          fi
+
+          cat > $GITHUB_STEP_SUMMARY << EOF
+          # MQPy Release$TITLE_SUFFIX
 
           ## Release Summary
 
-          $triggerInfo
-          $($isDryRun ? "⚠️ This is a dry run - no changes were committed" : "")
+          $TRIGGER_INFO
+          $DRY_RUN_TEXT
 
-          Current/Next Version: $version
-          Current/Next Tag: $tag
-          Release required: $($wasReleased ? "Yes" : "No")
+          Current/Next Version: $VERSION
+          Current/Next Tag: $TAG
+          Release required: $WAS_RELEASED
 
           ## Installation Instructions
 
@@ -105,10 +116,10 @@ jobs:
 
           ### Installation Steps
 
-          ```
-          pip install mqpy==$version
-          ```
+          \`\`\`
+          pip install mqpy==$VERSION
+          \`\`\`
 
           ### Documentation
           For complete documentation, visit our [GitHub repository](https://github.com/Joaopeuko/Mql5-Python-Integration).
-          "@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY
+          EOF
