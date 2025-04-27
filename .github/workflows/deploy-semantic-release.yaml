@@ -17,8 +17,44 @@ jobs:
           fetch-depth: 0
 
       - name: Python Release
+        id: release
         uses: python-semantic-release/python-semantic-release@v9.20.0
         with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
             push: "true"
             changelog: "true"
+
+      - name: Create Step Summary
+        run: |
+          @"
+          # MQPy Release
+
+          ## Release Summary
+
+          Version: ${{ steps.release.outputs.version }}
+          Tag: ${{ steps.release.outputs.tag }}
+
+          ## Installation Instructions
+
+          ### Important Warning ⚠️
+          !!! warning "Trading Risk Warning"
+          **IMPORTANT: Trading involves substantial risk of loss and is not suitable for all investors.**
+
+          - Always use a **demo account** with fake money when testing strategies
+          - MQPy is provided for **educational purposes only**
+          - Past performance is not indicative of future results
+          - Never trade with money you cannot afford to lose
+          - The developers are not responsible for any financial losses
+
+          ### Windows-Only Compatibility
+          This package is designed to work exclusively on Windows operating systems.
+
+          ### Installation Steps
+
+          ```
+          pip install mqpy==${{ steps.release.outputs.version }}
+          ```
+
+          ### Documentation
+          For complete documentation, visit our [GitHub repository](https://github.com/Joaopeuko/Mql5-Python-Integration).
+          "@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY

@@ -48,6 +48,7 @@ version_variable = [
 version_toml = [
   "pyproject.toml:project.version",
 ]
+commit_message = "chore(release): v{version}"
 
 [tool.semantic_release.changelog]
 retain_old_entries = true
