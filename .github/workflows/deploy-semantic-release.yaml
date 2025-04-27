@@ -102,7 +102,6 @@ jobs:
           ## Installation Instructions
 
           ### Important Warning ⚠️
-          !!! warning "Trading Risk Warning"
           **IMPORTANT: Trading involves substantial risk of loss and is not suitable for all investors.**
 
           - Always use a **demo account** with fake money when testing strategies
@@ -116,9 +115,14 @@ jobs:
 
           ### Installation Steps
 
+          #### $([ "$IS_DRY_RUN" = "true" ] && echo "Test/RC Version" || echo "Production Version")
+          $([ "$IS_DRY_RUN" = "true" ] && echo "This is a release candidate version published to Test PyPI.
+
           \`\`\`
+          pip install mqpy==$VERSION --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
+          \`\`\`" || echo "\`\`\`
           pip install mqpy==$VERSION
-          \`\`\`
+          \`\`\`")
 
           ### Documentation
           For complete documentation, visit our [GitHub repository](https://github.com/Joaopeuko/Mql5-Python-Integration).
