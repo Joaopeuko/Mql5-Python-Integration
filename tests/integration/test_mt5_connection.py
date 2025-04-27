@@ -35,11 +35,12 @@ for attempt in range(10):
             mt5.shutdown()
             success = True
             break
-    except Exception:
+    except (ConnectionError, ValueError, TypeError) as e:
+        logger.info(f"Connection error: {e}")
         try:
             mt5.initialize()
-        except Exception:
-            logger.info(f"Attempt {attempt+1}: Not ready yet, sleeping...")
+        except (ConnectionError, ValueError, TypeError) as e:
+            logger.info(f"Attempt {attempt+1}: Not ready yet, sleeping... Error: {e}")
             time.sleep(5)
 
 if not success:
