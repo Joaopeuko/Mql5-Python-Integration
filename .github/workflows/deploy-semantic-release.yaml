@@ -2,6 +2,22 @@ name: Deploy | Semantic Release
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no changes will be committed)'
+        type: boolean
+        default: false
+      debug:
+        description: 'Enable verbose debugging output'
+        type: boolean
+        default: false
+  push:
+    branches:
+      - '**'
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.github/workflows/deploy-pypi-packages.yaml'
 
 jobs:
   release:
@@ -16,23 +32,61 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set run mode
+        id: set_mode
+        run: |
+          $isDryRun = "${{ github.event_name == 'push' || inputs.dry_run }}" -eq "true"
+          echo "is_dry_run=$isDryRun" >> $env:GITHUB_OUTPUT
+          echo "Mode: $($isDryRun ? 'Dry run' : 'Full release')"
+
+      - name: Python Release - Dry Run
+        id: release_dryrun
+        if: steps.set_mode.outputs.is_dry_run == 'True'
+        uses: python-semantic-release/python-semantic-release@v9.20.0
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            push: "false"
+            commit: "false"
+            tag: "false"
+            changelog: "false"
+            root_options: ${{ inputs.debug && '-vv --noop' || '-v --noop' }}
+
       - name: Python Release
         id: release
+        if: ${{ github.event_name == 'workflow_dispatch' && !inputs.dry_run }}
         uses: python-semantic-release/python-semantic-release@v9.20.0
         with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
             push: "true"
             changelog: "true"
+            root_options: ${{ inputs.debug && '-vv' || '-v' }}
 
       - name: Create Step Summary
         run: |
+          $isDryRun = "${{ steps.set_mode.outputs.is_dry_run }}" -eq "True"
+          $releaseId = $isDryRun ? "release_dryrun" : "release"
+          $wasReleased = "${{ steps.release_dryrun.outputs.released || steps.release.outputs.released }}" -eq "true"
+          $version = "${{ steps.release_dryrun.outputs.version || steps.release.outputs.version }}"
+          $tag = "${{ steps.release_dryrun.outputs.tag || steps.release.outputs.tag }}"
+
+          # Display trigger information
+          $triggerInfo = if ("${{ github.event_name }}" -eq "push") {
+            "Triggered by push to branch: ${{ github.ref_name }}"
+          } else {
+            "Triggered manually via workflow dispatch"
+          }
+
           @"
-          # MQPy Release
+          # MQPy Release $($isDryRun ? "(Dry Run)" : "")
 
           ## Release Summary
 
-          Version: ${{ steps.release.outputs.version }}
-          Tag: ${{ steps.release.outputs.tag }}
+          $triggerInfo
+          $($isDryRun ? "⚠️ This is a dry run - no changes were committed" : "")
+
+          Current/Next Version: $version
+          Current/Next Tag: $tag
+          Release required: $($wasReleased ? "Yes" : "No")
 
           ## Installation Instructions
 
@@ -52,7 +106,7 @@ jobs:
           ### Installation Steps
 
           ```
-          pip install mqpy==${{ steps.release.outputs.version }}
+          pip install mqpy==$version
           ```
 
           ### Documentation
