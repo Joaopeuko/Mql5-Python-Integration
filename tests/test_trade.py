@@ -25,9 +25,19 @@ TEST_MAGIC_NUMBER = 12345
 TEST_FEE = 1.5
 
 
+def is_headless() -> bool:
+    """Check if running in headless mode."""
+    return os.environ.get("HEADLESS_MODE", "false").lower() == "true"
+
+
 @pytest.fixture(scope="module", autouse=True)
 def setup_teardown() -> Generator[None, None, None]:
     """Set up and tear down MetaTrader5 connection for the test module."""
+    if is_headless():
+        logger.info("Running in headless mode - skipping MT5 initialization")
+        yield
+        return
+
     init_result = Mt5.initialize()
     
     if not init_result:
@@ -487,3 +497,10 @@ def test_close_position(trade: Trade) -> None:
     except Exception as e:
         logger.exception("Error during position test")
         raise
+
+
+@pytest.fixture(autouse=True)
+def skip_real_trading_in_headless(request) -> None:
+    """Skip real trading tests in headless mode."""
+    if is_headless() and request.node.get_closest_marker("real_trading"):
+        pytest.skip("Skipping real trading test in headless mode")
