@@ -6,6 +6,7 @@ import contextlib
 import logging
 import os
 import time
+from pathlib import Path
 from typing import Generator
 
 import MetaTrader5 as Mt5
@@ -31,7 +32,7 @@ def is_headless() -> bool:
 
 
 @pytest.fixture(scope="module", autouse=True)
-def setup_teardown() -> Generator[None, None, None]:
+def setup_teardown() -> Generator[None, None, None]:  # noqa: C901 - Test setup needs to handle many cases
     """Set up and tear down MetaTrader5 connection for the test module."""
     if is_headless():
         logger.info("Running in headless mode - skipping MT5 initialization")
@@ -39,31 +40,31 @@ def setup_teardown() -> Generator[None, None, None]:
         return
 
     init_result = Mt5.initialize()
-    
+
     if not init_result:
         common_paths = [
             "C:\\Program Files\\MetaTrader 5\\terminal64.exe",
-            "C:\\Program Files (x86)\\MetaTrader 5\\terminal.exe"
+            "C:\\Program Files (x86)\\MetaTrader 5\\terminal.exe",
         ]
-        
+
         for path in common_paths:
-            if os.path.exists(path):
+            if Path(path).exists():
                 init_result = Mt5.initialize(path=path)
                 if init_result:
                     logger.info(f"Successfully initialized MT5 with path: {path}")
                     break
-                
+
     if not init_result:
         pytest.skip(f"MetaTrader5 could not be initialized. Error: {Mt5.last_error()}")
 
     time.sleep(5)
-    
+
     symbols = Mt5.symbols_get()
     if not symbols:
         logger.warning("No symbols loaded. Attempting to fix...")
         Mt5.symbols_total()  # Sometimes this helps refresh the symbols list
         time.sleep(3)
-        
+
         symbols = Mt5.symbols_get()
         if not symbols:
             logger.error("Still no symbols available after retry.")
@@ -432,15 +433,15 @@ def test_open_sell_position(trade: Trade) -> None:
 
 
 @pytest.mark.real_trading
-def test_close_position(trade: Trade) -> None:
+def test_close_position(trade: Trade) -> None:  # noqa: C901 - Test needs to handle many edge cases
     """Test closing a position with real trades."""
     # First, ensure we can get symbol info
     symbol_info = Mt5.symbol_info(trade.symbol)
     if not symbol_info:
         pytest.skip(f"Could not get symbol info for {trade.symbol}")
-        
+
     logger.info(f"Symbol {trade.symbol} trade mode: {symbol_info.trade_mode}")
-    
+
     # Check if we have any existing positions to close
     positions = Mt5.positions_get(symbol=trade.symbol)
     has_existing_position = False
@@ -450,37 +451,37 @@ def test_close_position(trade: Trade) -> None:
                 has_existing_position = True
                 logger.info(f"Found existing position with ticket {position.ticket}")
                 break
-    
+
     if not has_existing_position:
         # Try to open a new position
         try:
             logger.info(f"Attempting to open a new position for {trade.symbol}")
             trade.open_buy_position("Test Position to Close")
             time.sleep(2)  # Wait for position to open
-            
+
             # Verify position was opened
             positions = Mt5.positions_get(symbol=trade.symbol)
             assert positions is not None, "Failed to get positions after opening"
-            
+
             has_position = False
             for position in positions:
                 if position.magic == TEST_MAGIC_NUMBER:
                     has_position = True
                     logger.info(f"Successfully opened position with ticket {position.ticket}")
                     break
-                    
+
             assert has_position, "Failed to find opened position"
-            
-        except Exception as e:
+
+        except Exception:
             logger.exception("Error opening position")
             raise
-    
+
     # Now try to close the position
     try:
         logger.info("Attempting to close position")
         trade.close_position("Test Closing Position")
         time.sleep(2)  # Wait for position to close
-        
+
         # Verify position was closed
         positions = Mt5.positions_get(symbol=trade.symbol)
         has_position = False
@@ -490,17 +491,17 @@ def test_close_position(trade: Trade) -> None:
                     has_position = True
                     logger.warning(f"Position still exists with ticket {position.ticket}")
                     break
-                    
+
         assert not has_position, "Position was not closed successfully"
         logger.info("Position closed successfully")
-        
-    except Exception as e:
+
+    except Exception:
         logger.exception("Error during position test")
         raise
 
 
 @pytest.fixture(autouse=True)
-def skip_real_trading_in_headless(request) -> None:
+def skip_real_trading_in_headless(request: pytest.FixtureRequest) -> None:
     """Skip real trading tests in headless mode."""
     if is_headless() and request.node.get_closest_marker("real_trading"):
         pytest.skip("Skipping real trading test in headless mode")

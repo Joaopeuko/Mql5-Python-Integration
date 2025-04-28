@@ -359,20 +359,18 @@ class Trade:
                 self.total_deals += 1
 
     def open_position(self, *, should_buy: bool, should_sell: bool, comment: str = "") -> None:
-        """Open a position based on buy and sell conditions.
+        """Open a position based on the given conditions.
 
         Args:
-            should_buy (bool): True if a Buy position should be opened, False otherwise.
-            should_sell (bool): True if a Sell position should be opened, False otherwise.
-            comment (str): A comment for the trade.
+            should_buy: Whether to open a buy position.
+            should_sell: Whether to open a sell position.
+            comment: Optional comment for the position.
 
         Returns:
             None
         """
-        symbol_info = Mt5.symbol_info(self.symbol)
-
         # Open a position if no existing positions and within trading time
-        if (len(Mt5.positions_get(symbol=self.symbol)) == 0) and self.trading_time():
+        if self.trading_time():
             if should_buy and not should_sell:
                 self.open_buy_position(comment)
                 self.total_deals += 1

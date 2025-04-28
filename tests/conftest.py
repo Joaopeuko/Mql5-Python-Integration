@@ -5,17 +5,20 @@ from __future__ import annotations
 import ctypes
 import logging
 import time
-from typing import Generator
+from typing import TYPE_CHECKING, Generator
 
 import pytest
 
-from mqpy.trade import Trade
+if TYPE_CHECKING:
+    from mqpy.trade import Trade
 
 VK_CONTROL = 0x11
 VK_E = 0x45
 
+logger = logging.getLogger(__name__)
 
-def send_ctrl_e():
+
+def send_ctrl_e() -> None:
     """Send CTRL+E to MetaTrader 5 to enable Expert Advisors."""
     user32 = ctypes.windll.user32
     # Press CTRL
