@@ -10,7 +10,7 @@ name = "mqpy"
 authors = [
   {email = "joao@example.com", name = "Joao Euko"},
 ]
-version = "0.6.10"
+version = "0.6.11"
 description = "I developed this library to simplify the process of creating an Expert Advisor in MQL5. While developing in MQL5 can be complex, the same task is more streamlined in Python."
 requires-python = ">=3.8"
 dependencies = []

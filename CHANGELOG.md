@@ -1,6 +1,21 @@
 # CHANGELOG
 
 
+## v0.6.11 (2025-04-28)
+
+### Bug Fixes
+
+- Tag not triggering package ([#40](https://github.com/Joaopeuko/Mql5-Python-Integration/pull/40),
+  [`b95bef0`](https://github.com/Joaopeuko/Mql5-Python-Integration/commit/b95bef0c800dda14a6c89933c6f4b1385a80ea1f))
+
+### Description
+
+Add package manual trigger. Fix `tests` in live mode. (Trade works locally but not in CI due to
+  headless mode. I don't want to spend too much time making it work).
+
+Fixes #39
+
+
 ## v0.6.10 (2025-04-27)
 
 ### Bug Fixes
