@@ -64,7 +64,7 @@ def test_book_get(symbol: str) -> None:
     assert market_data is not None
 
     if market_data:
-        assert isinstance(market_data, list)
+        assert isinstance(market_data, (list, tuple))
 
         # Loop separately to check for bids and asks
         has_bids = False

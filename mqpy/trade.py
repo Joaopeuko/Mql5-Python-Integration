@@ -224,18 +224,6 @@ class Trade:
         Returns:
             None
         """
-        # Check trade mode to see if Buy operations are allowed
-        symbol_info = Mt5.symbol_info(self.symbol)
-        if symbol_info.trade_mode == 0:
-            logger.warning(f"Cannot open Buy position for {self.symbol} - trading is disabled.")
-            return
-        if symbol_info.trade_mode == 2:  # Short only
-            logger.warning(f"Cannot open Buy position for {self.symbol} - only Sell positions are allowed.")
-            return
-        if symbol_info.trade_mode == 4 and len(Mt5.positions_get(symbol=self.symbol)) == 0:
-            logger.warning(f"Cannot open Buy position for {self.symbol} - symbol is in 'Close only' mode.")
-            return
-
         point = Mt5.symbol_info(self.symbol).point
         price = Mt5.symbol_info_tick(self.symbol).ask
 
@@ -268,18 +256,6 @@ class Trade:
         Returns:
             None
         """
-        # Check trade mode to see if Sell operations are allowed
-        symbol_info = Mt5.symbol_info(self.symbol)
-        if symbol_info.trade_mode == 0:
-            logger.warning(f"Cannot open Sell position for {self.symbol} - trading is disabled.")
-            return
-        if symbol_info.trade_mode == 1:  # Long only
-            logger.warning(f"Cannot open Sell position for {self.symbol} - only Buy positions are allowed.")
-            return
-        if symbol_info.trade_mode == 4 and len(Mt5.positions_get(symbol=self.symbol)) == 0:
-            logger.warning(f"Cannot open Sell position for {self.symbol} - symbol is in 'Close only' mode.")
-            return
-
         point = Mt5.symbol_info(self.symbol).point
         price = Mt5.symbol_info_tick(self.symbol).bid
 
@@ -383,27 +359,24 @@ class Trade:
                 self.total_deals += 1
 
     def open_position(self, *, should_buy: bool, should_sell: bool, comment: str = "") -> None:
-        """Open a position based on buy and sell conditions.
+        """Open a position based on the given conditions.
 
         Args:
-            should_buy (bool): True if a Buy position should be opened, False otherwise.
-            should_sell (bool): True if a Sell position should be opened, False otherwise.
-            comment (str): A comment for the trade.
+            should_buy: Whether to open a buy position.
+            should_sell: Whether to open a sell position.
+            comment: Optional comment for the position.
 
         Returns:
             None
         """
-        symbol_info = Mt5.symbol_info(self.symbol)
-
-        # Check trade mode restrictions
-        if self._handle_trade_mode_restrictions(symbol_info):
-            return
-
         # Open a position if no existing positions and within trading time
-        if (len(Mt5.positions_get(symbol=self.symbol)) == 0) and self.trading_time():
-            self._handle_position_by_trade_mode(
-                symbol_info, should_buy=should_buy, should_sell=should_sell, comment=comment
-            )
+        if self.trading_time():
+            if should_buy and not should_sell:
+                self.open_buy_position(comment)
+                self.total_deals += 1
+            if should_sell and not should_buy:
+                self.open_sell_position(comment)
+                self.total_deals += 1
 
         # Check for stop loss and take profit conditions
         self.stop_and_gain(comment)

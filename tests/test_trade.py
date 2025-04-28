@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import contextlib
 import logging
+import os
 import time
+from pathlib import Path
 from typing import Generator
 
 import MetaTrader5 as Mt5
@@ -24,13 +26,48 @@ TEST_MAGIC_NUMBER = 12345
 TEST_FEE = 1.5
 
 
+def is_headless() -> bool:
+    """Check if running in headless mode."""
+    return os.environ.get("HEADLESS_MODE", "false").lower() == "true"
+
+
 @pytest.fixture(scope="module", autouse=True)
-def setup_teardown() -> Generator[None, None, None]:
+def setup_teardown() -> Generator[None, None, None]:  # noqa: C901 - Test setup needs to handle many cases
     """Set up and tear down MetaTrader5 connection for the test module."""
-    if not Mt5.initialize():
-        pytest.skip("MetaTrader5 could not be initialized")
+    if is_headless():
+        logger.info("Running in headless mode - skipping MT5 initialization")
+        yield
+        return
+
+    init_result = Mt5.initialize()
+
+    if not init_result:
+        common_paths = [
+            "C:\\Program Files\\MetaTrader 5\\terminal64.exe",
+            "C:\\Program Files (x86)\\MetaTrader 5\\terminal.exe",
+        ]
+
+        for path in common_paths:
+            if Path(path).exists():
+                init_result = Mt5.initialize(path=path)
+                if init_result:
+                    logger.info(f"Successfully initialized MT5 with path: {path}")
+                    break
+
+    if not init_result:
+        pytest.skip(f"MetaTrader5 could not be initialized. Error: {Mt5.last_error()}")
 
     time.sleep(5)
+
+    symbols = Mt5.symbols_get()
+    if not symbols:
+        logger.warning("No symbols loaded. Attempting to fix...")
+        Mt5.symbols_total()  # Sometimes this helps refresh the symbols list
+        time.sleep(3)
+
+        symbols = Mt5.symbols_get()
+        if not symbols:
+            logger.error("Still no symbols available after retry.")
 
     yield
 
@@ -84,12 +121,14 @@ def symbol() -> str:
 
     symbols = Mt5.symbols_get()
     if not symbols:
-        pytest.skip("No symbols available for testing")
+        logger.warning("No symbols returned from MT5, defaulting to EURUSD")
+        return "EURUSD"
 
     for symbol in symbols:
         if symbol.name == "EURUSD":
             return "EURUSD"
 
+    logger.warning("EURUSD not found, defaulting to first available symbol")
     return symbols[0].name
 
 
@@ -314,128 +353,155 @@ def _check_position(magic_number: int, expected_type: int) -> bool:
 @pytest.mark.real_trading
 def test_open_position_with_conditions(trade: Trade) -> None:
     """Test the open_position method with buy/sell conditions."""
-    try:
-        # Cleanup any existing positions
-        positions = Mt5.positions_get(symbol=trade.symbol)
-        if positions:
-            for position in positions:
-                if position.magic == TEST_MAGIC_NUMBER:
-                    trade.close_position("Cleaning up for test")
+    # Cleanup any existing positions
+    positions = Mt5.positions_get(symbol=trade.symbol)
+    if positions:
+        for position in positions:
+            if position.magic == TEST_MAGIC_NUMBER:
+                trade.close_position("Cleaning up for test")
 
-        # Configure trade time settings for 24/7 trading
-        trade.start_time_hour = "0"
-        trade.start_time_minutes = "00"
-        trade.finishing_time_hour = "23"
-        trade.finishing_time_minutes = "59"
+    # Configure trade time settings for 24/7 trading
+    trade.start_time_hour = "0"
+    trade.start_time_minutes = "00"
+    trade.finishing_time_hour = "23"
+    trade.finishing_time_minutes = "59"
 
-        # Test buy condition
-        trade.open_position(should_buy=True, should_sell=False, comment="Test Buy Condition")
-        time.sleep(2)
+    # Test buy condition
+    trade.open_position(should_buy=True, should_sell=False, comment="Test Buy Condition")
+    time.sleep(2)
 
-        assert _check_position(TEST_MAGIC_NUMBER, Mt5.ORDER_TYPE_BUY)
-        trade.close_position("Cleaning up after Buy test")
-        time.sleep(2)
+    assert _check_position(TEST_MAGIC_NUMBER, Mt5.ORDER_TYPE_BUY)
+    trade.close_position("Cleaning up after Buy test")
+    time.sleep(2)
 
-        # Test sell condition
-        trade.open_position(should_buy=False, should_sell=True, comment="Test Sell Condition")
-        time.sleep(2)
+    # Test sell condition
+    trade.open_position(should_buy=False, should_sell=True, comment="Test Sell Condition")
+    time.sleep(2)
 
-        assert _check_position(TEST_MAGIC_NUMBER, Mt5.ORDER_TYPE_SELL)
-        trade.close_position("Cleaning up after Sell test")
-        time.sleep(2)
-
-    except (ConnectionError, TimeoutError, RuntimeError) as e:
-        pytest.skip(f"Trading error: {e} - Skipping real trading test")
+    assert _check_position(TEST_MAGIC_NUMBER, Mt5.ORDER_TYPE_SELL)
+    trade.close_position("Cleaning up after Sell test")
+    time.sleep(2)
 
 
 @pytest.mark.real_trading
 def test_open_buy_position(trade: Trade) -> None:
     """Test opening a Buy position with real trades."""
-    try:
-        positions = Mt5.positions_get(symbol=trade.symbol)
-        initial_positions_count = len(positions) if positions else 0
+    positions = Mt5.positions_get(symbol=trade.symbol)
+    initial_positions_count = len(positions) if positions else 0
 
-        trade.open_buy_position("Test Buy Position")
+    trade.open_buy_position("Test Buy Position")
 
-        time.sleep(2)
+    time.sleep(2)
 
-        positions = Mt5.positions_get(symbol=trade.symbol)
-        if positions is not None:
-            assert len(positions) >= initial_positions_count
+    positions = Mt5.positions_get(symbol=trade.symbol)
+    if positions is not None:
+        assert len(positions) >= initial_positions_count
 
-            latest_position = None
-            for position in positions:
-                if position.magic == TEST_MAGIC_NUMBER:
-                    latest_position = position
-                    break
+        latest_position = None
+        for position in positions:
+            if position.magic == TEST_MAGIC_NUMBER:
+                latest_position = position
+                break
 
-            if latest_position is not None:
-                assert latest_position.type == Mt5.ORDER_TYPE_BUY
-    except (ConnectionError, TimeoutError, RuntimeError) as e:
-        pytest.skip(f"Trading error: {e} - Skipping real trading test")
+        if latest_position is not None:
+            assert latest_position.type == Mt5.ORDER_TYPE_BUY
 
 
 @pytest.mark.real_trading
 def test_open_sell_position(trade: Trade) -> None:
     """Test opening a Sell position with real trades."""
-    try:
-        positions = Mt5.positions_get(symbol=trade.symbol)
-        if positions:
-            for position in positions:
-                if position.magic == TEST_MAGIC_NUMBER:
-                    trade.close_position("Cleaning up for test_open_sell_position")
-
-        trade.open_sell_position("Test Sell Position")
-
-        time.sleep(2)
-
-        positions = Mt5.positions_get(symbol=trade.symbol)
-        assert positions is not None
-
-        has_sell_position = False
+    positions = Mt5.positions_get(symbol=trade.symbol)
+    if positions:
         for position in positions:
-            if position.magic == TEST_MAGIC_NUMBER and position.type == Mt5.ORDER_TYPE_SELL:
-                has_sell_position = True
-                break
+            if position.magic == TEST_MAGIC_NUMBER:
+                trade.close_position("Cleaning up for test_open_sell_position")
 
-        assert has_sell_position
-    except (ConnectionError, TimeoutError, RuntimeError) as e:
-        pytest.skip(f"Trading error: {e} - Skipping real trading test")
+    trade.open_sell_position("Test Sell Position")
+
+    time.sleep(2)
+
+    positions = Mt5.positions_get(symbol=trade.symbol)
+    assert positions is not None
+
+    has_sell_position = False
+    for position in positions:
+        if position.magic == TEST_MAGIC_NUMBER and position.type == Mt5.ORDER_TYPE_SELL:
+            has_sell_position = True
+            break
+
+    assert has_sell_position
 
 
 @pytest.mark.real_trading
-def test_close_position(trade: Trade) -> None:
+def test_close_position(trade: Trade) -> None:  # noqa: C901 - Test needs to handle many edge cases
     """Test closing a position with real trades."""
-    try:
-        trade.open_buy_position("Test Position to Close")
+    # First, ensure we can get symbol info
+    symbol_info = Mt5.symbol_info(trade.symbol)
+    if not symbol_info:
+        pytest.skip(f"Could not get symbol info for {trade.symbol}")
 
-        time.sleep(2)
+    logger.info(f"Symbol {trade.symbol} trade mode: {symbol_info.trade_mode}")
 
-        positions = Mt5.positions_get(symbol=trade.symbol)
-        assert positions is not None
-
-        has_position = False
+    # Check if we have any existing positions to close
+    positions = Mt5.positions_get(symbol=trade.symbol)
+    has_existing_position = False
+    if positions:
         for position in positions:
             if position.magic == TEST_MAGIC_NUMBER:
-                has_position = True
+                has_existing_position = True
+                logger.info(f"Found existing position with ticket {position.ticket}")
                 break
 
-        if not has_position:
-            pytest.skip("Could not open position to test closing - skipping test")
+    if not has_existing_position:
+        # Try to open a new position
+        try:
+            logger.info(f"Attempting to open a new position for {trade.symbol}")
+            trade.open_buy_position("Test Position to Close")
+            time.sleep(2)  # Wait for position to open
 
+            # Verify position was opened
+            positions = Mt5.positions_get(symbol=trade.symbol)
+            assert positions is not None, "Failed to get positions after opening"
+
+            has_position = False
+            for position in positions:
+                if position.magic == TEST_MAGIC_NUMBER:
+                    has_position = True
+                    logger.info(f"Successfully opened position with ticket {position.ticket}")
+                    break
+
+            assert has_position, "Failed to find opened position"
+
+        except Exception:
+            logger.exception("Error opening position")
+            raise
+
+    # Now try to close the position
+    try:
+        logger.info("Attempting to close position")
         trade.close_position("Test Closing Position")
+        time.sleep(2)  # Wait for position to close
 
-        time.sleep(2)
-
+        # Verify position was closed
         positions = Mt5.positions_get(symbol=trade.symbol)
-
         has_position = False
         if positions:
             for position in positions:
                 if position.magic == TEST_MAGIC_NUMBER:
                     has_position = True
+                    logger.warning(f"Position still exists with ticket {position.ticket}")
                     break
 
-        assert not has_position
-    except (ConnectionError, TimeoutError, RuntimeError) as e:
-        pytest.skip(f"Trading error: {e} - Skipping real trading test")
+        assert not has_position, "Position was not closed successfully"
+        logger.info("Position closed successfully")
+
+    except Exception:
+        logger.exception("Error during position test")
+        raise
+
+
+@pytest.fixture(autouse=True)
+def skip_real_trading_in_headless(request: pytest.FixtureRequest) -> None:
+    """Skip real trading tests in headless mode."""
+    if is_headless() and request.node.get_closest_marker("real_trading"):
+        pytest.skip("Skipping real trading test in headless mode")
