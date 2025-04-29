@@ -11,7 +11,7 @@
     <img src="https://img.shields.io/pypi/l/mqpy" alt="PyPI - License">
 </p>
 
-A simple and efficient Python library for integrating with MetaTrader 5 (MQL5) for algorithmic trading.
+A Python library designed to simplify the process of creating Expert Advisors for MetaTrader 5. While developing directly in MQL5 can be complex, MQPy provides a more streamlined experience using Python.
 
 ## ⚠️ Important Notice
 
@@ -45,6 +45,22 @@ mqpy --symbol EURUSD --file_name my_strategy
 - Simple integration with MetaTrader 5
 - Easy-to-use command line interface
 - Basic template generation for trading strategies
+- Support for various trading strategies:
+  - Moving Average Crossover
+  - RSI-based trading
+  - Bollinger Bands strategies
+  - Fibonacci Retracement patterns
+  - Multi-timeframe analysis
+  - Custom indicator integration
+
+## Documentation
+
+For detailed documentation, examples, and strategy explanations, visit:
+[https://joaopeuko.com/Mql5-Python-Integration/](https://joaopeuko.com/Mql5-Python-Integration/)
+
+## Support
+
+MQPy is a free and open-source project. If you'd like to support its development, consider becoming a sponsor.
 
 ## License
 
