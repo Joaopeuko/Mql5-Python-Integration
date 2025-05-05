@@ -43,7 +43,7 @@ jobs:
       - name: Python Release - Dry Run
         id: release_dryrun
         if: steps.set_mode.outputs.is_dry_run == 'true'
-        uses: python-semantic-release/python-semantic-release@v9.20.0
+        uses: python-semantic-release/python-semantic-release@v9.21.1
         with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
             push: "false"
@@ -94,7 +94,7 @@ jobs:
       - name: Python Release
         id: release
         if: ${{ github.event_name == 'workflow_dispatch' && !inputs.dry_run }}
-        uses: python-semantic-release/python-semantic-release@v9.20.0
+        uses: python-semantic-release/python-semantic-release@v9.21.1
         with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
             push: "true"
